@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Central de Cotação | Materias de Construção</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+    <header class="header">
+        <div class="container nav">
+            <a class="brand" href="#">
+                <span class="brand-mark">▮</span>
+                <span class="brand-name">Cotai</span>
+            </a>
+
+            <nav class="menu">
+                <a href="#problema">Problema</a>
+                <a href="#como-funciona">Como funciona</a>
+                <a href="#para-quem">Para quem</a>
+                <a href="#faq">FAQ</a>
+            </nav>
+
+            <div class="nav-cta">
+                <a class="btn btn-ghost" href="#como-funciona">Ver como funciona</a>
+                <button class="btn btn-primary" id="openQuoteTop">Pedir cotação</button>
+            </div>
+
+            <button class="hamburger" id="hamburger" aria-label="Abrir menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+
+        <div class="mobile-menu" id="mobileMenu">
+            <a href="#problema">Problema</a>
+            <a href="#como-funciona">Como funciona</a>
+            <a href="#para-quem">Para quem</a>
+            <a href="#faq">FAQ</a>
+            <button class="btn btn-primary w-full" id="openQuoteMobile">Pedir cotação</button>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container hero-grid">
+                <div class="hero-copy">
+                    <div class="badge">Cotação centralizada • Fornecedores locais</div>
+                    <h1>Centralize a compra de <span class="accent">material de construção</span> e evite atraso na obra.</h1>
+                    <p>
+                        Você envia o pedido uma vez. Nós cotamos com fornecedores da sua região e retornamos com as
+                        melhores opções
+                        de <strong>preço</strong> e <strong>prazo</strong>.
+                    </p>
+
+                    <div class="hero-actions">
+                        <button class="btn btn-primary" id="openQuoteHero">Pedir cotação agora</button>
+                        <a class="btn btn-ghost" href="#problema">Entender o problema</a>
+                    </div>
+
+                    <div class="trust">
+                        <div class="trust-item">
+                            <span class="dot"></span>
+                            Resposta rápida
+                        </div>
+                        <div class="trust-item">
+                            <span class="dot"></span>
+                            Comparação clara
+                        </div>
+                        <div class="trust-item">
+                            <span class="dot"></span>
+                            Sem burocracia
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-card">
+                    <div class="card">
+                        <div class="card-head">
+                            <h3>Exemplo de retorno</h3>
+                            <p>Comparação simples (preço + prazo)</p>
+                        </div>
+
+                        <div class="quote-table">
+                            <div class="qt-row qt-head">
+                                <span>Fornecedor</span><span>Preço</span><span>Prazo</span>
+                            </div>
+                            <div class="qt-row">
+                                <span>Fornecedor A</span><span>R$ 28,90/saco</span><span>24h</span>
+                            </div>
+                            <div class="qt-row">
+                                <span>Fornecedor B</span><span>R$ 27,50/saco</span><span>48h</span>
+                            </div>
+                            <div class="qt-row qt-best">
+                                <span>Fornecedor C</span><span>R$ 26,90/saco</span><span>72h</span>
+                            </div>
+                        </div>
+
+                        <div class="card-foot">
+                            <button class="btn btn-primary w-full" id="openQuoteCard">Quero uma cotação</button>
+                            <small>Teste piloto com poucas construtoras.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="problema">
+            <div class="container">
+                <div class="section-head">
+                    <h2>O que está quebrando o ritmo da obra</h2>
+                    <p>Preço oscilando, tempo perdido e material faltando no pior momento.</p>
+                </div>
+
+                <div class="grid-3">
+                    <div class="box">
+                        <h3>Preço muda toda semana</h3>
+                        <p>Você compra no “feeling” e descobre depois que pagou caro (ou que subiu de novo).</p>
+                    </div>
+                    <div class="box">
+                        <h3>Cotação é lenta</h3>
+                        <p>Ligações e WhatsApp com vários fornecedores, respostas incompletas e retrabalho.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Falta material</h3>
+                        <p>Quando acaba no meio da obra, a equipe para — e o custo do atraso aparece rápido.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section alt" id="como-funciona">
+            <div class="container">
+                <div class="section-head">
+                    <h2>Como funciona (simples e direto)</h2>
+                    <p>Você pede. A gente cota. Você decide.</p>
+                </div>
+
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div>
+                            <h3>Envie o pedido</h3>
+                            <p>Material, quantidade, local e prazo. Pode ser por WhatsApp.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div>
+                            <h3>Receba as opções</h3>
+                            <p>Comparamos fornecedores locais e retornamos com preço + prazo + observações.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div>
+                            <h3>Compre com mais controle</h3>
+                            <p>Você escolhe a melhor alternativa. Zero enrolação.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cta-row">
+                    <div>
+                        <h3>Quer testar com um pedido real?</h3>
+                        <p>Leva menos de 1 minuto para enviar a solicitação.</p>
+                    </div>
+                    <button class="btn btn-primary" id="openQuoteHow">Pedir cotação</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="para-quem">
+            <div class="container">
+                <div class="section-head">
+                    <h2>Para quem é</h2>
+                    <p>Ideal para quem compra recorrente e não quer perder tempo nem dinheiro.</p>
+                </div>
+
+                <div class="grid-2">
+                    <div class="box">
+                        <h3>Construtoras com obra em andamento</h3>
+                        <ul class="list">
+                            <li>Compra semanal de cimento e/ou aço</li>
+                            <li>Pressão por prazo</li>
+                            <li>Vários fornecedores na região</li>
+                        </ul>
+                    </div>
+                    <div class="box">
+                        <h3>O que você recebe</h3>
+                        <ul class="list">
+                            <li>Cotação centralizada</li>
+                            <li>Comparação clara (preço e prazo)</li>
+                            <li>Histórico básico (para decisões melhores)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section alt" id="faq">
+            <div class="container">
+                <div class="section-head">
+                    <h2>Perguntas frequentes</h2>
+                    <p>Sem promessa vazia. Sem enrolação.</p>
+                </div>
+
+                <div class="faq">
+                    <details>
+                        <summary>Vocês vendem o material?</summary>
+                        <p>Na fase piloto, a gente centraliza e organiza as cotações e retorna as melhores opções. A
+                            compra é feita com o fornecedor escolhido.</p>
+                    </details>
+                    <details>
+                        <summary>Quanto tempo demora para receber a cotação?</summary>
+                        <p>Depende do material e da região, mas a meta é responder o mais rápido possível com opções
+                            completas (preço + prazo).</p>
+                    </details>
+                    <details>
+                        <summary>Quais materiais vocês atendem?</summary>
+                        <p>Começamos com cimento e aço (vergalhão). Depois expandimos conforme a demanda.</p>
+                    </details>
+                    <details>
+                        <summary>Como funciona o pagamento?</summary>
+                        <p>No piloto, pode ser por cotação ou mensalidade (dependendo do modelo que você escolher no
+                            contato).</p>
+                    </details>
+                </div>
+
+                <div class="footer-cta">
+                    <h3>Bora fazer uma cotação hoje?</h3>
+                    <p>Envie seu pedido e receba as melhores opções da sua região.</p>
+                    <button class="btn btn-primary" id="openQuoteBottom">Pedir cotação</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div>
+                <div class="brand footer-brand">
+                    <span class="brand-mark">▮</span>
+                    <span class="brand-name">Cotai</span>
+                </div>
+                <p class="muted">Central de cotação para cimento e aço. Versão piloto.</p>
+            </div>
+            <div class="footer-links">
+                <a href="#problema">Problema</a>
+                <a href="#como-funciona">Como funciona</a>
+                <a href="#para-quem">Para quem</a>
+                <a href="#faq">FAQ</a>
+            </div>
+            <div class="footer-actions">
+                <a class="btn btn-ghost w-full" id="openWhatsFooter" href="#">Falar no WhatsApp</a>
+                <small class="muted">© <span id="year"></span> CotaObra</small>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL -->
+    <div class="modal" id="quoteModal" aria-hidden="true">
+        <div class="modal-backdrop" id="closeModalBackdrop"></div>
+
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div class="modal-head">
+                <h3 id="modalTitle">Pedir cotação</h3>
+                <button class="icon-btn" id="closeModal" aria-label="Fechar">✕</button>
+            </div>
+
+            <form class="form" id="quoteForm">
+                <div class="form-row">
+                    <label>Seu nome</label>
+                    <input type="text" name="nome" placeholder="Ex: Vitor" required />
+                </div>
+
+                <div class="form-row">
+                    <label>Empresa / Construtora</label>
+                    <input type="text" name="empresa" placeholder="Ex: Construtora X" required />
+                </div>
+
+                <div class="form-row">
+                    <label>Material</label>
+                    <select name="material" required>
+                        <option value="" disabled selected>Selecione</option>
+                        <option value="Cimento">Cimento</option>
+                        <option value="Aço (Vergalhão)">Aço (Vergalhão)</option>
+                        <option value="Outro">Outro</option>
+                    </select>
+                </div>
+
+                <div class="grid-2 form-grid">
+                    <div class="form-row">
+                        <label>Quantidade</label>
+                        <input type="text" name="quantidade" placeholder="Ex: 200 sacos / 1.5 ton" required />
+                    </div>
+
+                    <div class="form-row">
+                        <label>Prazo desejado</label>
+                        <input type="text" name="prazo" placeholder="Ex: 24h, 48h, até sexta" required />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label>Local de entrega (cidade/bairro)</label>
+                    <input type="text" name="local" placeholder="Ex: São Paulo - Mooca" required />
+                </div>
+
+                <div class="form-row">
+                    <label>Observações (opcional)</label>
+                    <textarea name="obs" rows="3"
+                        placeholder="Ex: precisa nota fiscal / descarregar no local / marca preferida"></textarea>
+                </div>
+
+                <button class="btn btn-primary w-full" type="submit">Enviar no WhatsApp</button>
+                <small class="muted">Ao enviar, abriremos o WhatsApp com a mensagem pronta.</small>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
