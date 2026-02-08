@@ -257,6 +257,6 @@ const openWhatsFooter = $("#openWhatsFooter");
 if (openWhatsFooter) {
     openWhatsFooter.addEventListener("click", (e) => {
         e.preventDefault();
-        openWhatsApp("Olá! Quero entender como funciona a cotação centralizada de cimento e aço.");
+        openWhatsApp("Olá! Quero entender como funciona a cotação dos materias de construção!");
     });
 }
