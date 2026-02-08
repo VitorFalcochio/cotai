@@ -1,4 +1,4 @@
-# 🏗️ CotaObra – Marketplace & Agente de Cotação de Materiais
+# 🏗️ Cotai – Marketplace & Agente de Cotação de Materiais
 
 CotaObra é um **MVP de marketplace B2B para materiais de construção**, focado em **construtoras de médio porte**, que centraliza pedidos, agiliza cotações com fornecedores locais e reduz atrasos de obra causados por falta de material ou variação de preços.
 
@@ -139,3 +139,4 @@ A prioridade é resolver o problema real da obra, não criar complexidade técni
 
 📌 Autor: Vitor Porveiro Falcochio
 Projeto desenvolvido como MVP para validação de mercado no setor de construção civil, focado em agilidade, clareza e eficiência operacional.
+
