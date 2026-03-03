@@ -1,2 +1,7 @@
 gspread
 google-auth
+fastapi
+uvicorn
+requests
+groq
+python-dotenv
