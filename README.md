@@ -1,16 +1,6 @@
-Para elevar o nível do seu repositório no GitHub, foquei em **hierarquia visual**, **identidade de marca** e **clareza técnica**. Um bom README deve vender a ideia e explicar a execução ao mesmo tempo.
-
-Aqui está a versão otimizada:
-
----
-
 # <p align="center">🏗️ Cotai – Marketplace & Agente de Cotação</p>
 
-<p align="center">
-<img src="[https://img.shields.io/badge/Status-MVP%20Funcional-success?style=for-the-badge](https://www.google.com/search?q=https://img.shields.io/badge/Status-MVP%2520Funcional-success%3Fstyle%3Dfor-the-badge)" alt="Status MVP">
-<img src="[https://img.shields.io/badge/Python-3.9+-blue?style=for-the-badge&logo=python](https://www.google.com/search?q=https://img.shields.io/badge/Python-3.9%2B-blue%3Fstyle%3Dfor-the-badge%26logo%3Dpython)" alt="Python Version">
-<img src="[https://img.shields.io/badge/Frontend-HTML%20%2F%20CSS%20%2F%20JS-orange?style=for-the-badge](https://www.google.com/search?q=https://img.shields.io/badge/Frontend-HTML%2520%252F%2520CSS%2520%252F%2520JS-orange%3Fstyle%3Dfor-the-badge)" alt="Tech Stack">
-</p>
+
 
 O **Cotai** (anteriormente CotaObra) é um marketplace B2B focado em construtoras de médio porte. O objetivo é centralizar pedidos e agilizar a comunicação com fornecedores locais, eliminando gargalos e variações de preços que atrasam o cronograma da obra.
 
@@ -111,9 +101,8 @@ Este projeto prioriza a **resolução do problema real da obra** sobre a complex
 
 ---
 
-**Autor:** [Vitor Porveiro Falcochio](https://www.google.com/search?q=https://github.com/SEU-USUARIO-AQUI)
+**Autor:** [Vitor Porveiro Falcochio](https://www.google.com/search?q=https://github.com/VitorFalcochio)
 *Projeto desenvolvido para validação de mercado e eficiência operacional na construção civil.*
 
 ---
 
-**Dica de amigo:** Se você quiser dar um toque final, substitua o link `SEU-USUARIO-AQUI` pelo seu perfil real no GitHub! Gostaria que eu ajustasse mais algum detalhe específico na lógica do script?
