@@ -1,142 +1,119 @@
-# 🏗️ Cotai – Marketplace & Agente de Cotação de Materiais
+Para elevar o nível do seu repositório no GitHub, foquei em **hierarquia visual**, **identidade de marca** e **clareza técnica**. Um bom README deve vender a ideia e explicar a execução ao mesmo tempo.
 
-CotaObra é um **MVP de marketplace B2B para materiais de construção**, focado em **construtoras de médio porte**, que centraliza pedidos, agiliza cotações com fornecedores locais e reduz atrasos de obra causados por falta de material ou variação de preços.
-
-Este projeto combina:
-- 🌐 **Site (HTML/CSS/JS)** para coleta de pedidos
-- 📊 **Google Sheets** como banco de dados inicial
-- 🤖 **Agente em Python** para automação operacional
-- 💬 **WhatsApp (wa.me)** para comunicação rápida, sem API paga
+Aqui está a versão otimizada:
 
 ---
 
-## 🎯 Objetivo do MVP
+# <p align="center">🏗️ Cotai – Marketplace & Agente de Cotação</p>
 
-- Centralizar pedidos de materiais
-- Reduzir tempo de resposta na cotação
-- Padronizar comunicação com clientes
-- Validar o modelo antes de automações mais complexas (API oficial, IA, etc.)
+<p align="center">
+<img src="[https://img.shields.io/badge/Status-MVP%20Funcional-success?style=for-the-badge](https://www.google.com/search?q=https://img.shields.io/badge/Status-MVP%2520Funcional-success%3Fstyle%3Dfor-the-badge)" alt="Status MVP">
+<img src="[https://img.shields.io/badge/Python-3.9+-blue?style=for-the-badge&logo=python](https://www.google.com/search?q=https://img.shields.io/badge/Python-3.9%2B-blue%3Fstyle%3Dfor-the-badge%26logo%3Dpython)" alt="Python Version">
+<img src="[https://img.shields.io/badge/Frontend-HTML%20%2F%20CSS%20%2F%20JS-orange?style=for-the-badge](https://www.google.com/search?q=https://img.shields.io/badge/Frontend-HTML%2520%252F%2520CSS%2520%252F%2520JS-orange%3Fstyle%3Dfor-the-badge)" alt="Tech Stack">
+</p>
+
+O **Cotai** (anteriormente CotaObra) é um marketplace B2B focado em construtoras de médio porte. O objetivo é centralizar pedidos e agilizar a comunicação com fornecedores locais, eliminando gargalos e variações de preços que atrasam o cronograma da obra.
+
+---
+
+## 🎯 Proposta de Valor
+
+* **Centralização:** Chega de pedidos espalhados em grupos de WhatsApp.
+* **Agilidade:** Redução drástica no tempo de resposta das cotações.
+* **Padronização:** Comunicação clara e profissional entre obra e fornecedor.
+* **Lean Startup:** Validamos o modelo com tecnologia eficiente e baixo custo operacional.
 
 ---
 
 ## 🧠 Fluxo do Sistema
 
-Cliente → Site → WhatsApp
-↓
-Google Sheets (PEDIDOS)
-↓
-Agente Python
-↓
-WhatsApp (Confirmação)
-↓
-Google Sheets (COTAÇÕES)
+O ecossistema foi projetado para ser fluido e funcional:
 
+1. **Captura:** Cliente faz o pedido via **Interface Web**.
+2. **Registro:** Os dados são salvos automaticamente no **Google Sheets**.
+3. **Processamento:** O **Agente Python** identifica novos pedidos (`status = NOVO`).
+4. **Ação:** O sistema gera o link de comunicação direta via **WhatsApp (wa.me)**.
+5. **Histórico:** Registro de preços e decisões na aba de **COTAÇÕES**.
+
+---
+
+## 🛠️ Stack Tecnológica
+
+| Camada | Tecnologia | Função |
+| --- | --- | --- |
+| **Frontend** | HTML5, CSS3, JS | Interface de coleta de pedidos |
+| **Banco de Dados** | Google Sheets API | Persistência de dados ágil e visual |
+| **Automação** | Python (gspread/google-auth) | Agente operacional inteligente |
+| **Comunicação** | Protocolo `wa.me` | Mensageria sem custos de API oficial |
 
 ---
 
 ## 📁 Estrutura do Projeto
 
-cotaobra-site/
-│
-├── frontend/ # Site (cliente)
-│ ├── index.html
-│ ├── styles.css
-│ └── script.js
-│
-└── agent/ # Automação (operacional)
-├── agent.py
-├── service_account.json
-├── requirements.txt
-└── README.md
+```bash
+cotai/
+├── frontend/             # Interface do cliente
+│   ├── index.html
+│   ├── styles.css
+│   └── script.js
+└── agent/                # Núcleo de automação
+    ├── agent.py          # Script principal
+    ├── requirements.txt  # Dependências
+    └── README.md         # Docs específicos do agente
 
-
----
-
-## 🗂️ Modelo de Dados (Google Sheets)
-
-### Aba: `PEDIDOS` (entrada do sistema)
-
-| Coluna     | Descrição |
-|-----------|-----------|
-| id        | ID único do pedido |
-| data      | Data/hora do pedido |
-| cliente   | Nome do cliente |
-| whatsapp  | WhatsApp com DDI |
-| local     | Local da obra |
-| prazo     | Prazo desejado |
-| itens     | Lista de materiais |
-| status    | NOVO / EM_COTACAO / FECHADO |
-
-> ⚠️ O agente Python **só lê pedidos com `status = NOVO`**
+```
 
 ---
 
-### Aba: `COTAÇÕES` (histórico e comparação)
-Usada para registrar:
-- fornecedores
-- preços
-- prazos
-- decisão final
+## ⚙️ Configuração e Instalação
 
----
+### 1. Requisitos Prévios
 
-## 🤖 Agente Python (agent.py)
+* Python 3.9+ instalado.
+* Uma conta no Google Cloud com a **Google Sheets API** ativada.
+* Arquivo `service_account.json` na pasta `/agent`.
 
-### Funções principais:
-- Conecta ao Google Sheets
-- Lê pedidos com status `NOVO`
-- Abre o WhatsApp com mensagem automática:
-  > “Recebido, vou cotar…”
-- Evita retrabalho e pedidos duplicados
+### 2. Instalação das Dependências
 
-### Executar o agente:
 ```bash
 cd agent
+pip install -r requirements.txt
+
+```
+
+### 3. Execução
+
+```bash
 python agent.py
-📦 Dependências
-Instale com:
 
-python -m pip install -r requirements.txt
-Conteúdo do requirements.txt:
+```
 
-gspread
-google-auth
-🔐 Credenciais (Google Cloud)
-O arquivo service_account.json deve ficar na pasta agent/
+> [!IMPORTANT]
+> **Segurança:** Nunca comite o arquivo `service_account.json`. Certifique-se de que ele está no seu `.gitignore`.
 
-Nunca versionar ou compartilhar esse arquivo
+---
 
-A planilha precisa ser compartilhada com o e-mail da Service Account
+## 🚀 Roadmap de Evolução
 
-💬 Comunicação com Cliente
-O envio de mensagens é feito via wa.me, evitando:
+* [x] MVP Funcional com integração Google Sheets.
+* [x] Disparo de mensagens automáticas via link.
+* [ ] **Next:** Transição automática de status (`NOVO` ➡️ `EM_COTACAO`).
+* [ ] **Next:** Painel de BI para comparação de preços histórica.
+* [ ] **Future:** Implementação de IA para sugestão de fornecedores por região.
 
-custos com API
+---
 
-risco de bloqueio
+## 💡 Filosofia de Desenvolvimento
 
-complexidade desnecessária no MVP
+> "Automatizar apenas o que já foi validado manualmente."
 
-🚀 Status do Projeto
-✔ MVP funcional
-✔ Em uso manual assistido
-🔜 Próximos passos planejados:
+Este projeto prioriza a **resolução do problema real da obra** sobre a complexidade técnica. O uso do WhatsApp via `wa.me` permite escala imediata sem custos fixos iniciais e sem risco de bloqueios por APIs não oficiais.
 
-Atualizar status automaticamente (NOVO → EM_COTACAO)
+---
 
-Geração automática de linhas em COTAÇÕES
+**Autor:** [Vitor Porveiro Falcochio](https://www.google.com/search?q=https://github.com/SEU-USUARIO-AQUI)
+*Projeto desenvolvido para validação de mercado e eficiência operacional na construção civil.*
 
-Inteligência de preços por histórico
+---
 
-API oficial do WhatsApp (fase futura)
-
-⚠️ Observação Importante
-Este projeto segue a filosofia:
-
-Automatizar apenas o que já foi validado manualmente
-
-A prioridade é resolver o problema real da obra, não criar complexidade técnica desnecessária.
-
-📌 Autor: Vitor Porveiro Falcochio
-Projeto desenvolvido como MVP para validação de mercado no setor de construção civil, focado em agilidade, clareza e eficiência operacional.
-
+**Dica de amigo:** Se você quiser dar um toque final, substitua o link `SEU-USUARIO-AQUI` pelo seu perfil real no GitHub! Gostaria que eu ajustasse mais algum detalhe específico na lógica do script?
