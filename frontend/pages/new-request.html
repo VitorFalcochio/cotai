@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cotai App | Novo Pedido</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+</head>
+<body data-page="new-request">
+  <div class="app-layout">
+    <aside class="app-sidebar" id="appSidebar">
+      <div class="side-shell-head">
+        <a class="brand" href="dashboard.html">
+          <span class="brand-mark">■</span>
+          <span class="brand-name">Cotai</span>
+        </a>
+        <button class="btn btn-ghost side-collapse-btn" type="button" id="sidebarCollapse" aria-label="Colapsar menu" aria-expanded="true">
+          <span class="collapse-arrow" aria-hidden="true">←</span>
+        </button>
+      </div>
+
+      <nav class="app-nav" id="appNav">
+        <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
+        <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard">
+          <span class="left">
+            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2"></rect><rect x="13" y="3" width="8" height="5" rx="2"></rect><rect x="13" y="10" width="8" height="11" rx="2"></rect><rect x="3" y="13" width="8" height="8" rx="2"></rect></svg></span>
+            <span class="nav-label">Dashboard</span>
+          </span>
+          <span class="mini-badge">Home</span>
+        </a>
+
+        <a class="side-link" data-nav="new" href="new-request.html" title="Novo Pedido">
+          <span class="left">
+            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v8"></path><path d="M8 12h8"></path></svg></span>
+            <span class="nav-label">New Quote</span>
+          </span>
+          <span class="mini-badge">Novo</span>
+        </a>
+
+        <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos">
+          <span class="left">
+            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3.5 6h.5"></path><path d="M3.5 12h.5"></path><path d="M3.5 18h.5"></path></svg></span>
+            <span class="nav-label">Quote History</span>
+          </span>
+          <span class="mini-badge">Lista</span>
+        </a>
+
+        <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores">
+          <span class="left">
+            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7l2-3h12l2 3"></path><path d="M3 7h18"></path><path d="M5 7v13h14V7"></path><path d="M9 20v-7h6v7"></path></svg></span>
+            <span class="nav-label">Suppliers</span>
+          </span>
+          <span class="mini-badge">CRM</span>
+        </a>
+
+        <a class="side-link" data-nav="materials" href="materials.html" title="Materiais">
+          <span class="left">
+            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8l-9-5-9 5 9 5 9-5Z"></path><path d="M12 13v8"></path><path d="M21 8v8l-9 5-9-5V8"></path></svg></span>
+            <span class="nav-label">Materials</span>
+          </span>
+          <span class="mini-badge">Base</span>
+        </a>
+
+        <a class="side-link" data-nav="plans" href="plans.html" title="Planos">
+          <span class="left">
+            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8l4 4 4-6 4 6 4-4"></path><path d="M4 8v10h16V8"></path><path d="M6 18h12"></path></svg></span>
+            <span class="nav-label">Plans</span>
+          </span>
+          <span class="mini-badge">Pricing</span>
+        </a>
+
+        <a class="side-link" data-nav="settings" href="settings.html" title="Settings">
+          <span class="left">
+            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"></path><path d="M19.4 15a7.9 7.9 0 0 0 .1-2l2-1.2-2-3.5-2.3.7a8.2 8.2 0 0 0-1.7-1l-.3-2.4H9.8l-.3 2.4a8.2 8.2 0 0 0-1.7 1l-2.3-.7-2 3.5 2 1.2a7.9 7.9 0 0 0 .1 2l-2 1.2 2 3.5 2.3-.7a8.2 8.2 0 0 0 1.7 1l.3 2.4h4.4l.3-2.4a8.2 8.2 0 0 0 1.7-1l2.3.7 2-3.5-2-1.2Z"></path></svg></span>
+            <span class="nav-label">Settings</span>
+          </span>
+          <span class="mini-badge">Conta</span>
+        </a>
+      </nav>
+
+      <div class="app-sidebar-foot">
+        <a class="btn btn-ghost w-full" href="index.html">Landing</a>
+      </div>
+    </aside>
+    <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
+
+    <main class="app-main">
+      <header class="app-topbar">
+        <div>
+          <h1>Novo Pedido</h1>
+          <p class="muted">Crie o pedido e gere a mensagem pronta para WhatsApp.</p>
+        </div>
+        <div class="app-topbar-actions">
+          <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
+          <button class="btn btn-ghost" id="logoutButton" type="button">Sair</button>
+          <a class="btn btn-ghost" href="requests.html">Ver pedidos</a>
+        </div>
+      </header>
+
+      <section class="card">
+        <form id="newRequestForm" class="form app-form-grid">
+          <div class="app-grid-2">
+            <div class="form-row">
+              <label for="customerName">Cliente</label>
+              <input id="customerName" name="customer_name" type="text" placeholder="Ex: Obra Residencial Atlas" required />
+            </div>
+            <div class="form-row">
+              <label for="deliveryMode">Modo de entrega</label>
+              <input id="deliveryMode" name="delivery_mode" type="text" placeholder="Ex: Retirada, entrega em 24h" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label for="deliveryLocation">Local de entrega</label>
+            <input id="deliveryLocation" name="delivery_location" type="text" placeholder="Cidade / bairro / obra" required />
+          </div>
+
+          <div class="form-row">
+            <label for="notes">Observações</label>
+            <textarea id="notes" name="notes" rows="3" placeholder="Detalhes adicionais do pedido"></textarea>
+          </div>
+
+          <div class="form-row">
+            <label for="items">Itens do pedido (um por linha)</label>
+            <textarea id="items" name="items" rows="7" placeholder="Cimento CP-II 50kg - 80 sacos&#10;Vergalhão CA-50 10mm - 40 barras" required></textarea>
+          </div>
+
+          <p class="app-feedback hidden" id="newRequestFeedback" role="alert"></p>
+
+          <div class="app-inline-actions">
+            <button class="btn btn-primary" id="newRequestSubmit" type="submit">Salvar pedido</button>
+            <a class="btn btn-ghost" href="requests.html">Ir para histórico</a>
+          </div>
+        </form>
+      </section>
+
+      <section id="requestResult" class="card hidden">
+        <div class="app-section-head">
+          <h2>Pedido <span class="accent" id="generatedRequestId">CT-0000</span> criado</h2>
+          <div class="app-inline-actions">
+            <button class="btn btn-ghost" id="copyRequestMessage" type="button">Copiar mensagem</button>
+            <button class="btn btn-primary" id="openRequestWhats" type="button">Abrir WhatsApp</button>
+          </div>
+        </div>
+        <pre class="app-message" id="requestMessage"></pre>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="../assets/js/pages/new-request.page.js"></script>
+</body>
+</html>

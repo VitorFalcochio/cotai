@@ -1,0 +1,32 @@
+﻿[
+  {
+    "name": "Cimento CP-II 50kg",
+    "price": 34.9,
+    "supplier": "Deposito Nova Obra",
+    "link": "https://example.com/cimento-cp2"
+  },
+  {
+    "name": "Areia fina m3",
+    "price": 179.0,
+    "supplier": "Areial Rio Preto",
+    "link": "https://example.com/areia-fina"
+  },
+  {
+    "name": "Vergalhao CA-50 10mm",
+    "price": 62.5,
+    "supplier": "Aco Forte Distribuidora",
+    "link": "https://example.com/vergalhao-10mm"
+  },
+  {
+    "name": "Bloco estrutural 14x19x39",
+    "price": 4.35,
+    "supplier": "Blocos Imperial",
+    "link": "https://example.com/bloco-14x19x39"
+  },
+  {
+    "name": "Argamassa ACIII 20kg",
+    "price": 29.8,
+    "supplier": "Central de Acabamentos",
+    "link": "https://example.com/argamassa-ac3"
+  }
+]

@@ -1,0 +1,1 @@
+"""COTAI worker package."""

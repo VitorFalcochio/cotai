@@ -1,4 +1,4 @@
-// ====== CONFIG ======
+﻿// ====== CONFIG ======
 const WHATSAPP_NUMBER = "5517996657737";
 
 // ====== Helpers ======
@@ -7,6 +7,17 @@ const $ = (sel) => document.querySelector(sel);
 const openWhatsApp = (text) => {
     const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
     window.location.href = url;
+};
+
+const generateLandingPedidoId = () => {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+    const hh = String(now.getHours()).padStart(2, "0");
+    const mi = String(now.getMinutes()).padStart(2, "0");
+    const ss = String(now.getSeconds()).padStart(2, "0");
+    return `WEB-${yyyy}${mm}${dd}${hh}${mi}${ss}`;
 };
 
 // ====== Itens dinâmicos (materiais) ======
@@ -93,8 +104,8 @@ if (form) {
         const rows = [...itemsWrap.querySelectorAll("[data-item]")];
         
         const itens = rows.map((r, idx) => {
-            const material = r.querySelector(".item-material")?.value?.trim();
-            const quantidade = r.querySelector(".item-qty")?.value?.trim();
+            const material = r.querySelector(".item-material").value.trim();
+            const quantidade = r.querySelector(".item-qty").value.trim();
             if (!material || !quantidade) return null;
             return `  ${idx + 1}) ${material} — ${quantidade}`;
         }).filter(Boolean);
@@ -105,18 +116,16 @@ if (form) {
         }
 
         // 2. Formatação da mensagem com a tag oculta para o Bot
-        const msg = `#COTAR_NOVA
-Olá! Quero uma cotação automática.
-
-• Nome: ${nome}
-• Empresa: ${empresa}
-• Itens:
+        const pedidoId = generateLandingPedidoId();
+        const msg = `#COTAI
+PedidoID: ${pedidoId}
+Nome: ${nome}
+Empresa: ${empresa}
+Itens:
 ${itens.join("\n")}
-• Prazo desejado: ${prazo}
-• Local de entrega: ${local}
-${obs ? `• Observações: ${obs}` : ""}
-
-Pode me retornar com as melhores opções (preço e prazo)?`;
+Prazo desejado: ${prazo}
+Local de entrega: ${local}
+${obs ? `Observações: ${obs}` : ""}`;
 
         // 3. Envia direto para o WhatsApp
         closeModal();
@@ -145,12 +154,12 @@ if (hamburger && mobileMenu) {
 
 const modal = $("#quoteModal");
 const openModal = () => {
-    modal?.classList.add("show");
+    modal.classList.add("show");
     document.body.style.overflow = "hidden";
     updateLimitUI();
 };
 const closeModal = () => {
-    modal?.classList.remove("show");
+    modal.classList.remove("show");
     document.body.style.overflow = "";
 };
 

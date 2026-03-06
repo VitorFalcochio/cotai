@@ -4,3 +4,7 @@ __pycache__/
 logs/
 .env
 service_account.json
+state.json
+backend/waha/
+.waha/
+data/logs/
