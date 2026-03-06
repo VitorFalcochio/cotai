@@ -1,0 +1,155 @@
+from __future__ import annotations
+
+import csv
+import json
+import re
+import unicodedata
+from pathlib import Path
+from typing import Any
+
+import requests
+
+from ..config import Settings
+from ..utils.retry import retry_call
+
+
+def normalize_text(text: str) -> str:
+    normalized = unicodedata.normalize("NFKD", (text or "").strip().lower())
+    return "".join(char for char in normalized if not unicodedata.combining(char))
+
+
+def to_float(value: Any) -> float | None:
+    if value is None:
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        cleaned = value.strip().replace("R$", "").replace(" ", "").replace(".", "").replace(",", ".")
+        try:
+            return float(cleaned)
+        except ValueError:
+            return None
+    return None
+
+
+class SearchService:
+    def __init__(self, settings: Settings) -> None:
+        self.settings = settings
+        self.session = requests.Session()
+
+    def close(self) -> None:
+        self.session.close()
+
+    def _load_catalog_file(self, path: Path) -> list[dict[str, Any]]:
+        if not path.exists():
+            return []
+
+        if path.suffix.lower() == ".json":
+            with path.open("r", encoding="utf-8-sig") as handle:
+                payload = json.load(handle)
+            return [row for row in payload if isinstance(row, dict)] if isinstance(payload, list) else []
+
+        if path.suffix.lower() == ".csv":
+            with path.open("r", encoding="utf-8-sig", newline="") as handle:
+                return [dict(row) for row in csv.DictReader(handle)]
+
+        return []
+
+    def load_catalog(self) -> list[dict[str, Any]]:
+        self.settings.data_dir.mkdir(parents=True, exist_ok=True)
+        json_rows = self._load_catalog_file(self.settings.catalog_json)
+        if json_rows:
+            return json_rows
+        return self._load_catalog_file(self.settings.catalog_csv)
+
+    def _catalog_score(self, item_name: str, catalog_name: str) -> int:
+        item_norm = normalize_text(item_name)
+        catalog_norm = normalize_text(catalog_name)
+        if not item_norm or not catalog_norm:
+            return 0
+
+        score = 0
+        if item_norm in catalog_norm or catalog_norm in item_norm:
+            score += 3
+        item_tokens = {tok for tok in re.findall(r"[a-z0-9]+", item_norm) if len(tok) > 2}
+        catalog_tokens = {tok for tok in re.findall(r"[a-z0-9]+", catalog_norm) if len(tok) > 2}
+        score += len(item_tokens.intersection(catalog_tokens))
+        return score
+
+    def search_catalog(self, item_name: str, limit: int = 3) -> list[dict[str, Any]]:
+        candidates: list[dict[str, Any]] = []
+        for row in self.load_catalog():
+            catalog_name = str(row.get("name") or row.get("titulo") or "").strip()
+            if not catalog_name:
+                continue
+            score = self._catalog_score(item_name, catalog_name)
+            if score <= 0:
+                continue
+            candidates.append(
+                {
+                    "title": catalog_name,
+                    "price": to_float(row.get("price") or row.get("preco")),
+                    "supplier": str(row.get("supplier") or row.get("fornecedor") or "Fornecedor local").strip(),
+                    "link": str(row.get("link") or "").strip(),
+                    "source": "catalog",
+                    "score": score,
+                }
+            )
+
+        candidates.sort(key=lambda item: (-item["score"], item["price"] if item["price"] is not None else float("inf")))
+        return candidates[:limit]
+
+    def search_mercado_livre(self, query: str, limit: int = 3) -> list[dict[str, Any]]:
+        url = f"https://api.mercadolibre.com/sites/{self.settings.mercado_livre_site}/search"
+
+        def do_request() -> list[dict[str, Any]]:
+            response = self.session.get(
+                url,
+                params={"q": query, "limit": max(limit * 2, 8)},
+                timeout=self.settings.request_timeout_seconds,
+            )
+            response.raise_for_status()
+            results = response.json().get("results", [])
+            offers = []
+            for item in results:
+                if not isinstance(item, dict):
+                    continue
+                offers.append(
+                    {
+                        "title": str(item.get("title") or "").strip(),
+                        "price": to_float(item.get("price")),
+                        "supplier": "Mercado Livre",
+                        "link": str(item.get("permalink") or "").strip(),
+                        "source": "mercado_livre",
+                    }
+                )
+            offers.sort(key=lambda item: item["price"] if item["price"] is not None else float("inf"))
+            return offers[:limit]
+
+        return retry_call(
+            do_request,
+            attempts=self.settings.retry_attempts,
+            backoff_seconds=self.settings.retry_backoff_seconds,
+            max_backoff_seconds=max(self.settings.retry_backoff_seconds, self.settings.request_timeout_seconds),
+        )
+
+    def suggest_search_term(self, item_name: str) -> str:
+        normalized = re.sub(r"\([^\)]*\)", "", item_name or "")
+        normalized = re.sub(r"\b\d+[\.,]?\d*\s*(kg|g|l|m2|m3|m|mm|cm|saco|sacos|un|barras?)\b", "", normalized, flags=re.IGNORECASE)
+        normalized = re.sub(r"\s+", " ", normalized).strip(" -")
+        words = normalized.split()
+        if len(words) >= 3:
+            return " ".join(words[:3])
+        return normalized or item_name
+
+    def quote_item(self, item_name: str) -> tuple[list[dict[str, Any]], str]:
+        offers = self.search_catalog(item_name)
+        if offers:
+            return offers, "catalog"
+
+        suggestion = self.suggest_search_term(item_name)
+        try:
+            offers = self.search_mercado_livre(suggestion or item_name)
+            return offers, "mercado_livre"
+        except Exception:
+            return [], "unavailable"

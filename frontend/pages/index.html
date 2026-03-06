@@ -5,7 +5,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cotai</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+    <link rel="stylesheet" href="../assets/css/styles.css" />
 </head>
 
 <body>
@@ -24,7 +25,8 @@
             </nav>
 
             <div class="nav-cta">
-                <a class="btn btn-ghost" href="#como-funciona">Ver como funciona</a>
+                <a class="btn btn-ghost" href="dashboard.html">Dashboard</a>
+                <a class="btn btn-ghost" href="#como-funciona">Como funciona?</a>
                 <button class="btn btn-primary" id="openQuoteTop">Pedir cotação</button>
             </div>
 
@@ -38,6 +40,7 @@
             <a href="#como-funciona">Como funciona</a>
             <a href="#para-quem">Para quem</a>
             <a href="#faq">FAQ</a>
+            <a class="btn btn-ghost w-full" href="dashboard.html">Ir para Dashboard</a>
             <button class="btn btn-primary w-full" id="openQuoteMobile">Pedir cotação</button>
         </div>
     </header>
@@ -200,6 +203,109 @@
             </div>
         </section>
 
+        <section class="section alt" id="prova-social">
+            <div class="container">
+                <div class="section-head">
+                    <h2>Prova social do piloto</h2>
+                    <p>Empresas e equipes que já usam a Cotai para acelerar compras recorrentes.</p>
+                </div>
+
+                <div class="logos-strip">
+                    <div class="logo-pill">Construtora Horizonte</div>
+                    <div class="logo-pill">Obra Forte Engenharia</div>
+                    <div class="logo-pill">Grupo Atlas Obras</div>
+                    <div class="logo-pill">Módulo Construtora</div>
+                    <div class="logo-pill">Prime Acabamentos</div>
+                </div>
+
+                <div class="grid-2 testimonials">
+                    <article class="box">
+                        <p class="testimonial-text">"Antes, a equipe perdia horas em WhatsApp e telefone. Agora o pedido sai uma vez e já recebemos retorno comparável."</p>
+                        <p class="testimonial-meta">Felipe Santos • Compras, Construtora Horizonte</p>
+                    </article>
+                    <article class="box">
+                        <p class="testimonial-text">"A visão de preço e prazo no mesmo retorno ajudou a reduzir urgências e compra mal planejada na obra."</p>
+                        <p class="testimonial-meta">Priscila Rocha • Suprimentos, Obra Forte</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="resumo-planos">
+            <div class="container">
+                <div class="section-head">
+                    <h2>Planos para cada fase da operação</h2>
+                    <p>Comece pequeno e evolua conforme o volume de pedidos da sua obra.</p>
+                </div>
+
+                <div class="grid-3 plan-preview-grid">
+                    <article class="box plan-preview">
+                        <h3>Prata</h3>
+                        <p class="plan-price">R$ 50 <span>/ mês</span></p>
+                        <ul class="list">
+                            <li>50 pedidos/mês</li>
+                            <li>1 usuário</li>
+                            <li>10 fornecedores</li>
+                        </ul>
+                    </article>
+                    <article class="box plan-preview featured">
+                        <h3>Ouro</h3>
+                        <p class="plan-price">R$ 100 <span>/ mês</span></p>
+                        <ul class="list">
+                            <li>200 pedidos/mês</li>
+                            <li>Até 3 usuários</li>
+                            <li>50 fornecedores</li>
+                        </ul>
+                    </article>
+                    <article class="box plan-preview">
+                        <h3>Diamante</h3>
+                        <p class="plan-price">R$ 250 <span>/ mês</span></p>
+                        <ul class="list">
+                            <li>Pedidos ilimitados</li>
+                            <li>Usuários ilimitados</li>
+                            <li>Fornecedores ilimitados</li>
+                        </ul>
+                    </article>
+                </div>
+
+                <div class="cta-row">
+                    <div>
+                        <h3>Quer ver os recursos completos por plano?</h3>
+                        <p>Compare limites, histórico e funcionalidades de cada nível.</p>
+                    </div>
+                    <a class="btn btn-primary" href="plans.html">Ver planos completos</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="section alt" id="fluxo-pratico">
+            <div class="container">
+                <div class="section-head">
+                    <h2>Como funciona na prática</h2>
+                    <p>Seu time dispara o pedido e recebe cotação organizada em minutos.</p>
+                </div>
+
+                <div class="grid-2">
+                    <div class="box">
+                        <h3>Fluxo real em 3 etapas</h3>
+                        <ul class="list">
+                            <li>1. Pedido enviado com #COTAI e PedidoID</li>
+                            <li>2. Bot consulta catálogo local e fallback de mercado</li>
+                            <li>3. Retorno com top opções de preço e prazo</li>
+                        </ul>
+                    </div>
+                    <div class="box message-preview">
+                        <h3>Exemplo de mensagem</h3>
+                        <pre>#COTAI
+PedidoID: CT-9030
+Itens:
+- 20 saco cimento cp2 50kg
+- 3 m3 areia fina</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section class="section alt" id="faq">
             <div class="container">
                 <div class="section-head">
@@ -341,7 +447,7 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="../assets/js/script.js"></script>
 </body>
 
 </html>
