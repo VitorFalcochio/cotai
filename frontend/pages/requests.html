@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cotai App | Pedidos</title>
+  <title>Cotai | Pedidos</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
   <link rel="stylesheet" href="../assets/css/styles.css" />
 </head>
@@ -12,75 +12,27 @@
     <aside class="app-sidebar" id="appSidebar">
       <div class="side-shell-head">
         <a class="brand" href="dashboard.html">
-          <span class="brand-mark">■</span>
+          <span class="brand-mark">C</span>
           <span class="brand-name">Cotai</span>
         </a>
         <button class="btn btn-ghost side-collapse-btn" type="button" id="sidebarCollapse" aria-label="Colapsar menu" aria-expanded="true">
-          <span class="collapse-arrow" aria-hidden="true">←</span>
+          <span class="collapse-arrow" aria-hidden="true"><</span>
         </button>
       </div>
 
       <nav class="app-nav" id="appNav">
         <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
-        <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2"></rect><rect x="13" y="3" width="8" height="5" rx="2"></rect><rect x="13" y="10" width="8" height="11" rx="2"></rect><rect x="3" y="13" width="8" height="8" rx="2"></rect></svg></span>
-            <span class="nav-label">Dashboard</span>
-          </span>
-          <span class="mini-badge">Home</span>
-        </a>
-
-        <a class="side-link" data-nav="new" href="new-request.html" title="Novo Pedido">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v8"></path><path d="M8 12h8"></path></svg></span>
-            <span class="nav-label">New Quote</span>
-          </span>
-          <span class="mini-badge">Novo</span>
-        </a>
-
-        <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3.5 6h.5"></path><path d="M3.5 12h.5"></path><path d="M3.5 18h.5"></path></svg></span>
-            <span class="nav-label">Quote History</span>
-          </span>
-          <span class="mini-badge">Lista</span>
-        </a>
-
-        <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7l2-3h12l2 3"></path><path d="M3 7h18"></path><path d="M5 7v13h14V7"></path><path d="M9 20v-7h6v7"></path></svg></span>
-            <span class="nav-label">Suppliers</span>
-          </span>
-          <span class="mini-badge">CRM</span>
-        </a>
-
-        <a class="side-link" data-nav="materials" href="materials.html" title="Materiais">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8l-9-5-9 5 9 5 9-5Z"></path><path d="M12 13v8"></path><path d="M21 8v8l-9 5-9-5V8"></path></svg></span>
-            <span class="nav-label">Materials</span>
-          </span>
-          <span class="mini-badge">Base</span>
-        </a>
-
-        <a class="side-link" data-nav="plans" href="plans.html" title="Planos">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8l4 4 4-6 4 6 4-4"></path><path d="M4 8v10h16V8"></path><path d="M6 18h12"></path></svg></span>
-            <span class="nav-label">Plans</span>
-          </span>
-          <span class="mini-badge">Pricing</span>
-        </a>
-
-        <a class="side-link" data-nav="settings" href="settings.html" title="Settings">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"></path><path d="M19.4 15a7.9 7.9 0 0 0 .1-2l2-1.2-2-3.5-2.3.7a8.2 8.2 0 0 0-1.7-1l-.3-2.4H9.8l-.3 2.4a8.2 8.2 0 0 0-1.7 1l-2.3-.7-2 3.5 2 1.2a7.9 7.9 0 0 0 .1 2l-2 1.2 2 3.5 2.3-.7a8.2 8.2 0 0 0 1.7 1l.3 2.4h4.4l.3-2.4a8.2 8.2 0 0 0 1.7-1l2.3.7 2-3.5-2-1.2Z"></path></svg></span>
-            <span class="nav-label">Settings</span>
-          </span>
-          <span class="mini-badge">Conta</span>
-        </a>
+        <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard"><span class="left"><span class="nav-label">Dashboard</span></span><span class="mini-badge">Resumo</span></a>
+        <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotação"><span class="left"><span class="nav-label">Nova cotação</span></span><span class="mini-badge">Novo</span></a>
+        <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span><span class="mini-badge">Histórico</span></a>
+        <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores"><span class="left"><span class="nav-label">Fornecedores</span></span><span class="mini-badge">Base</span></a>
+        <a class="side-link" data-nav="materials" href="materials.html" title="Materiais"><span class="left"><span class="nav-label">Materiais</span></span><span class="mini-badge">Catálogo</span></a>
+        <a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span><span class="mini-badge">Assinatura</span></a>
+        <a class="side-link" data-nav="settings" href="settings.html" title="Configurações"><span class="left"><span class="nav-label">Configurações</span></span><span class="mini-badge">Conta</span></a>
       </nav>
 
       <div class="app-sidebar-foot">
-        <a class="btn btn-ghost w-full" href="index.html">Landing</a>
+        <a class="btn btn-ghost w-full" href="index.html">Voltar para o site</a>
       </div>
     </aside>
     <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
@@ -88,32 +40,170 @@
     <main class="app-main">
       <header class="app-topbar">
         <div>
-          <h1>Histórico de Pedidos</h1>
-          <p class="muted" id="requestsCount">0 pedidos</p>
+          <p class="eyebrow">Histórico operacional</p>
+          <h1>Pedidos e compras</h1>
+          <p id="requestsCount">0 pedidos</p>
         </div>
         <div class="app-topbar-actions">
+          <button class="btn btn-ghost" id="requestsExportCsv" type="button">Exportar CSV</button>
           <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
           <button class="btn btn-ghost" id="logoutButton" type="button">Sair</button>
-          <a class="btn btn-primary" href="new-request.html">Novo Pedido</a>
+          <a class="btn btn-primary" href="new-request.html">Nova cotação</a>
         </div>
       </header>
 
+      <section class="app-surface-hero hero-split">
+        <div class="hero-copy-stack">
+          <span class="badge">Leitura executiva de compras recorrentes</span>
+          <h2>Entenda o que foi comprado, onde houve economia e quais pedidos valem repetir</h2>
+          <p class="muted">Esta área deixa o histórico menos burocrático e mais útil para a tomada de decisão: comparar, duplicar e identificar o melhor fornecedor com velocidade.</p>
+          <div class="metric-band">
+            <article class="summary-chip"><span>Foco</span><strong>recompra e rastreabilidade</strong></article>
+            <article class="summary-chip"><span>Leitura</span><strong>economia, prazo e fornecedor</strong></article>
+            <article class="summary-chip"><span>Ação</span><strong>duplicar o pedido certo</strong></article>
+          </div>
+        </div>
+
+        <aside class="hero-info-card">
+          <p class="eyebrow">O que esta tela precisa mostrar bem</p>
+          <ul class="hero-key-points">
+            <li>Quais materiais aparecem com maior recorrência.</li>
+            <li>Quais fornecedores sustentam melhor economia e prazo.</li>
+            <li>Quais pedidos já viraram padrão operacional para a equipe.</li>
+          </ul>
+        </aside>
+      </section>
+
+      <section class="app-metrics app-metrics-executive">
+        <article class="card app-metric-card"><p>Pedidos mapeados</p><h3 id="requestsMetricTotal">0</h3></article>
+        <article class="card app-metric-card"><p>Material recorrente</p><h3 id="requestsMetricTopMaterial">-</h3></article>
+        <article class="card app-metric-card"><p>Fornecedor dominante</p><h3 id="requestsMetricTopSupplier">-</h3></article>
+        <article class="card app-metric-card"><p>Economia consolidada</p><h3 id="requestsMetricSavings">R$ 0</h3></article>
+      </section>
+
+      <section class="admin-dual-panel">
+        <article class="card table-shell">
+          <div class="filter-shell-head">
+            <div>
+              <p class="eyebrow">Padrões de compra</p>
+              <h2>Materiais mais cotados</h2>
+            </div>
+          </div>
+          <div id="requestsTopMaterials" class="admin-status-stack"></div>
+        </article>
+        <article class="card table-shell">
+          <div class="filter-shell-head">
+            <div>
+              <p class="eyebrow">Tensão de preço</p>
+              <h2>Histórico de variação</h2>
+            </div>
+          </div>
+          <div id="requestsPriceTrend" class="admin-status-stack"></div>
+        </article>
+      </section>
+
       <section class="card">
+        <div class="table-toolbar">
+          <div>
+            <p class="eyebrow">Busca e comparação</p>
+            <h2>Histórico de pedidos e compras</h2>
+          </div>
+          <p class="muted">Filtre por status, prioridade e fornecedor para encontrar rapidamente o melhor ponto de repetição ou auditoria.</p>
+        </div>
+
+        <div class="app-filter-bar">
+          <div class="form-row">
+            <label for="requestsSearch">Buscar</label>
+            <input id="requestsSearch" type="search" placeholder="Código, cliente, local ou fornecedor" />
+          </div>
+          <div class="form-row">
+            <label for="requestsStatusFilter">Status</label>
+            <select id="requestsStatusFilter">
+              <option value="">Todos</option>
+              <option value="DONE">Concluído</option>
+              <option value="PROCESSING">Em andamento</option>
+              <option value="PENDING_QUOTE">Pendente</option>
+              <option value="ERROR">Erro</option>
+              <option value="AWAITING_APPROVAL">Aguardando aprovação</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="requestsPriorityFilter">Prioridade</label>
+            <select id="requestsPriorityFilter">
+              <option value="">Todas</option>
+              <option value="LOW">LOW</option>
+              <option value="MEDIUM">MEDIUM</option>
+              <option value="HIGH">HIGH</option>
+              <option value="URGENT">URGENT</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="requestsSort">Ordenar</label>
+            <select id="requestsSort">
+              <option value="recent">Mais recentes</option>
+              <option value="savings">Maior economia</option>
+              <option value="supplier">Melhor fornecedor</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>&nbsp;</label>
+            <button class="btn btn-ghost" id="requestsClearFilters" type="button">Limpar filtros</button>
+          </div>
+        </div>
+
         <p class="app-feedback hidden" id="requestsFeedback" role="alert"></p>
         <div class="app-table-wrap">
           <table class="app-table">
             <thead>
               <tr>
                 <th>Pedido</th>
-                <th>Cliente</th>
+                <th>Status</th>
+                <th>Inteligência</th>
                 <th>Entrega</th>
-                <th>Local</th>
                 <th>Criado em</th>
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody id="requestsTableBody"></tbody>
           </table>
         </div>
+      </section>
+
+      <section class="admin-dual-panel">
+        <article class="card table-shell">
+          <div class="filter-shell-head">
+            <div>
+              <p class="eyebrow">Comparador</p>
+              <h2 id="requestDetailTitle">Selecione um pedido</h2>
+            </div>
+          </div>
+          <div id="requestComparisonPanel" class="admin-status-stack"></div>
+        </article>
+        <article class="card table-shell">
+          <div class="filter-shell-head">
+            <div>
+              <p class="eyebrow">Pós-cotação</p>
+              <h2>Feedback do fornecedor</h2>
+            </div>
+          </div>
+          <form id="supplierReviewForm" class="form">
+            <div class="form-row">
+              <label for="reviewSupplierSelect">Fornecedor</label>
+              <select id="reviewSupplierSelect"></select>
+            </div>
+            <div class="app-grid-2">
+              <div class="form-row"><label for="reviewPrice">Preço</label><input id="reviewPrice" type="number" min="1" max="5" value="5" /></div>
+              <div class="form-row"><label for="reviewDelivery">Prazo</label><input id="reviewDelivery" type="number" min="1" max="5" value="5" /></div>
+              <div class="form-row"><label for="reviewService">Atendimento</label><input id="reviewService" type="number" min="1" max="5" value="5" /></div>
+              <div class="form-row"><label for="reviewReliability">Confiabilidade</label><input id="reviewReliability" type="number" min="1" max="5" value="5" /></div>
+            </div>
+            <div class="form-row">
+              <label for="reviewComment">Comentário</label>
+              <textarea id="reviewComment" rows="4" placeholder="O que funcionou bem ou mal nesta cotação?"></textarea>
+            </div>
+            <button class="btn btn-primary" type="submit">Salvar avaliação</button>
+          </form>
+        </article>
       </section>
     </main>
   </div>

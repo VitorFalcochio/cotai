@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cotai App | Fornecedores</title>
+  <title>Cotai | Fornecedores</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
   <link rel="stylesheet" href="../assets/css/styles.css" />
 </head>
@@ -12,76 +12,27 @@
     <aside class="app-sidebar" id="appSidebar">
       <div class="side-shell-head">
         <a class="brand" href="dashboard.html">
-          <span class="brand-mark">■</span>
+          <span class="brand-mark">C</span>
           <span class="brand-name">Cotai</span>
         </a>
         <button class="btn btn-ghost side-collapse-btn" type="button" id="sidebarCollapse" aria-label="Colapsar menu" aria-expanded="true">
-          <span class="collapse-arrow" aria-hidden="true">←</span>
+          <span class="collapse-arrow" aria-hidden="true"><</span>
         </button>
       </div>
 
       <nav class="app-nav" id="appNav">
         <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
-
-        <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2"></rect><rect x="13" y="3" width="8" height="5" rx="2"></rect><rect x="13" y="10" width="8" height="11" rx="2"></rect><rect x="3" y="13" width="8" height="8" rx="2"></rect></svg></span>
-            <span class="nav-label">Dashboard</span>
-          </span>
-          <span class="mini-badge">Home</span>
-        </a>
-
-        <a class="side-link" data-nav="new" href="new-request.html" title="Novo Pedido">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v8"></path><path d="M8 12h8"></path></svg></span>
-            <span class="nav-label">New Quote</span>
-          </span>
-          <span class="mini-badge">Novo</span>
-        </a>
-
-        <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3.5 6h.5"></path><path d="M3.5 12h.5"></path><path d="M3.5 18h.5"></path></svg></span>
-            <span class="nav-label">Quote History</span>
-          </span>
-          <span class="mini-badge">Lista</span>
-        </a>
-
-        <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7l2-3h12l2 3"></path><path d="M3 7h18"></path><path d="M5 7v13h14V7"></path><path d="M9 20v-7h6v7"></path></svg></span>
-            <span class="nav-label">Suppliers</span>
-          </span>
-          <span class="mini-badge">CRM</span>
-        </a>
-
-        <a class="side-link" data-nav="materials" href="materials.html" title="Materiais">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8l-9-5-9 5 9 5 9-5Z"></path><path d="M12 13v8"></path><path d="M21 8v8l-9 5-9-5V8"></path></svg></span>
-            <span class="nav-label">Materials</span>
-          </span>
-          <span class="mini-badge">Base</span>
-        </a>
-
-        <a class="side-link" data-nav="plans" href="plans.html" title="Planos">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8l4 4 4-6 4 6 4-4"></path><path d="M4 8v10h16V8"></path><path d="M6 18h12"></path></svg></span>
-            <span class="nav-label">Plans</span>
-          </span>
-          <span class="mini-badge">Pricing</span>
-        </a>
-
-        <a class="side-link" data-nav="settings" href="settings.html" title="Settings">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"></path><path d="M19.4 15a7.9 7.9 0 0 0 .1-2l2-1.2-2-3.5-2.3.7a8.2 8.2 0 0 0-1.7-1l-.3-2.4H9.8l-.3 2.4a8.2 8.2 0 0 0-1.7 1l-2.3-.7-2 3.5 2 1.2a7.9 7.9 0 0 0 .1 2l-2 1.2 2 3.5 2.3-.7a8.2 8.2 0 0 0 1.7 1l.3 2.4h4.4l.3-2.4a8.2 8.2 0 0 0 1.7-1l2.3.7 2-3.5-2-1.2Z"></path></svg></span>
-            <span class="nav-label">Settings</span>
-          </span>
-          <span class="mini-badge">Conta</span>
-        </a>
+        <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard"><span class="left"><span class="nav-label">Dashboard</span></span><span class="mini-badge">Resumo</span></a>
+        <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotação"><span class="left"><span class="nav-label">Nova cotação</span></span><span class="mini-badge">Novo</span></a>
+        <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span><span class="mini-badge">Histórico</span></a>
+        <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores"><span class="left"><span class="nav-label">Fornecedores</span></span><span class="mini-badge">Base</span></a>
+        <a class="side-link" data-nav="materials" href="materials.html" title="Materiais"><span class="left"><span class="nav-label">Materiais</span></span><span class="mini-badge">Catálogo</span></a>
+        <a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span><span class="mini-badge">Assinatura</span></a>
+        <a class="side-link" data-nav="settings" href="settings.html" title="Configurações"><span class="left"><span class="nav-label">Configurações</span></span><span class="mini-badge">Conta</span></a>
       </nav>
 
       <div class="app-sidebar-foot">
-        <a class="btn btn-ghost w-full" href="index.html">Landing</a>
+        <a class="btn btn-ghost w-full" href="index.html">Voltar para o site</a>
       </div>
     </aside>
     <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
@@ -89,24 +40,60 @@
     <main class="app-main">
       <header class="app-topbar">
         <div>
-          <h1>Suppliers</h1>
-          <p class="muted">Cadastro e gestão de fornecedores.</p>
+          <p class="eyebrow">Banco estruturado de fornecedores</p>
+          <h1>Fornecedores</h1>
+          <p>Organize a rede por região, materiais atendidos, prazo médio, nota e participação em cotações.</p>
         </div>
         <div class="app-topbar-actions">
-          <button class="btn btn-ghost" id="sidebarToggle">Menu</button>
-          <button class="btn btn-primary" id="newSupplierBtn" type="button">Novo Fornecedor</button>
+          <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
+          <button class="btn btn-primary" id="newSupplierBtn" type="button">Novo fornecedor</button>
         </div>
       </header>
+      <p class="app-feedback hidden" id="supplierFeedback" role="alert"></p>
 
-      <section class="card">
+      <section class="app-metrics">
+        <article class="card app-metric-card"><p>Fornecedores ativos</p><h3 id="supplierMetricTotal">0</h3></article>
+        <article class="card app-metric-card"><p>Melhor avaliação</p><h3 id="supplierMetricRating">-</h3></article>
+        <article class="card app-metric-card"><p>Prazo médio</p><h3 id="supplierMetricDelivery">-</h3></article>
+        <article class="card app-metric-card"><p>Top parceiro</p><h3 id="supplierMetricTop">-</h3></article>
+      </section>
+
+      <section class="admin-dual-panel">
+        <article class="card table-shell">
+          <div class="filter-shell-head">
+            <div>
+              <p class="eyebrow">Rede</p>
+              <h2>Fornecedores com melhor performance</h2>
+            </div>
+          </div>
+          <div id="supplierHighlights" class="admin-status-stack"></div>
+        </article>
+        <article class="card table-shell">
+          <div class="filter-shell-head">
+            <div>
+              <p class="eyebrow">Cobertura</p>
+              <h2>Materiais atendidos</h2>
+            </div>
+          </div>
+          <div id="supplierCoverage" class="admin-status-stack"></div>
+        </article>
+      </section>
+
+      <section class="card table-shell">
+        <div class="filter-shell-head">
+          <div>
+            <p class="eyebrow">Base operacional</p>
+            <h2>Relacionamento com fornecedores</h2>
+          </div>
+        </div>
         <div class="app-table-wrap">
           <table class="app-table">
             <thead>
               <tr>
-                <th>Nome</th>
-                <th>Contato</th>
-                <th>WhatsApp / E-mail</th>
+                <th>Fornecedor</th>
+                <th>Local / contato</th>
                 <th>Tags</th>
+                <th>Performance</th>
                 <th>Status</th>
                 <th>Ações</th>
               </tr>
@@ -123,31 +110,49 @@
     <div class="modal-card app-modal-card" role="dialog" aria-modal="true">
       <div class="modal-head">
         <h3 id="supplierModalTitle">Novo fornecedor</h3>
-        <button class="icon-btn" type="button" data-close-modal>✕</button>
+        <button class="icon-btn" type="button" data-close-modal>&times;</button>
       </div>
       <form class="form" id="supplierForm">
         <input id="supplierId" type="hidden" name="id" />
         <div class="form-row">
-          <label>Nome do fornecedor</label>
+          <label for="supplierName">Nome do fornecedor</label>
           <input id="supplierName" type="text" name="name" required />
         </div>
-        <div class="form-row">
-          <label>Contato</label>
-          <input id="supplierContact" type="text" name="contact" placeholder="Nome do responsável" />
+        <div class="app-grid-2">
+          <div class="form-row">
+            <label for="supplierRegion">Região</label>
+            <input id="supplierRegion" type="text" name="region" />
+          </div>
+          <div class="form-row">
+            <label for="supplierCity">Cidade</label>
+            <input id="supplierCity" type="text" name="city" />
+          </div>
+          <div class="form-row">
+            <label for="supplierState">Estado</label>
+            <input id="supplierState" type="text" name="state" />
+          </div>
+          <div class="form-row">
+            <label for="supplierDeliveryDays">Prazo médio (dias)</label>
+            <input id="supplierDeliveryDays" type="number" name="average_delivery_days" min="1" />
+          </div>
         </div>
         <div class="form-row">
-          <label>WhatsApp / E-mail</label>
-          <input id="supplierChannel" type="text" name="channel" />
+          <label for="supplierContact">Contato</label>
+          <input id="supplierContact" type="text" name="contact_name" />
         </div>
         <div class="form-row">
-          <label>Tags</label>
-          <input id="supplierTags" type="text" name="tags" placeholder="cimento, aço" />
+          <label for="supplierChannel">WhatsApp / E-mail</label>
+          <input id="supplierChannel" type="text" name="contact_channel" />
         </div>
         <div class="form-row">
-          <label>Status</label>
-          <select id="supplierActive" name="active">
-            <option value="true">Ativo</option>
-            <option value="false">Inativo</option>
+          <label for="supplierTags">Materiais atendidos</label>
+          <input id="supplierTags" type="text" name="material_tags" placeholder="cimento, aço, bloco" />
+        </div>
+        <div class="form-row">
+          <label for="supplierStatus">Status</label>
+          <select id="supplierStatus" name="status">
+            <option value="active">Ativo</option>
+            <option value="inactive">Inativo</option>
           </select>
         </div>
         <div class="app-inline-actions">
@@ -158,6 +163,7 @@
     </div>
   </div>
 
-  <script src="../assets/js/app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="../assets/js/pages/suppliers.page.js"></script>
 </body>
 </html>

@@ -5,7 +5,8 @@
     materials: "cotai_materials",
     requests: "cotai_requests",
     settings: "cotai_settings",
-    seq: "cotai_seq"
+    seq: "cotai_seq",
+    theme: "cotai_theme_preference"
   };
 
   const $ = (selector, root = document) => root.querySelector(selector);
@@ -118,6 +119,49 @@
   const openWhatsApp = (text) => {
     const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
     window.open(url, "_blank");
+  };
+
+  const getThemePreference = () => {
+    const stored = String(localStorage.getItem(STORAGE_KEYS.theme) || "system").trim().toLowerCase();
+    return ["system", "light", "dark"].includes(stored) ? stored : "system";
+  };
+
+  const getResolvedTheme = (preference = getThemePreference()) => {
+    if (preference === "system") {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    return preference;
+  };
+
+  const applyTheme = (preference = getThemePreference()) => {
+    const resolved = getResolvedTheme(preference);
+    document.documentElement.dataset.theme = resolved;
+    document.documentElement.dataset.themePreference = preference;
+    document.documentElement.style.colorScheme = resolved;
+    document.body?.setAttribute("data-theme", resolved);
+    document.body?.setAttribute("data-theme-preference", preference);
+
+    const label = $(".theme-switcher [data-theme-current]");
+    if (label) {
+      const labels = { light: "Claro", dark: "Escuro", system: "Sistema" };
+      label.textContent = `${labels[preference]} (${labels[resolved]})`;
+    }
+
+    $$(".theme-option").forEach((button) => {
+      const active = button.dataset.themeOption === preference;
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+  };
+
+  const initThemeSystem = () => {
+    applyTheme();
+
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+      if (getThemePreference() === "system") {
+        applyTheme("system");
+      }
+    });
   };
 
   const nextRequestId = () => {
@@ -686,6 +730,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     seedIfNeeded();
+    initThemeSystem();
     initSidebar();
     initModalSystem();
 

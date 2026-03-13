@@ -1,0 +1,26 @@
+[
+  {
+    "provider": "mercado_livre",
+    "source_name": "mercado_livre",
+    "query": "cimento cp-ii 50kg",
+    "item_name": "cimento cp-ii 50kg",
+    "enabled": true,
+    "max_results": 5
+  },
+  {
+    "provider": "mercado_livre",
+    "source_name": "mercado_livre",
+    "query": "areia fina m3",
+    "item_name": "areia fina",
+    "enabled": true,
+    "max_results": 5
+  },
+  {
+    "provider": "mercado_livre",
+    "source_name": "mercado_livre",
+    "query": "vergalhao ca-50 10mm",
+    "item_name": "vergalhao ca-50 10mm",
+    "enabled": true,
+    "max_results": 5
+  }
+]

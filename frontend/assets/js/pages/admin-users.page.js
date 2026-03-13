@@ -1,5 +1,5 @@
 import { fetchAdminUsers, updateUser } from "../adminUsers.js";
-import { bootAdminPage } from "../adminPage.js";
+import { bootAdminPage, runAdminPageBoot } from "../adminPage.js";
 import { formatDateTime, qs, setHTML, showFeedback } from "../ui.js";
 
 function badgeClass(status) {
@@ -11,7 +11,7 @@ function badgeClass(status) {
 
 function renderRows(rows) {
   if (!rows.length) {
-    return '<tr><td colspan="7" class="app-empty">Nenhum usuario disponivel.</td></tr>';
+    return '<tr><td colspan="7" class="app-empty">Nenhum usuário disponível.</td></tr>';
   }
 
   return rows
@@ -64,7 +64,7 @@ async function init() {
       }
 
       if (button.dataset.action === "role") {
-        const nextRole = window.prompt("Nova role do usuario:", user.role);
+        const nextRole = window.prompt("Novo perfil do usuário:", user.role);
         if (!nextRole) return;
         await updateUser(user.id, { role: nextRole });
       }
@@ -72,11 +72,11 @@ async function init() {
       rows = await loadUsers();
       showFeedback("#adminUsersFeedback", "Usuario atualizado com sucesso.", false);
     } catch (error) {
-      showFeedback("#adminUsersFeedback", error.message || "Nao foi possivel atualizar o usuario.");
+      showFeedback("#adminUsersFeedback", error.message || "Não foi possível atualizar o usuário.");
     }
   });
 }
 
-init().catch((error) => {
-  showFeedback("#adminUsersFeedback", error.message || "Erro ao iniciar a pagina de usuarios.");
+runAdminPageBoot(init, "Carregando usuários e permissões.").catch((error) => {
+  showFeedback("#adminUsersFeedback", error.message || "Erro ao iniciar a página de usuários.");
 });

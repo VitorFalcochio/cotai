@@ -1,64 +1,42 @@
 # Cotai
 
-Projeto reorganizado para separar frontend, backend, configuracao, dados e documentacao.
+Hub inteligente de compras para construcao civil, evoluido sobre a base original de cotacao com frontend estatico, Supabase, FastAPI e worker Python.
 
-## Estrutura
+## Arquitetura atual
 
-```text
-backend/
-  agent.py
-  state.json
-  worker/
-  waha/
+- `frontend/`: app estatico em HTML/CSS/JS
+- `backend/api/`: API FastAPI do chatbot interno
+- `backend/worker/`: motor de cotacao
+- `supabase/`: migrations e schema principal
+- `data/catalog.json`: catalogo local para cotacao
+- `data/price_sources.json`: watchlist automatica de consultas de preco
 
-frontend/
-  pages/
-    index.html
-    login.html
-    signup.html
-    dashboard.html
-    new-request.html
-    requests.html
-    suppliers.html
-    materials.html
-    plans.html
-    settings.html
-  assets/
-    css/
-      styles.css
-    js/
-      app.js
-      script.js
-      config.js
-      auth.js
-      requests.js
-      supabaseClient.js
-      ui.js
-      pages/
-        login.page.js
-        signup.page.js
-        dashboard.page.js
-        new-request.page.js
-        requests.page.js
+## Fluxo principal
 
-config/
-  .env
-  .env.example
+1. Usuario autentica via Supabase.
+2. Abre `frontend/pages/new-request.html`.
+3. Conversa com o chatbot interno da Cotai.
+4. A API interpreta a mensagem, extrai itens e pede confirmacao.
+5. Ao confirmar, a API cria `requests` e `request_items` direto no Supabase.
+6. O coletor abastece `supplier_price_snapshots` com capturas automatizadas e o worker busca requests pendentes, cota os itens, enriquece `quote_results`, atualiza fornecedores, registra `price_history` e persiste `request_quotes`.
+7. O resultado final volta para o proprio chat e tambem aparece no historico/admin, com comparador inteligente, economia potencial e exportacao.
 
-data/
-  catalog.json
-  state.json
+## Capacidades adicionadas
 
-docs/
-  README.md
-
-requirements.txt
-.gitignore
-```
+- Comparador inteligente por cotacao com melhor preco, prazo e melhor opcao geral.
+- Dashboard de valor com economia estimada, tempo ganho, fornecedores consultados e projetos ativos.
+- Historico inteligente com top materiais, fornecedores recorrentes, tendencia inicial de preco e comparacao entre pedidos.
+- Base de fornecedores estruturada com rollups, reviews e participacao em cotacoes.
+- Avaliacao de fornecedores por preco, prazo, atendimento e confiabilidade.
+- Exportacao profissional via CSV e layout de impressao para PDF.
+- Assistente de cotacao orientado a tarefa no fluxo `new-request`.
+- Estimativa inicial de materiais para piso, parede, laje e area.
+- Preparacao para planejamento por obra/projeto e historico de precos.
+- Admin mais estrategico com alertas, SLA, duplicidade, taxa de sucesso, fornecedores mapeados e volume por empresa.
 
 ## Como rodar
 
-Frontend:
+### 1. Frontend
 
 ```bash
 python -m http.server 5500
@@ -70,13 +48,19 @@ Abra:
 http://localhost:5500/frontend/pages/login.html
 ```
 
-Backend:
+### 2. API do chatbot
 
 ```bash
-python backend/agent.py
+python -m uvicorn backend.api.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Bootstrap do worker:
+### 3. Worker
+
+```bash
+python -m backend.worker.main
+```
+
+### 4. Bootstrap do worker
 
 ```bash
 python -m backend.worker.bootstrap
@@ -84,54 +68,37 @@ python -m backend.worker.bootstrap
 
 ## Configuracao do frontend
 
-Edite [config.js](/c:/Users/vitin/Desktop/cotai/cotaiedit/frontend/assets/js/config.js):
+Edite `frontend/assets/js/config.js`:
 
-```js
-export const SUPABASE_URL = "https://SEU_PROJECT_REF.supabase.co";
-export const SUPABASE_ANON_KEY = "SUA_CHAVE_PUBLICA";
-```
-
-Use apenas `SUPABASE_URL` e `SUPABASE_ANON_KEY` no frontend.
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+- `API_BASE_URL`
 
 ## Configuracao do backend
 
-As variaveis do backend ficam em [config/.env](/c:/Users/vitin/Desktop/cotai/cotaiedit/config/.env). O `agent.py` agora carrega esse arquivo diretamente.
+Variaveis em `config/.env`.
 
-Documentacao especifica do worker:
+Principais:
 
-- [backend/worker/README.md](/c:/Users/vitin/Desktop/cotai/cotaiedit/backend/worker/README.md)
-- Migration principal do worker:
-  [supabase/migrations/20260306_001_request_quotes_and_worker_processed_messages.sql](/c:/Users/vitin/Desktop/cotai/cotaiedit/supabase/migrations/20260306_001_request_quotes_and_worker_processed_messages.sql)
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `GROQ_API_KEY`
+- `API_HOST`
+- `API_PORT`
+- `API_BASE_URL`
 
-Arquivos de runtime:
+## Migrations obrigatorias
 
-- Estado principal do agente: [backend/state.json](/c:/Users/vitin/Desktop/cotai/cotaiedit/backend/state.json)
-- Dados/catalogo: [data/catalog.json](/c:/Users/vitin/Desktop/cotai/cotaiedit/data/catalog.json)
-- Copia de estado em dados: [data/state.json](/c:/Users/vitin/Desktop/cotai/cotaiedit/data/state.json)
+Aplique em ordem:
 
-## Ajustes de caminho feitos
+- `supabase/migrations/20260306_001_request_quotes_and_worker_processed_messages.sql`
+- `supabase/migrations/20260306_002_core_saas_schema.sql`
+- `supabase/migrations/20260306_003_admin_audit_logs.sql`
+- `supabase/migrations/20260306_004_internal_chatbot.sql`
+- `supabase/migrations/20260307_005_request_ops_upgrade.sql`
+- `supabase/migrations/20260307_006_procurement_intelligence.sql`
 
-- HTML movido para `frontend/pages`
-- CSS movido para `frontend/assets/css/styles.css`
-- JS compartilhado movido para `frontend/assets/js`
-- Scripts de pagina movidos para `frontend/assets/js/pages`
-- `agent.py` movido para `backend/agent.py`
-- `.env` e `.env.example` movidos para `config`
-- Migrations Supabase em `supabase/migrations`
-
-## Redirecionamentos
-
-Os redirecionamentos `login.html -> dashboard.html` continuam relativos dentro de `frontend/pages`, entao seguem funcionando sem alteracao de comportamento.
-
-## Supabase schema
-
-Para o painel admin e o worker funcionarem com o schema esperado, aplique:
-
-- [20260306_001_request_quotes_and_worker_processed_messages.sql](/c:/Users/vitin/Desktop/cotai/cotaiedit/supabase/migrations/20260306_001_request_quotes_and_worker_processed_messages.sql)
-- [20260306_002_core_saas_schema.sql](/c:/Users/vitin/Desktop/cotai/cotaiedit/supabase/migrations/20260306_002_core_saas_schema.sql)
-- [20260306_003_admin_audit_logs.sql](/c:/Users/vitin/Desktop/cotai/cotaiedit/supabase/migrations/20260306_003_admin_audit_logs.sql)
-
-A segunda migration cria ou completa as tabelas principais:
+## Tabelas principais
 
 - `companies`
 - `profiles`
@@ -143,3 +110,34 @@ A segunda migration cria ou completa as tabelas principais:
 - `worker_heartbeats`
 - `billing_subscriptions`
 - `admin_audit_logs`
+- `chat_threads`
+- `chat_messages`
+- `suppliers`
+- `supplier_reviews`
+- `projects`
+- `project_materials`
+- `price_history`
+- `supplier_price_snapshots`
+
+## Modulos e telas-chave
+
+- `frontend/pages/dashboard.html`: dashboard executivo do cliente.
+- `frontend/pages/new-request.html`: assistente interno de cotacao, estimativa e confirmacao.
+- `frontend/pages/requests.html`: historico inteligente, comparador e reviews.
+- `frontend/pages/suppliers.html`: base estruturada de fornecedores.
+- `frontend/pages/admin-dashboard.html`: operacao e inteligencia da plataforma.
+- `frontend/assets/js/procurementData.js`: agregacao de dados de compras, economia e tendencias.
+- `frontend/assets/js/quoteExport.js`: exportacao CSV e relatorio para impressao/PDF.
+
+## Testes
+
+```bash
+python -m unittest backend.tests.test_worker backend.tests.test_api
+```
+
+## Observacoes
+
+- O worker foi refatorado para atuar como motor de cotacao.
+- O painel admin e o historico continuam baseados nas mesmas tabelas principais, agora enriquecidas com inteligencia operacional.
+- O PDF atual usa layout de impressao do navegador; a base ficou pronta para evoluir depois para geracao server-side.
+- As tabelas novas sao opcionais em desenvolvimento local, mas devem existir para liberar a experiencia completa.

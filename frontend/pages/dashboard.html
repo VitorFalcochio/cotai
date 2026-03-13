@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cotai</title>
+  <title>Cotai | Dashboard</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
   <link rel="stylesheet" href="../assets/css/styles.css" />
 </head>
@@ -12,123 +12,138 @@
     <aside class="app-sidebar" id="appSidebar">
       <div class="side-shell-head">
         <a class="brand" href="dashboard.html">
-          <span class="brand-mark">■</span>
+          <span class="brand-mark">C</span>
           <span class="brand-name">Cotai</span>
         </a>
         <button class="btn btn-ghost side-collapse-btn" type="button" id="sidebarCollapse" aria-label="Colapsar menu" aria-expanded="true">
-          <span class="collapse-arrow" aria-hidden="true">←</span>
+          <span class="collapse-arrow" aria-hidden="true"><</span>
         </button>
       </div>
 
       <nav class="app-nav" id="appNav">
         <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
-        <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2"></rect><rect x="13" y="3" width="8" height="5" rx="2"></rect><rect x="13" y="10" width="8" height="11" rx="2"></rect><rect x="3" y="13" width="8" height="8" rx="2"></rect></svg></span>
-            <span class="nav-label">Dashboard</span>
-          </span>
-          <span class="mini-badge">Home</span>
-        </a>
-
-        <a class="side-link" data-nav="new" href="new-request.html" title="Novo Pedido">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v8"></path><path d="M8 12h8"></path></svg></span>
-            <span class="nav-label">New Quote</span>
-          </span>
-          <span class="mini-badge">Novo</span>
-        </a>
-
-        <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3.5 6h.5"></path><path d="M3.5 12h.5"></path><path d="M3.5 18h.5"></path></svg></span>
-            <span class="nav-label">Quote History</span>
-          </span>
-          <span class="mini-badge">Lista</span>
-        </a>
-
-        <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7l2-3h12l2 3"></path><path d="M3 7h18"></path><path d="M5 7v13h14V7"></path><path d="M9 20v-7h6v7"></path></svg></span>
-            <span class="nav-label">Suppliers</span>
-          </span>
-          <span class="mini-badge">CRM</span>
-        </a>
-
-        <a class="side-link" data-nav="materials" href="materials.html" title="Materiais">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8l-9-5-9 5 9 5 9-5Z"></path><path d="M12 13v8"></path><path d="M21 8v8l-9 5-9-5V8"></path></svg></span>
-            <span class="nav-label">Materials</span>
-          </span>
-          <span class="mini-badge">Base</span>
-        </a>
-
-        <a class="side-link" data-nav="plans" href="plans.html" title="Planos">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8l4 4 4-6 4 6 4-4"></path><path d="M4 8v10h16V8"></path><path d="M6 18h12"></path></svg></span>
-            <span class="nav-label">Plans</span>
-          </span>
-          <span class="mini-badge">Pricing</span>
-        </a>
-
-        <a class="side-link" data-nav="settings" href="settings.html" title="Settings">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"></path><path d="M19.4 15a7.9 7.9 0 0 0 .1-2l2-1.2-2-3.5-2.3.7a8.2 8.2 0 0 0-1.7-1l-.3-2.4H9.8l-.3 2.4a8.2 8.2 0 0 0-1.7 1l-2.3-.7-2 3.5 2 1.2a7.9 7.9 0 0 0 .1 2l-2 1.2 2 3.5 2.3-.7a8.2 8.2 0 0 0 1.7 1l.3 2.4h4.4l.3-2.4a8.2 8.2 0 0 0 1.7-1l2.3.7 2-3.5-2-1.2Z"></path></svg></span>
-            <span class="nav-label">Settings</span>
-          </span>
-          <span class="mini-badge">Conta</span>
-        </a>
+        <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard"><span class="left"><span class="nav-label">Dashboard</span></span><span class="mini-badge">Resumo</span></a>
+        <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotação"><span class="left"><span class="nav-label">Nova cotação</span></span><span class="mini-badge">Novo</span></a>
+        <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span><span class="mini-badge">Histórico</span></a>
+        <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores"><span class="left"><span class="nav-label">Fornecedores</span></span><span class="mini-badge">Base</span></a>
+        <a class="side-link" data-nav="materials" href="materials.html" title="Materiais"><span class="left"><span class="nav-label">Materiais</span></span><span class="mini-badge">Catálogo</span></a>
+        <a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span><span class="mini-badge">Assinatura</span></a>
+        <a class="side-link" data-nav="settings" href="settings.html" title="Configurações"><span class="left"><span class="nav-label">Configurações</span></span><span class="mini-badge">Conta</span></a>
       </nav>
 
       <div class="app-sidebar-foot">
-        <a class="btn btn-ghost w-full" href="index.html">Landing</a>
+        <a class="btn btn-ghost w-full" href="index.html">Voltar para o site</a>
       </div>
     </aside>
+
     <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
 
     <main class="app-main">
       <header class="app-topbar">
         <div>
+          <p class="eyebrow">Hub executivo de compras</p>
           <h1 id="companyName">Minha empresa</h1>
-          <p class="muted">Pedidos recentes da operação autenticada no Supabase.</p>
+          <p>Leia volume, ganho operacional, fornecedores recorrentes e sinais de risco em uma única tela.</p>
         </div>
         <div class="app-topbar-actions">
           <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
           <a class="btn btn-ghost hidden" id="adminShortcut" href="admin-dashboard.html">Admin</a>
           <button class="btn btn-ghost" id="logoutButton" type="button">Sair</button>
-          <a class="btn btn-primary" href="new-request.html">Novo Pedido</a>
+          <a class="btn btn-primary" href="new-request.html">Nova cotação</a>
         </div>
       </header>
 
-      <section class="app-metrics">
-        <article class="card app-metric-card">
-          <p>Total de pedidos</p>
-          <h3 id="metricRequests">0</h3>
+      <section class="app-surface-hero dashboard-hero-surface">
+        <div class="hero-split">
+          <div class="hero-copy-stack">
+            <span class="badge">Centro de decisão da operação</span>
+            <h2>Compre com histórico, contexto e critério de execução</h2>
+            <p class="muted">O dashboard precisa responder três perguntas rapidamente: o que entrou, onde existe risco e onde a equipe está comprando melhor.</p>
+            <div class="metric-band">
+              <article class="summary-chip"><span>Foco do dia</span><strong>fila, aprovação e ganho</strong></article>
+              <article class="summary-chip"><span>Leitura rápida</span><strong>pedido, fornecedor e projeto</strong></article>
+              <article class="summary-chip"><span>Próxima ação</span><strong>nova cotação ou recompra</strong></article>
+            </div>
+          </div>
+
+          <aside class="hero-info-card">
+            <p class="eyebrow">Painel de controle</p>
+            <dl class="hero-data-list">
+              <div><dt>Operação esperada</dt><dd>ritmo contínuo de cotação</dd></div>
+              <div><dt>Decisão crítica</dt><dd>preço, prazo e confiabilidade</dd></div>
+              <div><dt>Base de valor</dt><dd>histórico reutilizável</dd></div>
+            </dl>
+          </aside>
+        </div>
+      </section>
+
+      <section class="app-metrics app-metrics-executive">
+        <article class="card app-metric-card"><p>Total de pedidos</p><h3 id="metricRequests">0</h3></article>
+        <article class="card app-metric-card"><p>Materiais cotados</p><h3 id="metricMaterialsQuoted">0</h3></article>
+        <article class="card app-metric-card"><p>Economia estimada</p><h3 id="metricSavings">R$ 0</h3></article>
+        <article class="card app-metric-card"><p>Tempo economizado</p><h3 id="metricTimeSaved">0h</h3></article>
+        <article class="card app-metric-card"><p>Fornecedores consultados</p><h3 id="metricSuppliersConsulted">0</h3></article>
+        <article class="card app-metric-card"><p>Fornecedor recorrente</p><h3 id="metricBestSupplier">-</h3></article>
+        <article class="card app-metric-card"><p>Projetos ativos</p><h3 id="metricProjects">0</h3></article>
+        <article class="card app-metric-card"><p>Materiais pendentes</p><h3 id="metricPendingMaterials">0</h3></article>
+      </section>
+
+      <section class="admin-dual-panel">
+        <article class="card table-shell">
+          <div class="app-section-head">
+            <div>
+              <p class="eyebrow">Pedidos recentes</p>
+              <h2>Últimas solicitações</h2>
+            </div>
+            <a class="btn btn-ghost" href="requests.html">Ver histórico completo</a>
+          </div>
+          <p class="app-feedback hidden" id="dashboardFeedback" role="alert"></p>
+          <div class="app-table-wrap">
+            <table class="app-table">
+              <thead>
+                <tr>
+                  <th>Pedido</th>
+                  <th>Status</th>
+                  <th>Melhor fornecedor</th>
+                  <th>Economia</th>
+                  <th>Criado em</th>
+                </tr>
+              </thead>
+              <tbody id="dashboardRecentBody"></tbody>
+            </table>
+          </div>
         </article>
-        <article class="card app-metric-card">
-          <p>Último pedido</p>
-          <h3 id="metricLastRequest">-</h3>
+
+        <article class="card table-shell">
+          <div class="app-section-head">
+            <div>
+              <p class="eyebrow">Inteligência de compra</p>
+              <h2>Materiais e tendências</h2>
+            </div>
+          </div>
+          <div id="dashboardInsights" class="admin-status-stack"></div>
         </article>
       </section>
 
-      <section class="card">
-        <div class="app-section-head">
-          <h2>Últimos pedidos</h2>
-          <a class="btn btn-ghost" href="requests.html">Ver histórico</a>
-        </div>
-        <p class="app-feedback hidden" id="dashboardFeedback" role="alert"></p>
-        <div class="app-table-wrap">
-          <table class="app-table">
-            <thead>
-              <tr>
-                <th>Pedido</th>
-                <th>Cliente</th>
-                <th>Entrega</th>
-                <th>Criado em</th>
-              </tr>
-            </thead>
-            <tbody id="dashboardRecentBody"></tbody>
-          </table>
-        </div>
+      <section class="admin-dual-panel">
+        <article class="card table-shell">
+          <div class="app-section-head">
+            <div>
+              <p class="eyebrow">Rede preferencial</p>
+              <h2>Fornecedores em destaque</h2>
+            </div>
+          </div>
+          <div id="dashboardSuppliers" class="admin-status-stack"></div>
+        </article>
+        <article class="card table-shell">
+          <div class="app-section-head">
+            <div>
+              <p class="eyebrow">Planejamento</p>
+              <h2>Projetos e materiais</h2>
+            </div>
+          </div>
+          <div id="dashboardProjects" class="admin-status-stack"></div>
+        </article>
       </section>
     </main>
   </div>

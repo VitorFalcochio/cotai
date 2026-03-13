@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cotai App | Novo Pedido</title>
+  <title>Cotai | Nova cotação</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
   <link rel="stylesheet" href="../assets/css/styles.css" />
 </head>
@@ -12,138 +12,261 @@
     <aside class="app-sidebar" id="appSidebar">
       <div class="side-shell-head">
         <a class="brand" href="dashboard.html">
-          <span class="brand-mark">■</span>
+          <span class="brand-mark">C</span>
           <span class="brand-name">Cotai</span>
         </a>
         <button class="btn btn-ghost side-collapse-btn" type="button" id="sidebarCollapse" aria-label="Colapsar menu" aria-expanded="true">
-          <span class="collapse-arrow" aria-hidden="true">←</span>
+          <span class="collapse-arrow" aria-hidden="true"><</span>
         </button>
       </div>
 
       <nav class="app-nav" id="appNav">
         <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
-        <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2"></rect><rect x="13" y="3" width="8" height="5" rx="2"></rect><rect x="13" y="10" width="8" height="11" rx="2"></rect><rect x="3" y="13" width="8" height="8" rx="2"></rect></svg></span>
-            <span class="nav-label">Dashboard</span>
-          </span>
-          <span class="mini-badge">Home</span>
-        </a>
-
-        <a class="side-link" data-nav="new" href="new-request.html" title="Novo Pedido">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v8"></path><path d="M8 12h8"></path></svg></span>
-            <span class="nav-label">New Quote</span>
-          </span>
-          <span class="mini-badge">Novo</span>
-        </a>
-
-        <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3.5 6h.5"></path><path d="M3.5 12h.5"></path><path d="M3.5 18h.5"></path></svg></span>
-            <span class="nav-label">Quote History</span>
-          </span>
-          <span class="mini-badge">Lista</span>
-        </a>
-
-        <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7l2-3h12l2 3"></path><path d="M3 7h18"></path><path d="M5 7v13h14V7"></path><path d="M9 20v-7h6v7"></path></svg></span>
-            <span class="nav-label">Suppliers</span>
-          </span>
-          <span class="mini-badge">CRM</span>
-        </a>
-
-        <a class="side-link" data-nav="materials" href="materials.html" title="Materiais">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8l-9-5-9 5 9 5 9-5Z"></path><path d="M12 13v8"></path><path d="M21 8v8l-9 5-9-5V8"></path></svg></span>
-            <span class="nav-label">Materials</span>
-          </span>
-          <span class="mini-badge">Base</span>
-        </a>
-
-        <a class="side-link" data-nav="plans" href="plans.html" title="Planos">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8l4 4 4-6 4 6 4-4"></path><path d="M4 8v10h16V8"></path><path d="M6 18h12"></path></svg></span>
-            <span class="nav-label">Plans</span>
-          </span>
-          <span class="mini-badge">Pricing</span>
-        </a>
-
-        <a class="side-link" data-nav="settings" href="settings.html" title="Settings">
-          <span class="left">
-            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"></path><path d="M19.4 15a7.9 7.9 0 0 0 .1-2l2-1.2-2-3.5-2.3.7a8.2 8.2 0 0 0-1.7-1l-.3-2.4H9.8l-.3 2.4a8.2 8.2 0 0 0-1.7 1l-2.3-.7-2 3.5 2 1.2a7.9 7.9 0 0 0 .1 2l-2 1.2 2 3.5 2.3-.7a8.2 8.2 0 0 0 1.7 1l.3 2.4h4.4l.3-2.4a8.2 8.2 0 0 0 1.7-1l2.3.7 2-3.5-2-1.2Z"></path></svg></span>
-            <span class="nav-label">Settings</span>
-          </span>
-          <span class="mini-badge">Conta</span>
-        </a>
+        <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard"><span class="left"><span class="nav-label">Dashboard</span></span><span class="mini-badge">Resumo</span></a>
+        <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotação"><span class="left"><span class="nav-label">Nova cotação</span></span><span class="mini-badge">Novo</span></a>
+        <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span><span class="mini-badge">Histórico</span></a>
+        <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores"><span class="left"><span class="nav-label">Fornecedores</span></span><span class="mini-badge">Base</span></a>
+        <a class="side-link" data-nav="materials" href="materials.html" title="Materiais"><span class="left"><span class="nav-label">Materiais</span></span><span class="mini-badge">Catálogo</span></a>
+        <a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span><span class="mini-badge">Assinatura</span></a>
+        <a class="side-link" data-nav="settings" href="settings.html" title="Configurações"><span class="left"><span class="nav-label">Configurações</span></span><span class="mini-badge">Conta</span></a>
       </nav>
 
       <div class="app-sidebar-foot">
-        <a class="btn btn-ghost w-full" href="index.html">Landing</a>
+        <a class="btn btn-ghost w-full" href="index.html">Voltar para o site</a>
       </div>
     </aside>
     <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
 
-    <main class="app-main">
-      <header class="app-topbar">
-        <div>
-          <h1>Novo Pedido</h1>
-          <p class="muted">Crie o pedido e gere a mensagem pronta para WhatsApp.</p>
+    <main class="app-main quote-chat-page">
+      <header class="app-topbar quote-chat-topbar">
+        <div class="quote-chat-topbar-copy">
+          <p class="eyebrow">Mesa de compras</p>
+          <h1>Nova cotação</h1>
+          <p>Centralize o pedido, normalize os itens e compare fornecedores em uma interface feita para decisão operacional, não para conversa solta.</p>
         </div>
         <div class="app-topbar-actions">
           <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
-          <button class="btn btn-ghost" id="logoutButton" type="button">Sair</button>
           <a class="btn btn-ghost" href="requests.html">Ver pedidos</a>
+          <button class="btn btn-ghost" id="logoutButton" type="button">Sair</button>
         </div>
       </header>
 
-      <section class="card">
-        <form id="newRequestForm" class="form app-form-grid">
-          <div class="app-grid-2">
-            <div class="form-row">
-              <label for="customerName">Cliente</label>
-              <input id="customerName" name="customer_name" type="text" placeholder="Ex: Obra Residencial Atlas" required />
-            </div>
-            <div class="form-row">
-              <label for="deliveryMode">Modo de entrega</label>
-              <input id="deliveryMode" name="delivery_mode" type="text" placeholder="Ex: Retirada, entrega em 24h" required />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <label for="deliveryLocation">Local de entrega</label>
-            <input id="deliveryLocation" name="delivery_location" type="text" placeholder="Cidade / bairro / obra" required />
-          </div>
-
-          <div class="form-row">
-            <label for="notes">Observações</label>
-            <textarea id="notes" name="notes" rows="3" placeholder="Detalhes adicionais do pedido"></textarea>
-          </div>
-
-          <div class="form-row">
-            <label for="items">Itens do pedido (um por linha)</label>
-            <textarea id="items" name="items" rows="7" placeholder="Cimento CP-II 50kg - 80 sacos&#10;Vergalhão CA-50 10mm - 40 barras" required></textarea>
-          </div>
-
-          <p class="app-feedback hidden" id="newRequestFeedback" role="alert"></p>
-
-          <div class="app-inline-actions">
-            <button class="btn btn-primary" id="newRequestSubmit" type="submit">Salvar pedido</button>
-            <a class="btn btn-ghost" href="requests.html">Ir para histórico</a>
-          </div>
-        </form>
+      <section class="quote-command-deck quote-command-deck-premium">
+        <article class="quote-command-card quote-command-card-primary">
+          <span class="quote-command-label">Objetivo</span>
+          <strong>Sair com uma decisão defensável para a obra</strong>
+          <p>O sistema precisa organizar o pedido, expor riscos e destacar a melhor opção de compra.</p>
+        </article>
+        <article class="quote-command-card">
+          <span class="quote-command-label">Entrada</span>
+          <strong>Linguagem natural ou lista rápida</strong>
+          <p>Escreva como a equipe realmente pede no dia a dia.</p>
+        </article>
+        <article class="quote-command-card">
+          <span class="quote-command-label">Saída</span>
+          <strong>Preço, prazo e melhor consolidado</strong>
+          <p>O comparador sintetiza o retorno para leitura executiva.</p>
+        </article>
+        <article class="quote-command-card">
+          <span class="quote-command-label">Governança</span>
+          <strong>Status, SLA e aprovação</strong>
+          <p>Tudo fica visível no mesmo fluxo, sem troca de tela.</p>
+        </article>
       </section>
 
-      <section id="requestResult" class="card hidden">
-        <div class="app-section-head">
-          <h2>Pedido <span class="accent" id="generatedRequestId">CT-0000</span> criado</h2>
-          <div class="app-inline-actions">
-            <button class="btn btn-ghost" id="copyRequestMessage" type="button">Copiar mensagem</button>
-            <button class="btn btn-primary" id="openRequestWhats" type="button">Abrir WhatsApp</button>
+      <p class="app-feedback hidden" id="newRequestFeedback" role="alert"></p>
+
+      <section class="quote-chat-layout quote-chat-layout-premium">
+        <article class="card quote-chat-panel">
+          <div class="quote-chat-shell">
+            <div class="quote-chat-head">
+              <div class="quote-chat-head-copy">
+                <p class="eyebrow">Console de cotação</p>
+                <h2 id="chatThreadTitle">Nova solicitação</h2>
+                <p>Comece pelo pedido principal. A Cotai estrutura os itens, organiza o rascunho e prepara a comparação.</p>
+              </div>
+              <div class="quote-chat-head-actions">
+                <span class="quote-chat-head-note">Operação interna de suprimentos</span>
+                <button class="btn btn-ghost" id="chatSaveDraftButton" type="button">Salvar rascunho</button>
+                <button class="btn btn-primary hidden" id="chatConfirmButton" type="button">Confirmar pedido</button>
+              </div>
+            </div>
+
+            <div class="quote-chat-suggestions" id="chatSuggestions">
+              <button class="quote-suggestion-pill" type="button" data-suggestion="Preciso de 50 sacos de cimento CP-II, 20 barras de ferro 10 mm e 5 m3 de areia média para entrega em São José do Rio Preto até sexta.">Pedido completo</button>
+              <button class="quote-suggestion-pill" type="button" data-suggestion="Quero cotar argamassa ACIII, bloco estrutural 14x19x39 e vergalhão CA-50 8 mm para obra residencial.">Estrutura e acabamento</button>
+              <button class="quote-suggestion-pill" type="button" data-suggestion="Preciso de materiais com entrega urgente e nota fiscal para obra em andamento.">Entrega urgente</button>
+            </div>
+
+            <div class="quote-chat-stream" id="chatMessages">
+              <div class="chat-empty">
+                <div class="chat-empty-copy">
+                  <strong>Comece pelo pedido principal.</strong>
+                  <span>Inclua material, quantidade, cidade de entrega, prazo desejado e qualquer restrição importante.</span>
+                </div>
+              </div>
+            </div>
+
+            <form class="quote-chat-composer" id="chatComposerForm">
+              <label class="sr-only" for="chatComposerInput">Mensagem</label>
+              <div class="quote-chat-composer-shell">
+                <textarea id="chatComposerInput" rows="2" placeholder="Ex.: Preciso de 50 sacos de cimento, 20 barras de ferro 10 mm e 5 m3 de areia média para entrega em Rio Preto até sexta"></textarea>
+                <div class="quote-chat-actions">
+                  <p class="muted">A Cotai extrai os itens, permite editar, aplica prioridade e acompanha a resposta no mesmo painel.</p>
+                  <button class="btn btn-primary" id="chatComposerSubmit" type="submit">Enviar</button>
+                </div>
+              </div>
+            </form>
           </div>
-        </div>
-        <pre class="app-message" id="requestMessage"></pre>
+        </article>
+
+        <aside class="quote-chat-sidebar">
+          <section class="quote-side-section">
+            <div class="quote-side-section-head">
+              <p class="eyebrow">Governança</p>
+              <h3>Execução e aprovação</h3>
+            </div>
+
+            <article class="card quote-side-card quote-side-card-status">
+              <div class="quote-side-header">
+                <p class="eyebrow">Status</p>
+                <span class="app-badge is-muted" id="chatRequestStatus">RASCUNHO</span>
+              </div>
+              <dl class="quote-side-meta">
+                <div><dt>Código</dt><dd id="chatRequestCode">Aguardando</dd></div>
+                <div><dt>Última atualização</dt><dd id="chatRequestUpdated">-</dd></div>
+                <div><dt>Prioridade</dt><dd id="chatRequestPriority">MEDIUM</dd></div>
+                <div><dt>SLA</dt><dd id="chatRequestSla">-</dd></div>
+                <div><dt>Aprovação</dt><dd id="chatApprovalStatus">-</dd></div>
+              </dl>
+            </article>
+
+            <article class="card quote-side-card">
+              <div class="quote-side-header">
+                <p class="eyebrow">Resumo consolidado</p>
+              </div>
+              <p class="quote-summary" id="chatSummary">A conversa consolidará aqui os itens, o contexto do pedido e os próximos passos.</p>
+              <p class="quote-inline-note" id="chatPrefillNotice">Sem reaproveitamento aplicado nesta sessão.</p>
+            </article>
+          </section>
+
+          <section class="quote-side-section">
+            <div class="quote-side-section-head">
+              <p class="eyebrow">Montagem do pedido</p>
+              <h3>Entrada e normalização</h3>
+            </div>
+
+            <article class="card quote-side-card">
+              <div class="quote-side-header">
+                <p class="eyebrow">Entrada rápida</p>
+              </div>
+              <p class="quote-inline-note">Cole uma lista simples para montar o rascunho mais rápido. Ex.: <code>cimento cp2 - 20 sacos</code>.</p>
+              <div class="form-row">
+                <label for="importItemsTextarea">Importar lista</label>
+                <textarea id="importItemsTextarea" rows="4" placeholder="cimento cp2 - 20 sacos&#10;areia média - 5 m3&#10;vergalhão 10 mm - 30 barras"></textarea>
+              </div>
+              <button class="btn btn-ghost" id="applyImportedItemsButton" type="button">Aplicar lista ao rascunho</button>
+            </article>
+
+            <article class="card quote-side-card">
+              <div class="quote-side-header">
+                <p class="eyebrow">Editar antes de confirmar</p>
+              </div>
+              <div class="form-row">
+                <label for="draftTitleInput">Título</label>
+                <input id="draftTitleInput" type="text" placeholder="Nova cotação" />
+              </div>
+              <div class="form-row">
+                <label for="draftDeliveryMode">Entrega</label>
+                <input id="draftDeliveryMode" type="text" placeholder="Entrega programada" />
+              </div>
+              <div class="form-row">
+                <label for="draftDeliveryLocation">Local</label>
+                <input id="draftDeliveryLocation" type="text" placeholder="Cidade ou obra" />
+              </div>
+              <div class="form-row">
+                <label for="draftPriority">Prioridade</label>
+                <select id="draftPriority">
+                  <option value="LOW">Baixa</option>
+                  <option value="MEDIUM" selected>Média</option>
+                  <option value="HIGH">Alta</option>
+                  <option value="URGENT">Urgente</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label for="draftNotesInput">Observações</label>
+                <textarea id="draftNotesInput" rows="3" placeholder="Prazo, restrições, nota fiscal e observações"></textarea>
+              </div>
+              <div class="quote-side-header">
+                <p class="eyebrow">Itens editáveis</p>
+                <button class="btn btn-ghost" id="draftAddItemButton" type="button">Adicionar item</button>
+              </div>
+              <div id="draftItemsEditor"></div>
+            </article>
+
+            <article class="card quote-side-card">
+              <div class="quote-side-header">
+                <p class="eyebrow">Itens detectados</p>
+              </div>
+              <ul class="quote-side-list" id="chatDetectedItems">
+                <li class="app-empty">Nenhum item detectado ainda.</li>
+              </ul>
+            </article>
+          </section>
+
+          <section class="quote-side-section">
+            <div class="quote-side-section-head">
+              <p class="eyebrow">Decisão de compra</p>
+              <h3>Comparador e apoio técnico</h3>
+            </div>
+
+            <article class="card quote-side-card">
+              <div class="quote-side-header">
+                <p class="eyebrow">Melhores ofertas</p>
+              </div>
+              <ul class="quote-side-list" id="chatQuoteResults">
+                <li class="app-empty">Os resultados aparecerão aqui quando a cotação terminar.</li>
+              </ul>
+              <p class="quote-summary" id="chatComparisonSummary">A comparação entre fornecedores aparecerá aqui.</p>
+            </article>
+
+            <article class="card quote-side-card">
+              <div class="quote-side-header">
+                <p class="eyebrow">Estimativa inicial</p>
+              </div>
+              <div class="app-grid-2">
+                <div class="form-row">
+                  <label for="estimateType">Tipo</label>
+                  <select id="estimateType">
+                    <option value="wall">Parede</option>
+                    <option value="floor">Piso</option>
+                    <option value="slab">Laje</option>
+                  </select>
+                </div>
+                <div class="form-row">
+                  <label for="estimateArea">Área (m²)</label>
+                  <input id="estimateArea" type="number" min="1" step="0.1" placeholder="120" />
+                </div>
+              </div>
+              <button class="btn btn-ghost" id="estimateMaterialsButton" type="button">Gerar estimativa</button>
+              <ul class="quote-side-list" id="estimateResults">
+                <li class="app-empty">Use como estimativa inicial, não como memorial definitivo.</li>
+              </ul>
+            </article>
+
+            <article class="card quote-side-card">
+              <div class="quote-side-header">
+                <p class="eyebrow">Alertas e histórico</p>
+              </div>
+              <ul class="quote-side-list" id="chatNotifications">
+                <li class="app-empty">Nenhum alerta no momento.</li>
+              </ul>
+              <ul class="quote-side-list" id="chatTimeline">
+                <li class="app-empty">O histórico operacional aparecerá aqui.</li>
+              </ul>
+            </article>
+          </section>
+        </aside>
       </section>
     </main>
   </div>

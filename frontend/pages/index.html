@@ -1,453 +1,272 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cotai</title>
-    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
-    <link rel="stylesheet" href="../assets/css/styles.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cotai | Cotação profissional para obras</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <link rel="stylesheet" href="../assets/css/styles.css" />
 </head>
+<body class="landing-page">
+  <header class="header">
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">C</span>
+        <span class="brand-name">Cotai</span>
+      </a>
 
-<body>
-    <header class="header">
-        <div class="container nav">
-            <a class="brand" href="#">
-                <span class="brand-mark">▮</span>
-                <span class="brand-name">Cotai</span>
-            </a>
+      <nav class="menu">
+        <a href="#problema">Problema</a>
+        <a href="#como-funciona">Fluxo</a>
+        <a href="#beneficios">Benefícios</a>
+        <a href="#faq">FAQ</a>
+        <a href="#resumo-planos">Planos</a>
+      </nav>
 
-            <nav class="menu">
-                <a href="#problema">Problema</a>
-                <a href="#como-funciona">Como funciona</a>
-                <a href="#para-quem">Para quem</a>
-                <a href="#faq">FAQ</a>
-            </nav>
-
-            <div class="nav-cta">
-                <a class="btn btn-ghost" href="dashboard.html">Dashboard</a>
-                <a class="btn btn-ghost" href="#como-funciona">Como funciona?</a>
-                <button class="btn btn-primary" id="openQuoteTop">Pedir cotação</button>
-            </div>
-
-            <button class="hamburger" id="hamburger" aria-label="Abrir menu">
-                <span></span><span></span><span></span>
-            </button>
+      <div class="nav-cta">
+        <div class="toggle-switch theme-switcher-inline" id="landingThemeSwitcher" aria-label="Alternar tema">
+          <label class="switch-label" for="landingThemeCheckbox">
+            <input type="checkbox" class="checkbox" id="landingThemeCheckbox" />
+            <span class="slider"></span>
+          </label>
         </div>
+        <a class="btn btn-ghost" href="login.html">Entrar</a>
+        <a class="btn btn-ghost" href="signup.html">Criar conta</a>
+        <button class="btn btn-primary" id="openQuoteTop" data-demo-source="topo" type="button">Solicitar demonstração</button>
+      </div>
 
-        <div class="mobile-menu" id="mobileMenu">
-            <a href="#problema">Problema</a>
-            <a href="#como-funciona">Como funciona</a>
-            <a href="#para-quem">Para quem</a>
-            <a href="#faq">FAQ</a>
-            <a class="btn btn-ghost w-full" href="dashboard.html">Ir para Dashboard</a>
-            <button class="btn btn-primary w-full" id="openQuoteMobile">Pedir cotação</button>
-        </div>
-    </header>
-
-    <main>
-        <section class="hero">
-            <div class="container hero-grid">
-                <div class="hero-copy">
-                    <div class="badge">Cotação centralizada • Fornecedores locais</div>
-                    <h1>Centralize a compra de <span class="accent">material de construção</span> e evite atraso na
-                        obra.</h1>
-                    <p>
-                        Você envia o pedido uma vez. Nós cotamos com fornecedores da sua região e retornamos com as
-                        melhores opções
-                        de <strong>preço</strong> e <strong>prazo</strong>.
-                    </p>
-
-                    <div class="hero-actions">
-                        <button class="btn btn-primary" id="openQuoteHero">Pedir cotação Demo</button>
-                        <a class="btn btn-ghost" href="#problema">Entender o problema</a>
-                    </div>
-
-                    <div class="trust">
-                        <div class="trust-item">
-                            <span class="dot"></span>
-                            Resposta rápida
-                        </div>
-                        <div class="trust-item">
-                            <span class="dot"></span>
-                            Comparação clara
-                        </div>
-                        <div class="trust-item">
-                            <span class="dot"></span>
-                            Sem burocracia
-                        </div>
-                    </div>
-                </div>
-
-                <div class="hero-card">
-                    <div class="card">
-                        <div class="card-head">
-                            <h3>Exemplo de retorno</h3>
-                            <p>Comparação simples (preço + prazo)</p>
-                        </div>
-
-                        <div class="quote-table">
-                            <div class="qt-row qt-head">
-                                <span>Fornecedor</span><span>Preço</span><span>Prazo</span>
-                            </div>
-                            <div class="qt-row">
-                                <span>Fornecedor A</span><span>R$ 28,90</span><span>24h</span>
-                            </div>
-                            <div class="qt-row">
-                                <span>Fornecedor B</span><span>R$ 27,50</span><span>48h</span>
-                            </div>
-                            <div class="qt-row qt-best">
-                                <span>Fornecedor C</span><span>R$ 26,90</span><span>72h</span>
-                            </div>
-                        </div>
-
-                        <div class="card-foot">
-                            <button class="btn btn-primary w-full" id="openQuoteCard">Quero uma cotação</button>
-                            <small>Teste piloto com poucas construtoras.</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section" id="problema">
-            <div class="container">
-                <div class="section-head">
-                    <h2>O que está quebrando o ritmo da obra</h2>
-                    <p>Preço oscilando, tempo perdido e material faltando no pior momento.</p>
-                </div>
-
-                <div class="grid-3">
-                    <div class="box">
-                        <h3>Preço muda toda semana</h3>
-                        <p>Você compra no “feeling” e descobre depois que pagou caro (ou que subiu de novo).</p>
-                    </div>
-                    <div class="box">
-                        <h3>Cotação é lenta</h3>
-                        <p>Ligações e WhatsApp com vários fornecedores, respostas incompletas e retrabalho.</p>
-                    </div>
-                    <div class="box">
-                        <h3>Falta material</h3>
-                        <p>Quando acaba no meio da obra, a equipe para — e o custo do atraso aparece rápido.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section alt" id="como-funciona">
-            <div class="container">
-                <div class="section-head">
-                    <h2>Como funciona (simples e direto)</h2>
-                    <p>Você pede. A gente cota. Você decide.</p>
-                </div>
-
-                <div class="steps">
-                    <div class="step">
-                        <div class="step-num">1</div>
-                        <div>
-                            <h3>Envie o pedido</h3>
-                            <p>Material, quantidade, local e prazo. Pode ser por WhatsApp.</p>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <div class="step-num">2</div>
-                        <div>
-                            <h3>Receba as opções</h3>
-                            <p>Comparamos fornecedores locais e retornamos com preço + prazo + observações.</p>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <div class="step-num">3</div>
-                        <div>
-                            <h3>Compre com mais controle</h3>
-                            <p>Você escolhe a melhor alternativa. Zero enrolação.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="cta-row">
-                    <div>
-                        <h3>Quer testar com um pedido real?</h3>
-                        <p>Leva menos de 1 minuto para enviar a solicitação.</p>
-                    </div>
-                    <button class="btn btn-primary" id="openQuoteHow">Pedir cotação</button>
-                </div>
-            </div>
-        </section>
-
-        <section class="section" id="para-quem">
-            <div class="container">
-                <div class="section-head">
-                    <h2>Para quem é</h2>
-                    <p>Ideal para quem compra recorrente e não quer perder tempo nem dinheiro.</p>
-                </div>
-
-                <div class="grid-2">
-                    <div class="box">
-                        <h3>Construtoras com obra em andamento</h3>
-                        <ul class="list">
-                            <li>Compra semanal de cimento e/ou aço</li>
-                            <li>Pressão por prazo</li>
-                            <li>Vários fornecedores na região</li>
-                        </ul>
-                    </div>
-                    <div class="box">
-                        <h3>O que você recebe</h3>
-                        <ul class="list">
-                            <li>Cotação centralizada</li>
-                            <li>Comparação clara (preço e prazo)</li>
-                            <li>Histórico básico (para decisões melhores)</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section alt" id="prova-social">
-            <div class="container">
-                <div class="section-head">
-                    <h2>Prova social do piloto</h2>
-                    <p>Empresas e equipes que já usam a Cotai para acelerar compras recorrentes.</p>
-                </div>
-
-                <div class="logos-strip">
-                    <div class="logo-pill">Construtora Horizonte</div>
-                    <div class="logo-pill">Obra Forte Engenharia</div>
-                    <div class="logo-pill">Grupo Atlas Obras</div>
-                    <div class="logo-pill">Módulo Construtora</div>
-                    <div class="logo-pill">Prime Acabamentos</div>
-                </div>
-
-                <div class="grid-2 testimonials">
-                    <article class="box">
-                        <p class="testimonial-text">"Antes, a equipe perdia horas em WhatsApp e telefone. Agora o pedido sai uma vez e já recebemos retorno comparável."</p>
-                        <p class="testimonial-meta">Felipe Santos • Compras, Construtora Horizonte</p>
-                    </article>
-                    <article class="box">
-                        <p class="testimonial-text">"A visão de preço e prazo no mesmo retorno ajudou a reduzir urgências e compra mal planejada na obra."</p>
-                        <p class="testimonial-meta">Priscila Rocha • Suprimentos, Obra Forte</p>
-                    </article>
-                </div>
-            </div>
-        </section>
-
-        <section class="section" id="resumo-planos">
-            <div class="container">
-                <div class="section-head">
-                    <h2>Planos para cada fase da operação</h2>
-                    <p>Comece pequeno e evolua conforme o volume de pedidos da sua obra.</p>
-                </div>
-
-                <div class="grid-3 plan-preview-grid">
-                    <article class="box plan-preview">
-                        <h3>Prata</h3>
-                        <p class="plan-price">R$ 50 <span>/ mês</span></p>
-                        <ul class="list">
-                            <li>50 pedidos/mês</li>
-                            <li>1 usuário</li>
-                            <li>10 fornecedores</li>
-                        </ul>
-                    </article>
-                    <article class="box plan-preview featured">
-                        <h3>Ouro</h3>
-                        <p class="plan-price">R$ 100 <span>/ mês</span></p>
-                        <ul class="list">
-                            <li>200 pedidos/mês</li>
-                            <li>Até 3 usuários</li>
-                            <li>50 fornecedores</li>
-                        </ul>
-                    </article>
-                    <article class="box plan-preview">
-                        <h3>Diamante</h3>
-                        <p class="plan-price">R$ 250 <span>/ mês</span></p>
-                        <ul class="list">
-                            <li>Pedidos ilimitados</li>
-                            <li>Usuários ilimitados</li>
-                            <li>Fornecedores ilimitados</li>
-                        </ul>
-                    </article>
-                </div>
-
-                <div class="cta-row">
-                    <div>
-                        <h3>Quer ver os recursos completos por plano?</h3>
-                        <p>Compare limites, histórico e funcionalidades de cada nível.</p>
-                    </div>
-                    <a class="btn btn-primary" href="plans.html">Ver planos completos</a>
-                </div>
-            </div>
-        </section>
-
-        <section class="section alt" id="fluxo-pratico">
-            <div class="container">
-                <div class="section-head">
-                    <h2>Como funciona na prática</h2>
-                    <p>Seu time dispara o pedido e recebe cotação organizada em minutos.</p>
-                </div>
-
-                <div class="grid-2">
-                    <div class="box">
-                        <h3>Fluxo real em 3 etapas</h3>
-                        <ul class="list">
-                            <li>1. Pedido enviado com #COTAI e PedidoID</li>
-                            <li>2. Bot consulta catálogo local e fallback de mercado</li>
-                            <li>3. Retorno com top opções de preço e prazo</li>
-                        </ul>
-                    </div>
-                    <div class="box message-preview">
-                        <h3>Exemplo de mensagem</h3>
-                        <pre>#COTAI
-PedidoID: CT-9030
-Itens:
-- 20 saco cimento cp2 50kg
-- 3 m3 areia fina</pre>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section alt" id="faq">
-            <div class="container">
-                <div class="section-head">
-                    <h2>Perguntas frequentes</h2>
-                    <p>Sem promessa vazia. Sem enrolação.</p>
-                </div>
-
-                <div class="faq">
-                    <details>
-                        <summary>Vocês vendem o material?</summary>
-                        <p>Na fase piloto, a gente centraliza e organiza as cotações e retorna as melhores opções. A
-                            compra é feita com o fornecedor escolhido.</p>
-                    </details>
-                    <details>
-                        <summary>Quanto tempo demora para receber a cotação?</summary>
-                        <p>Depende do material e da região, mas a meta é responder o mais rápido possível com opções
-                            completas (preço + prazo).</p>
-                    </details>
-                    <details>
-                        <summary>Quais materiais vocês atendem?</summary>
-                        <p>Começamos com cimento e aço (vergalhão). Depois expandimos conforme a demanda.</p>
-                    </details>
-                    <details>
-                        <summary>Como funciona o pagamento?</summary>
-                        <p>No piloto, pode ser por cotação ou mensalidade (dependendo do modelo que você escolher no
-                            contato).</p>
-                    </details>
-                </div>
-
-                <div class="footer-cta">
-                    <h3>Bora fazer uma cotação hoje?</h3>
-                    <p>Envie seu pedido e receba as melhores opções da sua região.</p>
-                    <button class="btn btn-primary" id="openQuoteBottom">Pedir cotação</button>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer class="footer">
-        <div class="container footer-grid">
-            <div>
-                <div class="brand footer-brand">
-                    <span class="brand-mark">▮</span>
-                    <span class="brand-name">Cotai</span>
-                </div>
-                <p class="muted">Central de cotação para cimento e aço. Versão piloto.</p>
-            </div>
-            <div class="footer-links">
-                <a href="#problema">Problema</a>
-                <a href="#como-funciona">Como funciona</a>
-                <a href="#para-quem">Para quem</a>
-                <a href="#faq">FAQ</a>
-            </div>
-            <div class="footer-actions">
-                <a class="btn btn-ghost w-full" id="openWhatsFooter" href="#">Falar no WhatsApp</a>
-                <small class="muted">© <span id="year"></span> CotaObra</small>
-            </div>
-        </div>
-    </footer>
-
-    <!-- MODAL -->
-    <div class="modal" id="quoteModal" aria-hidden="true">
-        <div class="modal-backdrop" id="closeModalBackdrop"></div>
-
-        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-            <div class="modal-head">
-                <h3 id="modalTitle">Pedir cotação Demo</h3>
-                <button class="icon-btn" id="closeModal" aria-label="Fechar">✕</button>
-            </div>
-
-            <form class="form" id="quoteForm">
-                <div class="form-row">
-                    <label>Seu nome</label>
-                    <input type="text" name="nome" placeholder="Insira o seu nome" required />
-                </div>
-
-                <div class="form-row">
-                    <label>Empresa / Construtora</label>
-                    <input type="text" name="empresa" placeholder="Ex: Construtora X" required />
-                </div>
-
-                <div class="form-row">
-                    <label>Itens para cotação</label>
-
-                    <div id="itemsWrap" class="items-wrap">
-                        <!-- Item (linha) 1 -->
-                        <div class="item-row" data-item>
-                            <select class="item-material" required>
-                                <option value="" disabled selected>Material</option>
-                                <option value="Cimento">Cimento</option>
-                                <option value="Aço (Vergalhão)">Aço (Vergalhão)</option>
-                                <option value="Areia">Areia</option>
-                                <option value="Brita">Brita</option>
-                                <option value="Bloco / Tijolo">Bloco / Tijolo</option>
-                                <option value="Outro">Outro</option>
-                            </select>
-                            <p class="limit-hint" id="limitHint" style="display:none;">
-                                Lista grande detectada. Para agilizar, envie essa lista direto no WhatsApp.
-                                <button type="button" class="mini-btn w-full" id="sendListWhatsBtn"
-                                    style="margin-top:10px;">
-                                    Enviar lista no WhatsApp
-                                </button>
-                            </p>
-
-                            <input class="item-qty" type="text" placeholder="Quantidade (ex: 200 sacos / 1.5 ton)"
-                                required />
-
-                            <button type="button" class="mini-btn danger" data-remove title="Remover">✕</button>
-                        </div>
-                    </div>
-
-                    <button type="button" class="mini-btn" id="addItemBtn">+ Adicionar material</button>
-                </div>
-
-                <label class="items-label">
-                    Itens para cotação
-                    <span class="items-count" id="itemsCount">Itens: 1</span>
-                </label>
-
-                <div class="form-row">
-                    <label>Prazo desejado (geral)</label>
-                    <input type="text" name="prazo" placeholder="Ex: 24h, 48h, até sexta" required />
-                </div>
-
-                <div class="form-row">
-                    <label>Local de entrega (cidade/bairro)</label>
-                    <input type="text" name="local" placeholder="Ex: São Paulo - Mooca" required />
-                </div>
-
-                <div class="form-row">
-                    <label>Observações (opcional)</label>
-                    <textarea name="obs" rows="3"
-                        placeholder="Ex: precisa nota fiscal / descarregar no local / marca preferida"></textarea>
-                </div>
-
-                <button class="btn btn-primary w-full" type="submit">Enviar no WhatsApp</button>
-                <small class="muted">Ao enviar, abriremos o WhatsApp com a mensagem pronta.</small>
-            </form>
-        </div>
+      <button class="hamburger" id="hamburger" aria-label="Abrir menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
 
-    <script src="../assets/js/script.js"></script>
-</body>
+    <div class="container mobile-menu" id="mobileMenu">
+      <a href="#problema">Problema</a>
+      <a href="#como-funciona">Fluxo</a>
+      <a href="#beneficios">Benefícios</a>
+      <a href="#faq">FAQ</a>
+      <a class="btn btn-ghost w-full" href="login.html">Entrar</a>
+      <button class="btn btn-primary w-full" id="openQuoteMobile" data-demo-source="menu-mobile" type="button">Solicitar demonstração</button>
+    </div>
+  </header>
 
+  <main>
+    <section class="hero hero-premium">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <div class="badge hero-sequence hero-kicker">SaaS para compras técnicas • construção civil • cotação centralizada</div>
+          <h1 class="hero-sequence hero-title">Menos ruído na compra. Mais <span class="accent">controle, prazo e confiança</span> para a obra.</h1>
+          <p class="hero-sequence hero-subtitle">
+            A Cotai centraliza pedidos de materiais, estrutura itens automaticamente, compara fornecedores e devolve uma decisão clara de preço, prazo e disponibilidade.
+            Sua equipe deixa de cotar no improviso e passa a operar com contexto, histórico e critério.
+          </p>
+
+          <div class="hero-actions hero-sequence hero-cta-group">
+            <button class="btn btn-primary" id="openQuoteHero" data-demo-source="hero" type="button">Pedir cotação demo</button>
+            <a class="btn btn-ghost" href="signup.html">Criar conta piloto</a>
+          </div>
+
+          <div class="trust animate" data-animate>
+            <div class="trust-item"><span class="dot"></span>Comparativo objetivo entre fornecedores</div>
+            <div class="trust-item"><span class="dot"></span>Histórico por pedido e por empresa</div>
+            <div class="trust-item"><span class="dot"></span>Fluxo pensado para engenharia e suprimentos</div>
+          </div>
+
+          <div class="metric-band animate" data-animate>
+            <article class="summary-chip">
+              <span>Tempo operacional</span>
+              <strong>menos idas e vindas</strong>
+            </article>
+            <article class="summary-chip">
+              <span>Decisão</span>
+              <strong>preço, prazo e risco</strong>
+            </article>
+            <article class="summary-chip">
+              <span>Recompra</span>
+              <strong>base histórica confiável</strong>
+            </article>
+          </div>
+        </div>
+
+        <div class="hero-card animate" data-animate>
+          <div class="card premium-hero-card">
+            <div class="card-head">
+              <p class="eyebrow">Leitura executiva</p>
+              <h3>Console de compras com critério real de decisão</h3>
+              <p>Um pedido centralizado, várias ofertas comparadas e um fornecedor recomendado com base em preço, prazo e confiabilidade.</p>
+            </div>
+
+            <div class="premium-proof-grid">
+              <article class="premium-proof-card premium-proof-card-strong">
+                <span>Melhor consolidado</span>
+                <strong>Obra Forte Distribuição</strong>
+                <small>economia potencial de R$ 1.240 no pedido</small>
+              </article>
+              <article class="premium-proof-card">
+                <span>Prazo mais rápido</span>
+                <strong>24h</strong>
+                <small>Depósito Horizonte</small>
+              </article>
+              <article class="premium-proof-card">
+                <span>Fornecedores comparados</span>
+                <strong>08</strong>
+                <small>com histórico e critérios visíveis</small>
+              </article>
+            </div>
+
+            <div class="quote-table premium-quote-table">
+              <div class="qt-row qt-head">
+                <span>Fornecedor</span>
+                <span>Preço</span>
+                <span>Prazo</span>
+              </div>
+              <div class="qt-row">
+                <span>Depósito Horizonte</span>
+                <span>R$ 28,90</span>
+                <span>24h</span>
+              </div>
+              <div class="qt-row">
+                <span>Construmax Regional</span>
+                <span>R$ 27,50</span>
+                <span>48h</span>
+              </div>
+              <div class="qt-row qt-best">
+                <span>Obra Forte Distribuição</span>
+                <span>R$ 26,90</span>
+                <span>72h</span>
+              </div>
+            </div>
+
+            <div class="card-foot">
+              <button class="btn btn-primary w-full" id="openQuoteCard" data-demo-source="card-comparativo" type="button">Quero ver esse fluxo na prática</button>
+              <small>Valide com um pedido real e veja economia potencial, prazo e fornecedor recomendado.</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-tight animate" id="resultado-premium" data-animate>
+      <div class="container premium-strip">
+        <article class="premium-strip-card">
+          <span>Tempo médio de resposta</span>
+          <strong>menos acompanhamento manual</strong>
+          <p>O pedido entra estruturado e o comprador acompanha tudo no mesmo fluxo.</p>
+        </article>
+        <article class="premium-strip-card">
+          <span>Controle operacional</span>
+          <strong>status, histórico e duplicidade</strong>
+          <p>Sem depender de memória, mensagens espalhadas ou planilhas paralelas.</p>
+        </article>
+        <article class="premium-strip-card">
+          <span>Pronto para crescer</span>
+          <strong>base de fornecedores e recompra</strong>
+          <p>Cada cotação vira dado reutilizável para compras futuras.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section animate" id="problema" data-animate>
+      <div class="container">
+        <div class="section-head animate" data-animate>
+          <h2>O problema não é só cotar. É cotar sem estrutura.</h2>
+          <p>Quando cada compra nasce em uma conversa diferente, o custo aparece em atraso, retrabalho e baixa previsibilidade.</p>
+        </div>
+
+        <div class="grid-3">
+          <article class="box animate" data-animate>
+            <h3>Preço sem contexto</h3>
+            <p>A equipe compra sob pressão, sem visão comparativa consistente entre fornecedores e sem histórico confiável.</p>
+          </article>
+          <article class="box animate" data-animate>
+            <h3>Tempo desperdiçado</h3>
+            <p>WhatsApp, telefone, planilha e acompanhamento manual criam um fluxo lento para algo que deveria ser operacional.</p>
+          </article>
+          <article class="box animate" data-animate>
+            <h3>Prazo instável</h3>
+            <p>Quando o material atrasa ou falta no meio da obra, a execução para e o custo de uma decisão ruim fica exposto.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt animate" id="como-funciona" data-animate>
+      <div class="container">
+        <div class="section-head animate" data-animate>
+          <h2>Como a Cotai organiza o fluxo de compra</h2>
+          <p>Um processo simples para a equipe usar no dia a dia e robusto o bastante para gerar visibilidade operacional.</p>
+        </div>
+
+        <div class="steps">
+          <div class="step animate" data-animate>
+            <div class="step-num">1</div>
+            <div>
+              <h3>Descreva o pedido</h3>
+              <p>Materiais, quantidades, cidade de entrega, prazo desejado e observações técnicas em um único fluxo.</p>
+            </div>
+          </div>
+          <div class="step animate" data-animate>
+            <div class="step-num">2</div>
+            <div>
+              <h3>Receba a consolidação</h3>
+              <p>A Cotai organiza os itens, acompanha o status e reúne as melhores opções para a equipe decidir com contexto.</p>
+            </div>
+          </div>
+          <div class="step animate" data-animate>
+            <div class="step-num">3</div>
+            <div>
+              <h3>Compre com histórico</h3>
+              <p>O pedido fica registrado, o status é rastreável e a comparação deixa de depender de memória ou conversa solta.</p>
+            </div>
+          </div>
+        </div>
+        <br />
+        <div class="cta-row animate" data-animate>
+          <div>
+            <h3>Quer validar com uma demanda real da sua operação?</h3>
+            <p class="muted">Em poucos minutos, dá para simular um pedido e entender o ganho no fluxo.</p>
+          </div>
+          <button class="btn btn-primary" id="openQuoteHow" data-demo-source="fluxo" type="button">Agendar demonstração</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section animate" id="beneficios" data-animate>
+      <div class="container">
+        <div class="section-head animate" data-animate>
+          <h2>Um produto que passa <span class="accent">credibilidade</span> para quem compra e para quem gerencia</h2>
+          <p>O foco é reduzir a fricção operacional sem transformar o processo em um software pesado ou burocrático.</p>
+        </div>
+
+        <div class="grid-2">
+          <article class="box animate" data-animate>
+            <h3>Para quem está na operação</h3>
+            <ul class="list">
+              <li>Pedido mais claro e rápido de montar</li>
+              <li>Status visível sem depender de mensagens dispersas</li>
+              <li>Comparação objetiva entre preço e prazo</li>
+              <li>Menos retrabalho em cotações recorrentes</li>
+            </ul>
+          </article>
+          <article class="box animate" data-animate>
+            <h3>Para quem decide e acompanha</h3>
+            <ul class="list">
+              <li>Histórico mais consistente por pedido</li>
+              <li>Melhor leitura de fornecedores e recorrência</li>
+              <li>Mais previsibilidade para prazo e custo</li>
+              <li>Base melhor para auditoria e recompra</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { initLandingMotion } from "../assets/js/ui.js";
+
+    initLandingMotion();
+  </script>
+  <script src="../assets/js/script.js"></script>
+</body>
 </html>

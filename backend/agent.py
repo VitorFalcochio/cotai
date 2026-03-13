@@ -1,4 +1,4 @@
-from worker.main import main
+from backend.worker.main import main
 
 
 if __name__ == "__main__":

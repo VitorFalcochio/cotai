@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cotai Admin | Billing</title>
+  <title>Cotai Admin | Receita</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
   <link rel="stylesheet" href="../assets/css/styles.css" />
 </head>
@@ -11,25 +11,30 @@
   <div class="app-layout">
     <aside class="app-sidebar app-sidebar-admin" id="appSidebar">
       <div class="side-shell-head">
-        <a class="brand" href="admin-dashboard.html"><span class="brand-mark">■</span><span class="brand-name">Cotai Admin</span></a>
-        <button class="btn btn-ghost side-collapse-btn" type="button" id="sidebarCollapse" aria-label="Colapsar menu" aria-expanded="true"><span class="collapse-arrow" aria-hidden="true">←</span></button>
+        <a class="brand" href="admin-dashboard.html"><span class="brand-mark">C</span><span class="brand-name">Cotai Admin</span></a>
+        <button class="btn btn-ghost side-collapse-btn" type="button" id="sidebarCollapse" aria-label="Colapsar menu" aria-expanded="true"><span class="collapse-arrow" aria-hidden="true"><</span></button>
       </div>
       <nav class="app-nav" id="appNav">
         <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
-        <a class="side-link" data-nav="admin-dashboard" href="admin-dashboard.html" title="Overview"><span class="left"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h6V3H3z"></path><path d="M15 21h6V11h-6z"></path><path d="M15 3h6v4h-6z"></path><path d="M3 21h6v-5H3z"></path></svg></span><span class="nav-label">Overview</span></span><span class="mini-badge">Core</span></a>
-        <a class="side-link" data-nav="admin-companies" href="admin-companies.html" title="Companies"><span class="left"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"></path><path d="M5 21V7l7-4 7 4v14"></path><path d="M9 9h.01"></path><path d="M9 13h.01"></path><path d="M9 17h.01"></path><path d="M15 9h.01"></path><path d="M15 13h.01"></path><path d="M15 17h.01"></path></svg></span><span class="nav-label">Companies</span></span><span class="mini-badge">SaaS</span></a>
-        <a class="side-link" data-nav="admin-users" href="admin-users.html" title="Users"><span class="left"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span><span class="nav-label">Users</span></span><span class="mini-badge">Auth</span></a>
-        <a class="side-link" data-nav="admin-requests" href="admin-requests.html" title="Requests"><span class="left"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3.5 6h.5"></path><path d="M3.5 12h.5"></path><path d="M3.5 18h.5"></path></svg></span><span class="nav-label">Requests</span></span><span class="mini-badge">Ops</span></a>
-        <a class="side-link" data-nav="admin-worker" href="admin-worker.html" title="Worker"><span class="left"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="9" rx="2"></rect><path d="M9 11V7a3 3 0 0 1 6 0v4"></path><path d="M8 15h.01"></path><path d="M16 15h.01"></path><path d="M12 15h.01"></path></svg></span><span class="nav-label">Worker</span></span><span class="mini-badge">Bot</span></a>
-        <a class="side-link" data-nav="admin-billing" href="admin-billing.html" title="Billing"><span class="left"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"></rect><path d="M2 10h20"></path><path d="M7 15h2"></path><path d="M11 15h6"></path></svg></span><span class="nav-label">Billing</span></span><span class="mini-badge">MRR</span></a>
-        <a class="side-link" data-nav="admin-logs" href="admin-logs.html" title="Logs"><span class="left"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20V10"></path><path d="M18 20V4"></path><path d="M6 20v-4"></path></svg></span><span class="nav-label">Logs</span></span><span class="mini-badge">Audit</span></a>
+        <a class="side-link" data-nav="admin-dashboard" href="admin-dashboard.html" title="Visão geral"><span class="left"><span class="nav-label">Visão geral</span></span><span class="mini-badge">Core</span></a>
+        <a class="side-link" data-nav="admin-companies" href="admin-companies.html" title="Empresas"><span class="left"><span class="nav-label">Empresas</span></span><span class="mini-badge">SaaS</span></a>
+        <a class="side-link" data-nav="admin-users" href="admin-users.html" title="Usuários"><span class="left"><span class="nav-label">Usuários</span></span><span class="mini-badge">Auth</span></a>
+        <a class="side-link" data-nav="admin-requests" href="admin-requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span><span class="mini-badge">Ops</span></a>
+        <a class="side-link" data-nav="admin-worker" href="admin-worker.html" title="Worker"><span class="left"><span class="nav-label">Worker</span></span><span class="mini-badge">Bot</span></a>
+        <a class="side-link" data-nav="admin-snapshots" href="admin-snapshots.html" title="Snapshots"><span class="left"><span class="nav-label">Snapshots</span></span><span class="mini-badge">Preço</span></a>
+        <a class="side-link" data-nav="admin-billing" href="admin-billing.html" title="Receita"><span class="left"><span class="nav-label">Receita</span></span><span class="mini-badge">MRR</span></a>
+        <a class="side-link" data-nav="admin-logs" href="admin-logs.html" title="Logs"><span class="left"><span class="nav-label">Logs</span></span><span class="mini-badge">Audit</span></a>
       </nav>
       <div class="app-sidebar-foot"><a class="btn btn-ghost w-full" href="dashboard.html">Voltar ao cliente</a></div>
     </aside>
     <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
     <main class="app-main">
       <header class="app-topbar">
-        <div><h1>Billing</h1><p class="muted">Visao financeira, MRR e distribuicao por plano.</p></div>
+        <div>
+          <p class="eyebrow">Receita e planos</p>
+          <h1>Receita</h1>
+          <p>Monitore MRR, testes, churn indireto e distribuição dos planos com uma hierarquia mais útil para a tomada de decisão.</p>
+        </div>
         <div class="app-topbar-actions">
           <div class="admin-topbar-identity"><strong id="adminIdentity">Admin</strong><span class="app-badge is-success" id="adminRole">ADMIN</span></div>
           <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
@@ -37,21 +42,44 @@
           <button class="btn btn-ghost" id="logoutButton" type="button">Sair</button>
         </div>
       </header>
+      <section class="admin-hero-card">
+        <div class="admin-hero-grid">
+          <div class="hero-copy-stack">
+            <span class="badge">Leitura financeira da base SaaS</span>
+            <h2>A receita fica mais clara quando o mix de planos e o movimento recente aparecem juntos</h2>
+            <p class="muted">A proposta aqui é aproximar os indicadores financeiros da dinâmica real da carteira para facilitar a análise de crescimento.</p>
+          </div>
+          <aside class="admin-note">
+            <strong>Observe especialmente</strong>
+            <ul class="admin-note-list">
+              <li>Queda de upgrades com aumento de inativos.</li>
+              <li>Concentração excessiva em um único plano.</li>
+              <li>Períodos de teste sem conversão aparente.</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
       <p class="app-feedback hidden" id="adminBillingFeedback" role="alert"></p>
       <section class="admin-grid admin-grid-metrics">
-        <article class="card admin-metric-card"><p>MRR estimado</p><h3 id="billingMrr">TODO</h3></article>
-        <article class="card admin-metric-card"><p>Trials</p><h3 id="billingTrials">0</h3></article>
+        <article class="card admin-metric-card"><p>MRR estimado</p><h3 id="billingMrr">Não integrado</h3></article>
+        <article class="card admin-metric-card"><p>Testes ativos</p><h3 id="billingTrials">0</h3></article>
         <article class="card admin-metric-card"><p>Clientes inativos</p><h3 id="billingInactive">0</h3></article>
         <article class="card admin-metric-card"><p>Upgrades recentes</p><h3 id="billingUpgrades">0</h3></article>
         <article class="card admin-metric-card"><p>Downgrades recentes</p><h3 id="billingDowngrades">0</h3></article>
       </section>
-      <section class="admin-grid admin-grid-three">
-        <article class="card"><div class="app-section-head"><h2>Prata</h2></div><h3 id="billingPlanSilver">0</h3></article>
-        <article class="card"><div class="app-section-head"><h2>Ouro</h2></div><h3 id="billingPlanGold">0</h3></article>
-        <article class="card"><div class="app-section-head"><h2>Diamante</h2></div><h3 id="billingPlanDiamond">0</h3></article>
+      <section class="admin-inline-stats">
+        <article class="admin-mini-card"><span>Plano Prata</span><strong id="billingPlanSilver">0</strong></article>
+        <article class="admin-mini-card"><span>Plano Ouro</span><strong id="billingPlanGold">0</strong></article>
+        <article class="admin-mini-card"><span>Plano Diamante</span><strong id="billingPlanDiamond">0</strong></article>
+        <article class="admin-mini-card"><span>Leitura</span><strong>Mix da carteira</strong></article>
       </section>
-      <section class="card">
-        <div class="app-section-head"><h2>Assinaturas</h2></div>
+      <section class="card table-shell">
+        <div class="filter-shell-head">
+          <div>
+            <p class="eyebrow">Assinaturas</p>
+            <h2>Plano e status por empresa</h2>
+          </div>
+        </div>
         <div class="app-table-wrap">
           <table class="app-table">
             <thead><tr><th>Empresa</th><th>Plano</th><th>Status</th><th>Valor</th><th>Atualizado em</th></tr></thead>

@@ -14,7 +14,7 @@ export async function fetchAdminCompanies() {
     ),
     safeQuery(
       (client) => client.from("profiles").select("id, company_id, full_name, company_name, status, created_at, plan"),
-      { fallbackData: [], missingMessage: "Tabela profiles ausente. Contagem de usuarios indisponivel." }
+      { fallbackData: [], missingMessage: "Tabela profiles ausente. Contagem de usuários indisponível." }
     ),
     safeQuery(
       (client) => client.from("requests").select("id, company_id, created_at"),
@@ -55,7 +55,7 @@ export async function updateCompany(companyId, patch) {
   const { error } = await supabase.from("companies").update(patch).eq("id", companyId);
   if (error) {
     if (String(error.message || "").toLowerCase().includes("does not exist")) {
-      throw new Error("A tabela companies ainda nao existe no Supabase. As acoes de edicao dependem dela.");
+      throw new Error("A tabela companies ainda não existe no Supabase. As ações de edição dependem dela.");
     }
     throw error;
   }

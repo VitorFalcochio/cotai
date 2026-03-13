@@ -72,7 +72,12 @@ export async function fetchAdminLogs(filters = {}) {
         type: item.event_type || item.type || "admin",
         company: companyMap.get(item.company_id)?.name || item.company_id || "-",
         actor: item.actor_email || item.actor_id || "-",
-        message: item.description || item.message || "Evento administrativo"
+        requestId: item.metadata?.request_id || "",
+        message:
+          item.description ||
+          item.message ||
+          item.metadata?.error_message ||
+          "Evento administrativo"
       }))
     : fallbackEvents;
 
@@ -83,6 +88,7 @@ export async function fetchAdminLogs(filters = {}) {
     if (filters.endDate && item.createdAt && new Date(item.createdAt) > new Date(`${filters.endDate}T23:59:59`)) return false;
     if (
       filters.requestId &&
+      !String(item.requestId || "").includes(filters.requestId) &&
       !String(item.actor || "").includes(filters.requestId) &&
       !String(item.message || "").includes(filters.requestId)
     ) {
