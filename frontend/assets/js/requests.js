@@ -7,6 +7,13 @@ function getRequestCode(request) {
   return request?.id || `CT-${Math.floor(Math.random() * 9000 + 1000)}`;
 }
 
+function normalizeStatus(value) {
+  const normalized = String(value || "DRAFT").toUpperCase();
+  if (["NEW", "RECEIVED"].includes(normalized)) return "PENDING_QUOTE";
+  if (normalized === "QUOTING") return "PROCESSING";
+  return normalized;
+}
+
 function normalizeRequest(row) {
   return {
     id: row.id,
@@ -15,13 +22,23 @@ function normalizeRequest(row) {
     deliveryMode: row.delivery_mode || "-",
     deliveryLocation: row.delivery_location || "-",
     notes: row.notes || "",
-    createdAt: row.created_at || row.inserted_at || null
+    status: normalizeStatus(row.status),
+    sourceChannel: row.source_channel || "INTERNAL_CHAT",
+    chatThreadId: row.chat_thread_id || null,
+    createdAt: row.created_at || row.inserted_at || null,
+    processedAt: row.processed_at || null,
+    lastError: row.last_error || "",
+    priority: row.priority || "MEDIUM",
+    slaDueAt: row.sla_due_at || null,
+    approvalRequired: Boolean(row.approval_required),
+    approvalStatus: row.approval_status || "NOT_REQUIRED",
+    duplicateOfRequestId: row.duplicate_of_request_id || null
   };
 }
 
 async function tryInsertRequest(basePayload) {
   const payloads = [
-    { ...basePayload, request_code: basePayload.request_code, status: "novo" },
+    { ...basePayload, request_code: basePayload.request_code, status: "PENDING_QUOTE" },
     { ...basePayload, request_code: basePayload.request_code },
     { ...basePayload }
   ];
@@ -37,7 +54,7 @@ async function tryInsertRequest(basePayload) {
   }
 
   throw new Error(
-    "Nao foi possivel salvar em requests. Verifique se a tabela possui customer_name, delivery_mode, delivery_location e notes."
+    "Não foi possível salvar em requests. Verifique se a tabela possui customer_name, delivery_mode, delivery_location e notes."
   );
 }
 
@@ -57,7 +74,7 @@ async function tryInsertRequestItems(requestId, items) {
   }
 
   throw new Error(
-    "O pedido foi criado, mas nao foi possivel salvar em request_items. Verifique as colunas request_id e item_name ou description."
+    "O pedido foi criado, mas não foi possível salvar em request_items. Verifique as colunas request_id e item_name ou description."
   );
 }
 
@@ -106,7 +123,9 @@ export async function createRequest({ customerName, deliveryMode, deliveryLocati
     delivery_mode: deliveryMode,
     delivery_location: deliveryLocation,
     notes,
-    request_code: requestCode
+    request_code: requestCode,
+    status: "PENDING_QUOTE",
+    source_channel: "MANUAL_FORM"
   });
 
   await tryInsertRequestItems(requestRow.id, items);

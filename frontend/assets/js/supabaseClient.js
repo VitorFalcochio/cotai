@@ -7,7 +7,7 @@ const isConfigured =
   !SUPABASE_ANON_KEY.includes("YOUR_SUPABASE");
 
 if (!window.supabase?.createClient) {
-  throw new Error("Supabase CDN nao foi carregado.");
+  throw new Error("O CDN do Supabase não foi carregado.");
 }
 
 export const supabase = isConfigured

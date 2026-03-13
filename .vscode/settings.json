@@ -1,0 +1,11 @@
+{
+  "liveServer.settings.ignoreFiles": [
+    "**/.git/**",
+    "**/.run/**",
+    "**/*.log",
+    "**/backend/**",
+    "**/config/**",
+    "**/supabase/**",
+    "**/__pycache__/**"
+  ]
+}

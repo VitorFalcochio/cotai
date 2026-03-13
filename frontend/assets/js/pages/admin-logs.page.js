@@ -1,5 +1,5 @@
 import { fetchAdminLogs } from "../adminLogs.js";
-import { bootAdminPage } from "../adminPage.js";
+import { bootAdminPage, runAdminPageBoot } from "../adminPage.js";
 import { formatDateTime, qs, setHTML, showFeedback } from "../ui.js";
 
 function renderOptions(items, placeholder) {
@@ -69,6 +69,6 @@ async function init() {
   await loadLogs();
 }
 
-init().catch((error) => {
-  showFeedback("#adminLogsFeedback", error.message || "Erro ao iniciar a pagina de logs.");
+runAdminPageBoot(init, "Carregando trilha de auditoria.").catch((error) => {
+  showFeedback("#adminLogsFeedback", error.message || "Erro ao iniciar a página de logs.");
 });

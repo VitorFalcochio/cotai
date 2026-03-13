@@ -1,6 +1,6 @@
 import { DASHBOARD_PATH } from "../config.js";
 import { redirectIfAuthenticated, signUp } from "../auth.js";
-import { getReadableError, qs, setLoading, showFeedback } from "../ui.js";
+import { getReadableError, qs, runPageBoot, setLoading, showFeedback } from "../ui.js";
 
 async function init() {
   await redirectIfAuthenticated(DASHBOARD_PATH);
@@ -11,7 +11,7 @@ async function init() {
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
     showFeedback("#signupFeedback", "");
-    setLoading(submitButton, true, "Criar conta");
+    setLoading(submitButton, true, "Criar conta", "Criando conta...");
 
     const data = new FormData(form);
     const companyName = String(data.get("company_name") || "").trim();
@@ -20,7 +20,7 @@ async function init() {
     const confirmPassword = String(data.get("confirm_password") || "");
 
     if (password !== confirmPassword) {
-      showFeedback("#signupFeedback", "As senhas nao conferem.");
+      showFeedback("#signupFeedback", "As senhas não conferem.");
       setLoading(submitButton, false, "Criar conta");
       return;
     }
@@ -40,13 +40,13 @@ async function init() {
       );
       form.reset();
     } catch (error) {
-      showFeedback("#signupFeedback", getReadableError(error, "Nao foi possivel criar a conta."));
+      showFeedback("#signupFeedback", getReadableError(error, "Não foi possível criar a conta."));
     } finally {
       setLoading(submitButton, false, "Criar conta");
     }
   });
 }
 
-init().catch((error) => {
+runPageBoot(init, { loadingMessage: "Preparando cadastro da Cotai." }).catch((error) => {
   showFeedback("#signupFeedback", getReadableError(error, "Erro ao iniciar a tela de cadastro."));
 });

@@ -7,8 +7,6 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from .utils.logger import log_event
-
 PROJECT_DIR = Path(__file__).resolve().parents[2]
 BACKEND_DIR = PROJECT_DIR / "backend"
 CONFIG_DIR = PROJECT_DIR / "config"
@@ -41,8 +39,6 @@ class Settings:
     requests_per_cycle: int
     heartbeat_seconds: int
     timezone: str
-    force_phone: str
-    accept_from_me: bool
     healthcheck_timeout_seconds: int
     request_timeout_seconds: int
     retry_attempts: int
@@ -51,10 +47,9 @@ class Settings:
     supabase_service_role_key: str
     supabase_schema: str
     worker_company_id: str
-    waha_base_url: str
-    waha_session: str
-    waha_api_key: str
-    waha_chats_limit: int
+    api_host: str
+    api_port: int
+    api_base_url: str
     mercado_livre_site: str
     groq_api_key: str
     groq_model: str
@@ -65,17 +60,18 @@ class Settings:
     data_dir: Path
     catalog_json: Path
     catalog_csv: Path
+    price_sources_json: Path
 
 
 def load_settings() -> Settings:
+    api_host = os.getenv("API_HOST", "127.0.0.1").strip() or "127.0.0.1"
+    api_port = max(1, _env_int("API_PORT", 8000))
     return Settings(
         debug=_env_bool("DEBUG", True),
         poll_seconds=max(1, _env_int("POLL_SECONDS", 5)),
         requests_per_cycle=max(1, _env_int("REQUESTS_PER_CYCLE", 10)),
         heartbeat_seconds=max(15, _env_int("HEARTBEAT_SECONDS", 60)),
         timezone=os.getenv("TIMEZONE", "America/Sao_Paulo").strip() or "America/Sao_Paulo",
-        force_phone=os.getenv("FORCE_PHONE", "").strip(),
-        accept_from_me=_env_bool("ACCEPT_FROM_ME", False),
         healthcheck_timeout_seconds=max(1, _env_int("HEALTHCHECK_TIMEOUT_SECONDS", 10)),
         request_timeout_seconds=max(3, _env_int("REQUEST_TIMEOUT_SECONDS", 20)),
         retry_attempts=max(1, _env_int("RETRY_ATTEMPTS", 3)),
@@ -84,10 +80,9 @@ def load_settings() -> Settings:
         supabase_service_role_key=os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip(),
         supabase_schema=os.getenv("SUPABASE_SCHEMA", "public").strip() or "public",
         worker_company_id=os.getenv("WORKER_COMPANY_ID", os.getenv("DEFAULT_COMPANY_ID", "")).strip(),
-        waha_base_url=os.getenv("WAHA_BASE_URL", "http://localhost:3000").strip().rstrip("/"),
-        waha_session=os.getenv("WAHA_SESSION", "default").strip() or "default",
-        waha_api_key=os.getenv("WAHA_API_KEY", "").strip(),
-        waha_chats_limit=max(1, _env_int("WAHA_CHATS_LIMIT", 25)),
+        api_host=api_host,
+        api_port=api_port,
+        api_base_url=os.getenv("API_BASE_URL", f"http://{api_host}:{api_port}").strip().rstrip("/"),
         mercado_livre_site=os.getenv("MERCADO_LIVRE_SITE", "MLB").strip() or "MLB",
         groq_api_key=os.getenv("GROQ_API_KEY", "").strip(),
         groq_model=os.getenv("GROQ_MODEL", "llama-3.1-8b-instant").strip() or "llama-3.1-8b-instant",
@@ -98,6 +93,7 @@ def load_settings() -> Settings:
         data_dir=DATA_DIR,
         catalog_json=DATA_DIR / "catalog.json",
         catalog_csv=DATA_DIR / "catalog.csv",
+        price_sources_json=DATA_DIR / "price_sources.json",
     )
 
 
@@ -107,10 +103,6 @@ def validate_settings(settings: Settings) -> None:
         missing.append("SUPABASE_URL")
     if not settings.supabase_service_role_key:
         missing.append("SUPABASE_SERVICE_ROLE_KEY")
-    if not settings.waha_base_url:
-        missing.append("WAHA_BASE_URL")
-    if not settings.waha_session:
-        missing.append("WAHA_SESSION")
 
     if missing:
         raise RuntimeError(f"Missing required environment variables: {', '.join(missing)}")

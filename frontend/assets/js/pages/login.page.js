@@ -1,6 +1,6 @@
 import { DASHBOARD_PATH } from "../config.js";
 import { redirectIfAuthenticated, signIn } from "../auth.js";
-import { getReadableError, qs, setLoading, showFeedback } from "../ui.js";
+import { getReadableError, qs, runPageBoot, setLoading, showFeedback } from "../ui.js";
 
 async function init() {
   await redirectIfAuthenticated(DASHBOARD_PATH);
@@ -11,7 +11,7 @@ async function init() {
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
     showFeedback("#loginFeedback", "");
-    setLoading(submitButton, true, "Entrar");
+    setLoading(submitButton, true, "Entrar", "Entrando...");
 
     const data = new FormData(form);
     const email = String(data.get("email") || "").trim();
@@ -21,12 +21,12 @@ async function init() {
       await signIn(email, password);
       window.location.replace(DASHBOARD_PATH);
     } catch (error) {
-      showFeedback("#loginFeedback", getReadableError(error, "Nao foi possivel entrar."));
+      showFeedback("#loginFeedback", getReadableError(error, "Não foi possível entrar."));
       setLoading(submitButton, false, "Entrar");
     }
   });
 }
 
-init().catch((error) => {
+runPageBoot(init, { loadingMessage: "Preparando acesso seguro." }).catch((error) => {
   showFeedback("#loginFeedback", getReadableError(error, "Erro ao iniciar a tela de login."));
 });

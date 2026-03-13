@@ -1,5 +1,5 @@
 import { fetchAdminCompanies, updateCompany } from "../adminCompanies.js";
-import { bootAdminPage } from "../adminPage.js";
+import { bootAdminPage, runAdminPageBoot } from "../adminPage.js";
 import { formatDateTime, qs, setHTML, showFeedback } from "../ui.js";
 
 function badgeClass(status) {
@@ -87,11 +87,11 @@ async function init() {
       rows = await loadCompanies();
       showFeedback("#adminCompaniesFeedback", "Empresa atualizada com sucesso.", false);
     } catch (error) {
-      showFeedback("#adminCompaniesFeedback", error.message || "Nao foi possivel atualizar a empresa.");
+      showFeedback("#adminCompaniesFeedback", error.message || "Não foi possível atualizar a empresa.");
     }
   });
 }
 
-init().catch((error) => {
-  showFeedback("#adminCompaniesFeedback", error.message || "Erro ao iniciar a pagina de empresas.");
+runAdminPageBoot(init, "Carregando empresas cadastradas.").catch((error) => {
+  showFeedback("#adminCompaniesFeedback", error.message || "Erro ao iniciar a página de empresas.");
 });

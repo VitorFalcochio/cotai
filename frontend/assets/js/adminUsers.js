@@ -10,11 +10,11 @@ export async function fetchAdminUsers() {
           .from("profiles")
           .select("*")
           .order("created_at", { ascending: false }),
-      { fallbackData: [], missingMessage: "Tabela profiles ausente. Lista de usuarios indisponivel." }
+      { fallbackData: [], missingMessage: "Tabela profiles ausente. Lista de usuários indisponível." }
     ),
     safeQuery(
       (client) => client.from("companies").select("id, name, plan, status"),
-      { fallbackData: [], missingMessage: "Tabela companies ausente. Empresa do usuario derivada do company_id." }
+      { fallbackData: [], missingMessage: "Tabela companies ausente. Empresa do usuário derivada do company_id." }
     )
   ]);
 

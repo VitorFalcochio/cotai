@@ -1,19 +1,11 @@
 import { averageMinutes, collectNotice, safeQuery, startOfTodayIso } from "./adminCommon.js";
+import { getDemoWorkerPayload } from "./demoData.js";
 
 export async function fetchAdminWorker() {
   const notices = new Set();
   const todayIso = startOfTodayIso();
 
-  const [messagesResult, quotesResult, heartbeatsResult] = await Promise.all([
-    safeQuery(
-      (client) =>
-        client
-          .from("worker_processed_messages")
-          .select("id, message_id, request_id, processing_status, notes, created_at")
-          .order("created_at", { ascending: false })
-          .limit(120),
-      { fallbackData: [], missingMessage: "Tabela worker_processed_messages ausente. Dedupe ainda nao esta visivel." }
-    ),
+  const [quotesResult, heartbeatsResult] = await Promise.all([
     safeQuery(
       (client) =>
         client
@@ -34,26 +26,27 @@ export async function fetchAdminWorker() {
     )
   ]);
 
-  [messagesResult, quotesResult, heartbeatsResult].forEach((result) => collectNotice(notices, result));
+  [quotesResult, heartbeatsResult].forEach((result) => collectNotice(notices, result));
 
-  const messages = messagesResult.data;
   const quotes = quotesResult.data;
   const latestHeartbeat = heartbeatsResult.data?.[0] || null;
   const latestActivity = latestHeartbeat?.created_at || quotes[0]?.updated_at || null;
   const isOnline = latestActivity ? Date.now() - new Date(latestActivity).getTime() < 10 * 60 * 1000 : false;
 
-  const processedToday = messages.filter(
-    (item) => item.processing_status === "PROCESSED" && item.created_at >= todayIso
+  const processedToday = quotes.filter(
+    (item) => item.status === "DONE" && (item.finished_at || item.updated_at || item.created_at) >= todayIso
   ).length;
-  const ignoredToday = messages.filter(
-    (item) => item.processing_status === "IGNORED" && item.created_at >= todayIso
-  ).length;
+  const ignoredToday = 0;
   const failedRecent = quotes.filter((item) => item.status === "ERROR").slice(0, 8);
   const averageExecution = averageMinutes(
     quotes.filter((item) => item.status === "DONE"),
     "started_at",
     "finished_at"
   );
+
+  if (!quotes.length && !latestHeartbeat) {
+    return getDemoWorkerPayload();
+  }
 
   return {
     metrics: {

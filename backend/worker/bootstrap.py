@@ -5,7 +5,6 @@ from typing import Any
 
 from .config import load_settings, validate_settings
 from .services.supabase_service import SupabaseService
-from .services.whatsapp_service import WhatsAppService
 
 
 def run_bootstrap() -> int:
@@ -21,10 +20,7 @@ def run_bootstrap() -> int:
         return 1
 
     supabase = SupabaseService(settings)
-    whatsapp = WhatsAppService(settings)
-
     report["checks"]["supabase_connection"] = supabase.healthcheck()
-    report["checks"]["waha_connection"] = whatsapp.healthcheck()
 
     required_tables = [
         "requests",
@@ -32,6 +28,8 @@ def run_bootstrap() -> int:
         "quote_results",
         "request_quotes",
         "worker_processed_messages",
+        "chat_threads",
+        "chat_messages",
     ]
     table_checks: dict[str, Any] = {}
     for table in required_tables:
@@ -41,7 +39,6 @@ def run_bootstrap() -> int:
     report["ok"] = (
         report["checks"]["env"].get("ok")
         and report["checks"]["supabase_connection"].get("ok")
-        and report["checks"]["waha_connection"].get("ok")
         and all(check["ok"] for check in table_checks.values())
     )
     print(json.dumps(report, ensure_ascii=False, indent=2))

@@ -4,6 +4,46 @@ const WHATSAPP_NUMBER = "5517996657737";
 // ====== Helpers ======
 const $ = (sel) => document.querySelector(sel);
 
+let landingBootEl = null;
+
+const startLandingBoot = (message = "Preparando a experiencia Cotai.") => {
+    document.body.classList.add("app-booting");
+    if (!landingBootEl) {
+        landingBootEl = document.createElement("div");
+        landingBootEl.className = "app-boot";
+        landingBootEl.innerHTML = `
+      <div class="app-boot-card" role="status">
+        <div class="app-boot-loader" aria-hidden="true">
+          <div class="loader">
+            <div class="loader__bar"></div>
+            <div class="loader__bar"></div>
+            <div class="loader__bar"></div>
+            <div class="loader__bar"></div>
+            <div class="loader__bar"></div>
+            <div class="loader__ball"></div>
+          </div>
+        </div>
+        <div class="app-boot-copy">
+          <strong>Carregando Cotai</strong>
+          <span id="landingBootMessage">${message}</span>
+        </div>
+      </div>
+    `;
+        document.body.appendChild(landingBootEl);
+    }
+    const msg = landingBootEl.querySelector("#landingBootMessage");
+    if (msg) msg.textContent = message;
+    landingBootEl.classList.remove("is-hidden");
+};
+
+const finishLandingBoot = () => {
+    if (!landingBootEl) return;
+    landingBootEl.classList.add("is-hidden");
+    document.body.classList.remove("app-booting");
+};
+
+startLandingBoot("Carregando componentes da landing page.");
+
 const openWhatsApp = (text) => {
     const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
     window.location.href = url;
@@ -154,18 +194,29 @@ if (hamburger && mobileMenu) {
 
 const modal = $("#quoteModal");
 const openModal = () => {
+    if (!modal) {
+        openWhatsApp("Olá! Quero agendar uma demonstração da Cotai com um pedido real da minha operação.");
+        return;
+    }
     modal.classList.add("show");
     document.body.style.overflow = "hidden";
     updateLimitUI();
 };
 const closeModal = () => {
+    if (!modal) return;
     modal.classList.remove("show");
     document.body.style.overflow = "";
 };
 
-["#openQuoteTop", "#openQuoteHero", "#openQuoteCard", "#openQuoteBottom", "#openQuoteMobile"].forEach(id => {
-    const el = $(id);
-    if (el) el.addEventListener("click", openModal);
+document.querySelectorAll("[data-demo-source]").forEach((button) => {
+    button.addEventListener("click", () => {
+        const source = button.getAttribute("data-demo-source") || "site";
+        if (modal) {
+            openModal();
+            return;
+        }
+        openWhatsApp(`Olá! Quero agendar uma demonstração da Cotai. Origem: ${source}. Quero validar com uma demanda real da operação.`);
+    });
 });
 
 const closeBtn = $("#closeModal");
@@ -173,3 +224,7 @@ if (closeBtn) closeBtn.addEventListener("click", closeModal);
 
 const backdrop = $("#closeModalBackdrop");
 if (backdrop) backdrop.addEventListener("click", closeModal);
+
+window.addEventListener("load", () => {
+    window.setTimeout(finishLandingBoot, 350);
+}, { once: true });

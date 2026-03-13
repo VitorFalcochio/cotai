@@ -1,5 +1,5 @@
 import { fetchAdminWorker } from "../adminWorker.js";
-import { bootAdminPage } from "../adminPage.js";
+import { bootAdminPage, runAdminPageBoot } from "../adminPage.js";
 import { formatDateTime, setHTML, setText, showFeedback } from "../ui.js";
 
 function renderExecutions(rows) {
@@ -54,7 +54,7 @@ async function init() {
     setText("#workerFailureCount", String(payload.metrics.failureCount));
     setText(
       "#workerAverageExecution",
-      payload.metrics.averageExecution === null ? "TODO" : `${Math.round(payload.metrics.averageExecution * 10) / 10} min`
+      payload.metrics.averageExecution === null ? "Sem historico suficiente" : `${Math.round(payload.metrics.averageExecution * 10) / 10} min`
     );
 
     setHTML("#adminWorkerExecutionsBody", renderExecutions(payload.recentExecutions));
@@ -64,10 +64,10 @@ async function init() {
       showFeedback("#adminWorkerFeedback", payload.notices.join(" "));
     }
   } catch (error) {
-    showFeedback("#adminWorkerFeedback", error.message || "Nao foi possivel carregar a operacao do worker.");
+    showFeedback("#adminWorkerFeedback", error.message || "Não foi possível carregar a operação do worker.");
   }
 }
 
-init().catch((error) => {
-  showFeedback("#adminWorkerFeedback", error.message || "Erro ao iniciar a pagina do worker.");
+runAdminPageBoot(init, "Carregando a operação do worker.").catch((error) => {
+  showFeedback("#adminWorkerFeedback", error.message || "Erro ao iniciar a página do worker.");
 });

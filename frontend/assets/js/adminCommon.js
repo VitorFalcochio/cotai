@@ -27,9 +27,9 @@ export function isPermissionError(error) {
 export async function safeQuery(buildQuery, options = {}) {
   const {
     fallbackData = null,
-    missingMessage = "Tabela ainda nao disponivel neste projeto.",
+    missingMessage = "Tabela ainda não disponível neste projeto.",
     permissionMessage = "Sem permissao para visualizar estes dados com a politica atual do Supabase.",
-    errorMessage = "Nao foi possivel carregar os dados administrativos."
+    errorMessage = "Não foi possível carregar os dados administrativos."
   } = options;
 
   try {
@@ -147,7 +147,7 @@ export function averageMinutes(rows, startKey, endKey) {
 }
 
 export function formatCurrencyBRL(value) {
-  if (value === null || value === undefined || value === "") return "TODO";
+  if (value === null || value === undefined || value === "") return "Não integrado";
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",

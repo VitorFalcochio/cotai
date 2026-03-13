@@ -3,38 +3,80 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cotai App | Login</title>
+  <title>Cotai | Entrar</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
   <link rel="stylesheet" href="../assets/css/styles.css" />
 </head>
 <body data-page="login">
   <main class="app-login-wrap">
-    <section class="card app-login-card">
-      <a class="brand" href="index.html">
-        <span class="brand-mark">■</span>
-        <span class="brand-name">Cotai</span>
-      </a>
-      <h1>Entrar no painel</h1>
-      <p class="muted">Acesse sua operacao e acompanhe os pedidos da sua empresa.</p>
+    <section class="auth-shell">
+      <div class="auth-shell-card">
+        <section class="auth-panel">
+          <a class="brand" href="index.html">
+            <span class="brand-mark">C</span>
+            <span class="brand-name">Cotai</span>
+          </a>
 
-      <form class="form app-stack-sm" id="loginForm">
-        <div class="form-row">
-          <label for="email">E-mail</label>
-          <input id="email" name="email" type="email" placeholder="voce@empresa.com" autocomplete="email" required />
-        </div>
+          <div class="section-head is-compact">
+            <p class="eyebrow">Acesso seguro</p>
+            <h1>Entre no centro da sua operação de compras</h1>
+            <p>Acompanhe solicitações, resposta dos fornecedores e histórico de pedidos em um fluxo único para a equipe.</p>
+          </div>
 
-        <div class="form-row">
-          <label for="password">Senha</label>
-          <input id="password" name="password" type="password" placeholder="Digite sua senha" autocomplete="current-password" required />
-        </div>
+          <form class="form app-stack-sm" id="loginForm">
+            <div class="form-row">
+              <label for="email">E-mail corporativo</label>
+              <input id="email" name="email" type="email" placeholder="voce@empresa.com" autocomplete="email" required />
+            </div>
 
-        <p class="app-feedback hidden" id="loginFeedback" role="alert"></p>
-        <button class="btn btn-primary w-full" id="loginSubmit" type="submit">Entrar</button>
-      </form>
+            <div class="form-row">
+              <label for="password">Senha</label>
+              <input id="password" name="password" type="password" placeholder="Digite sua senha" autocomplete="current-password" required />
+            </div>
 
-      <div class="app-login-actions">
-        <a class="btn btn-ghost w-full" href="signup.html">Criar conta</a>
-        <a class="btn btn-ghost w-full" href="index.html">Voltar para landing</a>
+            <p class="app-feedback hidden" id="loginFeedback" role="alert"></p>
+            <button class="btn btn-primary w-full" id="loginSubmit" type="submit">Entrar no painel</button>
+          </form>
+
+          <div class="app-login-actions">
+            <a class="btn btn-ghost w-full" href="signup.html">Criar conta</a>
+            <a class="btn btn-ghost w-full" href="index.html">Voltar para o site</a>
+          </div>
+        </section>
+
+        <aside class="auth-aside">
+          <div class="hero-copy-stack">
+            <span class="badge">Painel profissional para compras e cotações</span>
+            <div class="auth-metrics">
+              <article class="auth-metric">
+                <span>Visão consolidada</span>
+                <strong>Pedidos, status e histórico</strong>
+              </article>
+              <article class="auth-metric">
+                <span>Mais agilidade</span>
+                <strong>Fluxo direto com a equipe</strong>
+              </article>
+            </div>
+          </div>
+
+          <div class="hero-info-card">
+            <p class="eyebrow">O que você encontra ao entrar</p>
+            <ul class="auth-points">
+              <li>
+                <strong>Fila organizada por prioridade</strong>
+                <span class="muted">Leia pedidos recentes, acompanhe atualizações e acione novos fluxos sem trocar de tela.</span>
+              </li>
+              <li>
+                <strong>Nova cotação em linguagem natural</strong>
+                <span class="muted">Descreva a necessidade da obra e a Cotai estrutura os itens para validação da equipe.</span>
+              </li>
+              <li>
+                <strong>Base de materiais e fornecedores</strong>
+                <span class="muted">Centralize o cadastro e reduza retrabalho nas compras recorrentes.</span>
+              </li>
+            </ul>
+          </div>
+        </aside>
       </div>
     </section>
   </main>

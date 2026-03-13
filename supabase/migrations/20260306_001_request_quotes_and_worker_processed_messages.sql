@@ -24,6 +24,7 @@ create table if not exists public.request_quotes (
   updated_at timestamptz not null default now()
 );
 
+
 create index if not exists request_quotes_request_id_idx
   on public.request_quotes(request_id);
 

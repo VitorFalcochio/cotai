@@ -1,11 +1,11 @@
 import { fetchAdminBilling } from "../adminBilling.js";
-import { bootAdminPage } from "../adminPage.js";
+import { bootAdminPage, runAdminPageBoot } from "../adminPage.js";
 import { formatCurrencyBRL } from "../adminCommon.js";
 import { formatDateTime, setHTML, setText, showFeedback } from "../ui.js";
 
 function renderRows(rows) {
   if (!rows.length) {
-    return '<tr><td colspan="5" class="app-empty">Nenhuma assinatura encontrada. TODO: conectar billing_subscriptions.</td></tr>';
+    return '<tr><td colspan="5" class="app-empty">Nenhuma assinatura real encontrada. Exibindo modo de demonstração ou aguardando integração financeira.</td></tr>';
   }
 
   return rows
@@ -42,10 +42,10 @@ async function init() {
       showFeedback("#adminBillingFeedback", payload.notices.join(" "));
     }
   } catch (error) {
-    showFeedback("#adminBillingFeedback", error.message || "Nao foi possivel carregar o billing.");
+    showFeedback("#adminBillingFeedback", error.message || "Não foi possível carregar a área de receita.");
   }
 }
 
-init().catch((error) => {
-  showFeedback("#adminBillingFeedback", error.message || "Erro ao iniciar a pagina financeira.");
+runAdminPageBoot(init, "Carregando billing e assinatura.").catch((error) => {
+  showFeedback("#adminBillingFeedback", error.message || "Erro ao iniciar a página financeira.");
 });

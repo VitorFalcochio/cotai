@@ -1,6 +1,6 @@
 import { DASHBOARD_PATH, LOGIN_PATH } from "./config.js";
 import { getCompanyDisplayName, isAdminRole, requireAdmin, signOut } from "./auth.js";
-import { initSidebar, qs, setText } from "./ui.js";
+import { initSidebar, qs, runPageBoot, setText } from "./ui.js";
 
 function getAdminLabel(profile, user) {
   return (
@@ -31,6 +31,10 @@ export async function bootAdminPage() {
   });
 
   return auth;
+}
+
+export function runAdminPageBoot(init, loadingMessage = "Validando acesso administrativo.") {
+  return runPageBoot(init, { loadingMessage });
 }
 
 export function showAdminShortcut(profile) {
