@@ -377,11 +377,33 @@
 
       .signal-band {
         width: 100%;
+        position: relative;
         margin-top: 34px;
         overflow: hidden;
         border-top: 1px solid rgba(255, 255, 255, 0.05);
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         background: rgba(255, 255, 255, 0.02);
+      }
+
+      .signal-band::before,
+      .signal-band::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: clamp(44px, 8vw, 110px);
+        z-index: 2;
+        pointer-events: none;
+      }
+
+      .signal-band::before {
+        left: 0;
+        background: linear-gradient(90deg, rgba(9, 13, 18, 0.98), rgba(9, 13, 18, 0));
+      }
+
+      .signal-band::after {
+        right: 0;
+        background: linear-gradient(270deg, rgba(9, 13, 18, 0.98), rgba(9, 13, 18, 0));
       }
 
       .signal-band-track {
@@ -508,11 +530,22 @@
         gap: 12px;
       }
 
+      .ai-chat-shell.is-switching .ai-bubble,
+      .ai-chat-shell.is-switching .ai-offer {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
       .ai-bubble {
         max-width: 88%;
         padding: 14px 16px;
         border-radius: 20px;
         line-height: 1.58;
+        transition:
+          opacity 260ms ease,
+          transform 260ms ease,
+          border-color var(--transition-base),
+          background-color var(--transition-base);
       }
 
       .ai-bubble.user {
@@ -540,6 +573,11 @@
         border: 1px solid rgba(255, 255, 255, 0.06);
         border-radius: 18px;
         background: rgba(255, 255, 255, 0.03);
+        transition:
+          opacity 260ms ease,
+          transform 260ms ease,
+          border-color var(--transition-base),
+          background-color var(--transition-base);
       }
 
       .ai-offer.is-best {
@@ -1570,35 +1608,35 @@
                 <span class="ai-chat-status">cotacao pronta</span>
               </div>
 
-              <div class="ai-chat-stream">
-                <div class="ai-bubble user">
+              <div class="ai-chat-stream" id="aiChatStream">
+                <div class="ai-bubble user" id="aiChatUserBubble">
                   Preciso de 15 sacos de cimento CP-II, ferro 10mm e areia media para entrega em Rio Preto.
                 </div>
 
-                <div class="ai-bubble bot">
+                <div class="ai-bubble bot" id="aiChatBotBubble">
                   Encontrei 3 opcoes. A melhor combina menor valor total e entrega mais rapida para o pedido.
                 </div>
               </div>
 
-              <div class="ai-offers">
+              <div class="ai-offers" id="aiOffers">
                 <div class="ai-offer is-best">
                   <div>
-                    <strong>Obra Forte Distribuicao</strong>
-                    <span>Melhor opcao geral · entrega em 48h</span>
+                    <strong id="aiOfferBestName">Obra Forte Distribuicao</strong>
+                    <span id="aiOfferBestMeta">Melhor opcao geral · entrega em 48h</span>
                   </div>
                   <div class="ai-offer-price">
-                    <strong>R$ 2.340</strong>
+                    <strong id="aiOfferBestPrice">R$ 2.340</strong>
                     <span>Total estimado</span>
                   </div>
                 </div>
 
                 <div class="ai-offer">
                   <div>
-                    <strong>Deposito Horizonte</strong>
-                    <span>Prazo rapido · entrega em 24h</span>
+                    <strong id="aiOfferAltName">Deposito Horizonte</strong>
+                    <span id="aiOfferAltMeta">Prazo rapido · entrega em 24h</span>
                   </div>
                   <div class="ai-offer-price">
-                    <strong>R$ 2.420</strong>
+                    <strong id="aiOfferAltPrice">R$ 2.420</strong>
                     <span>Total estimado</span>
                   </div>
                 </div>
@@ -1841,7 +1879,7 @@
             <h2>Leve um pedido real da sua obra para dentro da Cotai.</h2>
             <p>Veja em poucos minutos como a sua equipe pode cotar com mais clareza, mais velocidade e muito menos ruído operacional.</p>
             <div class="hero-actions" style="margin-top: 4px">
-              <a class="btn btn-primary" href="signup.html">Criar conta</a>
+              <a class="btn btn-primary" href="signup.html">Testar com um pedido real</a>
               <a class="btn btn-secondary" href="login.html">Entrar</a>
             </div>
           </div>
@@ -1895,6 +1933,84 @@
     <script>
       const year = document.getElementById("year");
       if (year) year.textContent = new Date().getFullYear();
+
+      const aiChatStream = document.getElementById("aiChatStream");
+      const aiChatUserBubble = document.getElementById("aiChatUserBubble");
+      const aiChatBotBubble = document.getElementById("aiChatBotBubble");
+      const aiOfferBestName = document.getElementById("aiOfferBestName");
+      const aiOfferBestMeta = document.getElementById("aiOfferBestMeta");
+      const aiOfferBestPrice = document.getElementById("aiOfferBestPrice");
+      const aiOfferAltName = document.getElementById("aiOfferAltName");
+      const aiOfferAltMeta = document.getElementById("aiOfferAltMeta");
+      const aiOfferAltPrice = document.getElementById("aiOfferAltPrice");
+
+      const aiScenarios = [
+        {
+          user: "Preciso de 15 sacos de cimento CP-II, ferro 10mm e areia media para entrega em Rio Preto.",
+          bot: "Encontrei 3 opcoes. A melhor combina menor valor total e entrega mais rapida para o pedido.",
+          bestName: "Obra Forte Distribuicao",
+          bestMeta: "Melhor opcao geral · entrega em 48h",
+          bestPrice: "R$ 2.340",
+          altName: "Deposito Horizonte",
+          altMeta: "Prazo rapido · entrega em 24h",
+          altPrice: "R$ 2.420"
+        },
+        {
+          user: "Quero bloco estrutural, argamassa e brita para reposicao na obra ainda esta semana.",
+          bot: "A Cotai organizou os itens e destacou a opcao com melhor cobertura para entrega parcial e menor custo.",
+          bestName: "Construmax Regional",
+          bestMeta: "Melhor cobertura · entrega em 72h",
+          bestPrice: "R$ 3.180",
+          altName: "Casa Forte Materiais",
+          altMeta: "Menor prazo · entrega em 36h",
+          altPrice: "R$ 3.260"
+        },
+        {
+          user: "Preciso comparar tubo, conexao e cimento cola para duas frentes de reforma.",
+          bot: "Separei as melhores ofertas e destaquei a compra com menor total consolidado para os dois pedidos.",
+          bestName: "Nova Obra Supply",
+          bestMeta: "Menor total · entrega em 48h",
+          bestPrice: "R$ 1.940",
+          altName: "Rede Base Comercial",
+          altMeta: "Fornecedor recorrente · entrega em 24h",
+          altPrice: "R$ 2.020"
+        }
+      ];
+
+      if (
+        aiChatStream &&
+        aiChatUserBubble &&
+        aiChatBotBubble &&
+        aiOfferBestName &&
+        aiOfferBestMeta &&
+        aiOfferBestPrice &&
+        aiOfferAltName &&
+        aiOfferAltMeta &&
+        aiOfferAltPrice
+      ) {
+        let aiScenarioIndex = 0;
+
+        const applyAiScenario = (scenario) => {
+          aiChatUserBubble.textContent = scenario.user;
+          aiChatBotBubble.textContent = scenario.bot;
+          aiOfferBestName.textContent = scenario.bestName;
+          aiOfferBestMeta.textContent = scenario.bestMeta;
+          aiOfferBestPrice.textContent = scenario.bestPrice;
+          aiOfferAltName.textContent = scenario.altName;
+          aiOfferAltMeta.textContent = scenario.altMeta;
+          aiOfferAltPrice.textContent = scenario.altPrice;
+        };
+
+        window.setInterval(() => {
+          aiChatStream.closest(".ai-chat-shell")?.classList.add("is-switching");
+
+          window.setTimeout(() => {
+            aiScenarioIndex = (aiScenarioIndex + 1) % aiScenarios.length;
+            applyAiScenario(aiScenarios[aiScenarioIndex]);
+            aiChatStream.closest(".ai-chat-shell")?.classList.remove("is-switching");
+          }, 260);
+        }, 4200);
+      }
 
       const tiltCard = document.querySelector("[data-tilt-card]");
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
