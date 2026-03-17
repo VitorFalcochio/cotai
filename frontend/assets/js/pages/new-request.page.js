@@ -8,13 +8,14 @@ import {
   sendChatMessage,
   updateChatDraft
 } from "../chatApi.js";
-import { formatDateTime, initSidebar, qs, runPageBoot, setHTML, setLoading, setText, showFeedback } from "../ui.js";
+import { formatDateTime, initSidebar, qs, runPageBoot, setHTML, setLoading, setText, showAppToast, showFeedback } from "../ui.js";
 
 const THREAD_STORAGE_KEY = "cotai_active_chat_thread";
 const DUPLICATE_REQUEST_STORAGE_KEY = "cotai_request_prefill";
 let activeThreadId = sessionStorage.getItem(THREAD_STORAGE_KEY) || "";
 let activeRequestId = "";
 let pollTimer = null;
+let lastKnownRequestStatus = "";
 let currentDraft = {
   title: "",
   items: [],
@@ -66,6 +67,46 @@ function badgeClass(status) {
 function formatStatus(status) {
   const key = String(status || "").toUpperCase();
   return STATUS_LABELS[key] || key || "-";
+}
+
+function notifyStatusTransition(status, payload = {}) {
+  const normalizedStatus = String(status || "").toUpperCase();
+  const requestCode = payload.requestCode || qs("#chatRequestCode")?.textContent || "Pedido";
+
+  if (normalizedStatus === "DONE") {
+    showAppToast({
+      tone: "success",
+      icon: "bx-check-circle",
+      title: "Cotacao concluida",
+      message: `${requestCode} pronto para revisao no chat.`,
+      actionLabel: "Ver",
+      onAction: () => qs("#chatMessages")?.scrollTo({ top: qs("#chatMessages")?.scrollHeight || 0, behavior: "smooth" }),
+    });
+    return;
+  }
+
+  if (normalizedStatus === "AWAITING_APPROVAL") {
+    showAppToast({
+      tone: "warning",
+      icon: "bx-time-five",
+      title: "Aguardando aprovacao",
+      message: `${requestCode} foi enviado para validacao administrativa.`,
+      actionLabel: "Ver",
+      onAction: () => qs("#chatMessages")?.scrollTo({ top: qs("#chatMessages")?.scrollHeight || 0, behavior: "smooth" }),
+    });
+    return;
+  }
+
+  if (normalizedStatus === "ERROR") {
+    showAppToast({
+      tone: "danger",
+      icon: "bx-error-circle",
+      title: "Cotacao com erro",
+      message: `${requestCode} nao foi concluido. Revise a conversa para tentar novamente.`,
+      actionLabel: "Ver",
+      onAction: () => qs("#chatMessages")?.scrollTo({ top: qs("#chatMessages")?.scrollHeight || 0, behavior: "smooth" }),
+    });
+  }
 }
 
 function escapeHtml(value) {
@@ -339,6 +380,7 @@ function renderThread(payload) {
   activeThreadId = payload.thread.id;
   sessionStorage.setItem(THREAD_STORAGE_KEY, activeThreadId);
   activeRequestId = payload.request?.id || "";
+  lastKnownRequestStatus = String(payload.request?.status || payload.thread?.status || "").toUpperCase();
 
   const list = qs("#chatMessages");
   if (list) {
@@ -381,6 +423,11 @@ function managePolling() {
       setText("#chatRequestSla", formatDateTime(payload.sla_due_at || null));
       setText("#chatApprovalStatus", payload.approval_status || "-");
       setText("#chatRequestUpdated", formatDateTime(payload.latest_quote?.updated_at || payload.processed_at || null));
+      const nextStatus = String(payload.status || "").toUpperCase();
+      if (nextStatus && nextStatus !== lastKnownRequestStatus && ["DONE", "ERROR", "AWAITING_APPROVAL"].includes(nextStatus)) {
+        notifyStatusTransition(nextStatus, { requestCode: payload.request?.request_code || qs("#chatRequestCode")?.textContent });
+      }
+      lastKnownRequestStatus = nextStatus;
       if (["DONE", "ERROR", "AWAITING_APPROVAL"].includes(payload.status)) {
         window.clearInterval(pollTimer);
         pollTimer = null;

@@ -7,6 +7,7 @@ const THEME_OPTIONS = ["system", "light", "dark"];
 const BOXICONS_STYLESHEET_ID = "cotai-boxicons-stylesheet";
 let themeControlElement = null;
 let themeMediaQuery = null;
+let toastStackElement = null;
 
 const SIDEBAR_ICON_MAP = {
   dashboard: "bx-grid-alt",
@@ -396,6 +397,66 @@ export function showFeedback(selector, message = "", isError = true) {
   element.textContent = message;
   element.classList.toggle("hidden", !message);
   element.classList.toggle("is-success", Boolean(message) && !isError);
+}
+
+function ensureToastStack() {
+  if (toastStackElement?.isConnected) return toastStackElement;
+  toastStackElement = document.createElement("div");
+  toastStackElement.className = "app-toast-stack";
+  toastStackElement.setAttribute("aria-live", "polite");
+  toastStackElement.setAttribute("aria-label", "Notificacoes");
+  document.body.appendChild(toastStackElement);
+  return toastStackElement;
+}
+
+export function showAppToast({
+  tone = "success",
+  icon = "bx-check-circle",
+  title = "Atualizacao",
+  message = "",
+  actionLabel = "",
+  onAction = null,
+  duration = 5000,
+} = {}) {
+  const stack = ensureToastStack();
+  const toast = document.createElement("article");
+  toast.className = `app-toast is-${tone}`;
+  toast.setAttribute("role", "status");
+  toast.innerHTML = `
+    <div class="app-toast-icon" aria-hidden="true"><i class="bx ${icon}"></i></div>
+    <div class="app-toast-copy">
+      <strong>${title}</strong>
+      <p>${message}</p>
+    </div>
+    <div class="app-toast-actions">
+      ${actionLabel ? `<button class="app-toast-action" type="button">${actionLabel}</button>` : ""}
+      <button class="app-toast-close" type="button" aria-label="Fechar notificacao">
+        <i class="bx bx-x" aria-hidden="true"></i>
+      </button>
+    </div>
+  `;
+
+  const removeToast = () => {
+    toast.classList.add("is-leaving");
+    window.setTimeout(() => toast.remove(), 220);
+  };
+
+  toast.querySelector(".app-toast-close")?.addEventListener("click", removeToast);
+  toast.querySelector(".app-toast-action")?.addEventListener("click", () => {
+    if (typeof onAction === "function") onAction();
+    removeToast();
+  });
+
+  stack.appendChild(toast);
+  window.requestAnimationFrame(() => {
+    toast.classList.add("is-visible");
+  });
+
+  if (duration > 0) {
+    window.setTimeout(removeToast, duration);
+  }
+
+  return toast;
 }
 
 export function getReadableError(error, fallback = "Ocorreu um erro inesperado.") {

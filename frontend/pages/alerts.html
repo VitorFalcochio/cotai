@@ -16,7 +16,7 @@
         <div>
           <p class="eyebrow">Overview</p>
           <h1>Alertas</h1>
-          <p id="alertsTitle">Sinais criticos da operacao.</p>
+          <p id="alertsTitle">Monitoramento da operacao.</p>
         </div>
         <div class="app-topbar-actions">
           <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
@@ -24,14 +24,12 @@
         </div>
       </header>
       <p class="app-feedback hidden" id="alertsFeedback" role="alert"></p>
-      <section class="app-metrics">
-        <article class="card app-metric-card"><p>Total de alertas</p><h3 id="alertsCount">0</h3></article>
-        <article class="card app-metric-card"><p>Aprovacoes pendentes</p><h3 id="alertsApprovals">0</h3></article>
-        <article class="card app-metric-card"><p>Erros operacionais</p><h3 id="alertsErrors">0</h3></article>
-      </section>
-      <section class="card table-shell">
-        <div class="filter-shell-head"><div><p class="eyebrow">Fila critica</p><h2>O que precisa de atencao agora</h2></div></div>
-        <div id="alertsList" class="admin-status-stack"></div>
+
+      <section class="card empty-state-card empty-state-card-centered">
+        <div class="empty-state-icon" aria-hidden="true"><i class="bx bx-bell-off"></i></div>
+        <div class="empty-state-copy">
+          <h2>Sem alertas</h2>
+        </div>
       </section>
     </main>
   </div>

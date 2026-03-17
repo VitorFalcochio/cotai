@@ -9,40 +9,15 @@
 </head>
 <body data-page="materials">
   <div class="app-shell app-layout dashboard-apex-layout">
-    <aside class="sidebar app-sidebar dashboard-apex-sidebar" id="appSidebar">
-      <div class="side-shell-head">
-        <a class="brand" href="dashboard.html">
-          <span class="brand-mark">C</span>
-          <span class="brand-name">Cotai</span>
-        </a>
-        <button class="btn btn-ghost side-collapse-btn" type="button" id="sidebarCollapse" aria-label="Colapsar menu" aria-expanded="true">
-          <span class="collapse-arrow" aria-hidden="true"><</span>
-        </button>
-      </div>
-
-      <nav class="app-nav" id="appNav">
-        <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
-        <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard"><span class="left"><span class="nav-label">Dashboard</span></span><span class="mini-badge">Resumo</span></a>
-        <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotação"><span class="left"><span class="nav-label">Nova cotação</span></span><span class="mini-badge">Novo</span></a>
-        <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span><span class="mini-badge">Histórico</span></a>
-        <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores"><span class="left"><span class="nav-label">Fornecedores</span></span><span class="mini-badge">Base</span></a>
-        <a class="side-link" data-nav="materials" href="materials.html" title="Materiais"><span class="left"><span class="nav-label">Materiais</span></span><span class="mini-badge">Catálogo</span></a>
-        <a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span><span class="mini-badge">Assinatura</span></a>
-        <a class="side-link" data-nav="settings" href="settings.html" title="Configurações"><span class="left"><span class="nav-label">Configurações</span></span><span class="mini-badge">Conta</span></a>
-      </nav>
-
-      <div class="app-sidebar-foot">
-        <a class="btn btn-ghost w-full" href="index.html">Voltar para o site</a>
-      </div>
-    </aside>
+    <aside class="sidebar app-sidebar dashboard-apex-sidebar" id="appSidebar"></aside>
     <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
 
     <main class="app-main dashboard-apex-main">
       <header class="app-topbar">
         <div>
-          <p class="eyebrow">Base mestre de compra</p>
+          <p class="eyebrow">Base mestre</p>
           <h1>Materiais</h1>
-          <p>Padronize nomes, unidades e observações para reduzir erros de interpretação na hora da cotação.</p>
+          <p>Catalogo padronizado para cotações mais consistentes.</p>
         </div>
         <div class="app-topbar-actions">
           <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
@@ -50,55 +25,29 @@
         </div>
       </header>
 
-      <section class="app-surface-hero hero-split">
-        <div class="hero-copy-stack">
-          <span class="badge">Catálogo vivo da operação</span>
-          <h2>Seu catálogo precisa ser claro o suficiente para acelerar o bot, a equipe e a recompra</h2>
-          <p class="muted">Esta tela deixa o cadastro menos técnico e mais estratégico: nomes consistentes, unidades corretas e contexto suficiente para cotar sem ambiguidade.</p>
-          <div class="catalog-glance">
-            <article class="summary-chip"><span>Padrão</span><strong>nomenclatura consistente</strong></article>
-            <article class="summary-chip"><span>Compra</span><strong>unidade alinhada ao mercado</strong></article>
-            <article class="summary-chip"><span>Risco</span><strong>menos itens duplicados</strong></article>
-            <article class="summary-chip"><span>Efeito</span><strong>pedidos mais rápidos</strong></article>
-          </div>
-        </div>
-
-        <aside class="hero-info-card">
-          <p class="eyebrow">Boas práticas</p>
-          <ul class="hero-key-points">
-            <li>Cadastre nomes que o comprador reconheça de imediato.</li>
-            <li>Defina a unidade no formato real de compra, e não apenas técnico.</li>
-            <li>Use observações curtas para equivalência, marca e restrições.</li>
-          </ul>
-        </aside>
-      </section>
-
-      <section class="filter-shell">
-        <div class="catalog-kicker">
+      <section class="card table-shell">
+        <div class="table-toolbar">
           <div>
-            <p class="eyebrow">Leitura e manutenção</p>
-            <h2>Base de materiais cadastrados</h2>
-            <p>Edite e expanda o catálogo com uma estrutura mais clara para operação, histórico e IA.</p>
+            <p class="eyebrow">Catalogo</p>
+            <h2>Base de materiais</h2>
           </div>
           <span class="app-badge is-muted">Cadastro manual</span>
         </div>
 
-        <article class="table-shell">
-          <div class="app-table-wrap">
-            <table class="app-table">
-              <thead>
-                <tr>
-                  <th>Material</th>
-                  <th>Unidade</th>
-                  <th>Categoria</th>
-                  <th>Observações</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody id="materialsTableBody"></tbody>
-            </table>
-          </div>
-        </article>
+        <div class="app-table-wrap">
+          <table class="app-table">
+            <thead>
+              <tr>
+                <th>Material</th>
+                <th>Unidade</th>
+                <th>Categoria</th>
+                <th>Observacoes</th>
+                <th>Acoes</th>
+              </tr>
+            </thead>
+            <tbody id="materialsTableBody"></tbody>
+          </table>
+        </div>
       </section>
     </main>
   </div>
@@ -125,7 +74,7 @@
           <input id="materialCategory" type="text" name="category" placeholder="Ex.: cimento" />
         </div>
         <div class="form-row">
-          <label for="materialNotes">Observações</label>
+          <label for="materialNotes">Observacoes</label>
           <textarea id="materialNotes" name="notes" rows="3"></textarea>
         </div>
         <div class="app-inline-actions">

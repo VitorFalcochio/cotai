@@ -127,6 +127,33 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(repeated.status_code, 200)
         self.assertEqual(confirmed.json()["request"]["id"], repeated.json()["request"]["id"])
 
+    def test_chat_message_after_done_request_starts_new_confirmation_cycle(self) -> None:
+        first = self.client.post(
+            "/chat/message",
+            json={"message": "Preciso de 10 sacos de cimento"},
+        ).json()
+        thread_id = first["thread"]["id"]
+
+        confirmed = self.client.post("/chat/confirm", json={"thread_id": thread_id}).json()
+        request_id = confirmed["request"]["id"]
+        self.supabase.mark_request_done(request_id)
+
+        follow_up = self.client.post(
+            "/chat/message",
+            json={"thread_id": thread_id, "message": "Agora quero 5 m3 de areia media"},
+        )
+
+        self.assertEqual(follow_up.status_code, 200)
+        payload = follow_up.json()
+        self.assertEqual(payload["thread"]["status"], "AWAITING_CONFIRMATION")
+        self.assertIsNone(payload["thread"]["request_id"])
+        self.assertIsNone(payload["request"])
+        self.assertTrue(payload["detected_items"])
+
+        second_confirm = self.client.post("/chat/confirm", json={"thread_id": thread_id})
+        self.assertEqual(second_confirm.status_code, 200)
+        self.assertNotEqual(second_confirm.json()["request"]["id"], request_id)
+
     def test_request_status_endpoint(self) -> None:
         thread = self.supabase.create_chat_thread(user_id="user-1", company_id="company-1", title="Teste")
         request_row = self.supabase.create_internal_request(

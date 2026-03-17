@@ -5,6 +5,7 @@ import sys
 import time
 from typing import Any
 
+from .agent.engine import AgentQuoteEngine
 from .config import Settings, load_settings, validate_settings
 from .services.ai_service import AIService
 from .services.search_service import SearchService
@@ -18,32 +19,13 @@ def request_item_name(item_row: dict[str, Any]) -> str:
 
 
 def build_quote_results(search_service: SearchService, items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    engine = AgentQuoteEngine(search_service)
     results: list[dict[str, Any]] = []
     for item in items:
         item_name = request_item_name(item)
         if not item_name:
             continue
-        offers, source = search_service.quote_item(item_name)
-        quantity = item.get("qty") or item.get("quantity")
-        try:
-            quantity_value = float(quantity) if quantity is not None else None
-        except (TypeError, ValueError):
-            quantity_value = None
-        unit = str(item.get("unit") or "un").strip()
-        priced_offers = [offer for offer in offers if isinstance(offer.get("price"), (int, float))]
-        best_price = min((float(offer["price"]) for offer in priced_offers), default=None)
-        results.append(
-            {
-                "item_name": item_name,
-                "quantity": quantity_value,
-                "unit": unit,
-                "offers": offers,
-                "source": source,
-                "not_found": len(offers) == 0,
-                "suggestion": search_service.suggest_search_term(item_name),
-                "estimated_best_total": (best_price * quantity_value) if best_price is not None and quantity_value is not None else best_price,
-            }
-        )
+        results.append(engine.build_item_quote(item))
     return results
 
 

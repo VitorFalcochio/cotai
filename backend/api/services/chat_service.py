@@ -16,16 +16,17 @@ class ChatService:
         profile = actor["profile"]
         company_id = profile.get("company_id")
         if not company_id:
-            raise RuntimeError("Seu perfil ainda não está vinculado a uma empresa.")
+            raise RuntimeError("Seu perfil ainda nao esta vinculado a uma empresa.")
 
         thread = self._load_or_create_thread(actor, thread_id, message)
+        thread = self._reset_thread_for_new_quote_cycle(thread)
         metadata = thread.get("metadata") or {}
         self.supabase.insert_chat_message(thread["id"], "user", message, {"kind": "prompt"})
 
         parsed = self.parser.parse_user_message(message)
         if not parsed["items"]:
             assistant_text = (
-                "Não consegui identificar os materiais com segurança. "
+                "Nao consegui identificar os materiais com seguranca. "
                 "Descreva os itens em linguagem direta, por exemplo: 50 sacos de cimento, 20 barras de ferro 10mm e 5 m3 de areia media."
             )
             updated_metadata = {
@@ -35,7 +36,13 @@ class ChatService:
                 "timeline": self._append_timeline(metadata, "Rascunho salvo automaticamente."),
             }
             self.supabase.insert_chat_message(thread["id"], "assistant", assistant_text, {"status": "DRAFT"})
-            self.supabase.update_chat_thread(thread["id"], {"status": "DRAFT", "metadata": {**updated_metadata, "pending_items": metadata.get("pending_items") or []}})
+            self.supabase.update_chat_thread(
+                thread["id"],
+                {
+                    "status": "DRAFT",
+                    "metadata": {**updated_metadata, "pending_items": metadata.get("pending_items") or []},
+                },
+            )
             return self.get_thread_payload(actor, thread["id"])
 
         items = self._merge_items(metadata.get("pending_items") or [], parsed["items"])
@@ -61,7 +68,7 @@ class ChatService:
     def update_draft(self, *, actor: dict[str, Any], thread_id: str, draft_data: dict[str, Any]) -> dict[str, Any]:
         thread = self.supabase.get_chat_thread(thread_id, actor["user"]["id"])
         if not thread:
-            raise RuntimeError("Thread não encontrada.")
+            raise RuntimeError("Thread nao encontrada.")
 
         metadata = thread.get("metadata") or {}
         items = [self.parser._normalize_item(item) for item in draft_data.get("items") or []]  # noqa: SLF001
@@ -96,12 +103,12 @@ class ChatService:
     def confirm_thread(self, *, actor: dict[str, Any], thread_id: str, overrides: dict[str, Any] | None = None) -> dict[str, Any]:
         thread = self.supabase.get_chat_thread(thread_id, actor["user"]["id"])
         if not thread:
-            raise RuntimeError("Thread não encontrada.")
+            raise RuntimeError("Thread nao encontrada.")
 
         metadata = thread.get("metadata") or {}
         items = self._resolve_items(overrides.get("items") if overrides else None, metadata.get("pending_items") or [])
         if not items:
-            raise RuntimeError("Não há itens pendentes para confirmar nesta conversa.")
+            raise RuntimeError("Nao ha itens pendentes para confirmar nesta conversa.")
         if thread.get("request_id"):
             return self.get_thread_payload(actor, thread_id)
 
@@ -136,10 +143,10 @@ class ChatService:
         if request_defaults["approval_required"]:
             assistant_text = (
                 f"Pedido {request_row['request_code']} registrado com prioridade {request_defaults['priority']}. "
-                "Ele entrou em fila de aprovação antes da cotação."
+                "Ele entrou em fila de aprovacao antes da cotacao."
             )
         else:
-            assistant_text = f"Pedido {request_row['request_code']} confirmado. Vou iniciar a cotação agora."
+            assistant_text = f"Pedido {request_row['request_code']} confirmado. Vou iniciar a cotacao agora."
 
         if duplicate_candidate:
             assistant_text += (
@@ -176,7 +183,9 @@ class ChatService:
                     "approval_required": request_defaults["approval_required"],
                     "timeline": self._append_timeline(
                         metadata,
-                        "Pedido confirmado e enviado para cotação." if not request_defaults["approval_required"] else "Pedido confirmado e aguardando aprovação.",
+                        "Pedido confirmado e enviado para cotacao."
+                        if not request_defaults["approval_required"]
+                        else "Pedido confirmado e aguardando aprovacao.",
                     ),
                 },
             },
@@ -186,7 +195,7 @@ class ChatService:
     def get_thread_payload(self, actor: dict[str, Any], thread_id: str) -> dict[str, Any]:
         thread = self.supabase.get_chat_thread(thread_id, actor["user"]["id"])
         if not thread:
-            raise RuntimeError("Thread não encontrada.")
+            raise RuntimeError("Thread nao encontrada.")
         messages = self.supabase.list_chat_messages(thread_id)
         metadata = thread.get("metadata") or {}
         request_payload = None
@@ -226,7 +235,7 @@ class ChatService:
                 }
             )
         if request_row and request_row.get("approval_required") and str(request_row.get("approval_status") or "").upper() != "APPROVED":
-            notifications.append({"tone": "warning", "message": "Pedido aguardando aprovação administrativa."})
+            notifications.append({"tone": "warning", "message": "Pedido aguardando aprovacao administrativa."})
         if metadata.get("draft_saved_at"):
             notifications.append({"tone": "muted", "message": f"Rascunho salvo em {metadata.get('draft_saved_at')}"})
         return notifications
@@ -235,10 +244,10 @@ class ChatService:
         if thread_id:
             thread = self.supabase.get_chat_thread(thread_id, actor["user"]["id"])
             if not thread:
-                raise RuntimeError("Thread não encontrada.")
+                raise RuntimeError("Thread nao encontrada.")
             return thread
 
-        title = first_message[:72].strip() or "Nova cotação"
+        title = first_message[:72].strip() or "Nova cotacao"
         return self.supabase.create_chat_thread(
             user_id=actor["user"]["id"],
             company_id=actor["profile"]["company_id"],
@@ -246,6 +255,34 @@ class ChatService:
             status="DRAFT",
             metadata={"timeline": [{"at": datetime.now(UTC).isoformat(), "label": "Rascunho iniciado."}]},
         )
+
+    def _reset_thread_for_new_quote_cycle(self, thread: dict[str, Any]) -> dict[str, Any]:
+        request_id = thread.get("request_id")
+        if not request_id:
+            return thread
+
+        request_row = self.supabase.get_request_by_id(request_id)
+        request_status = str((request_row or {}).get("status") or "").upper()
+        if request_status not in {"DONE", "ERROR"}:
+            return thread
+
+        metadata = dict(thread.get("metadata") or {})
+        cleaned_metadata = {
+            **metadata,
+            "pending_items": [],
+            "duplicate_candidate": None,
+            "request_code": None,
+            "timeline": self._append_timeline(metadata, "Nova cotacao iniciada apos conclusao do ciclo anterior."),
+        }
+        updated = self.supabase.update_chat_thread(
+            thread["id"],
+            {
+                "request_id": None,
+                "status": "DRAFT",
+                "metadata": cleaned_metadata,
+            },
+        )
+        return updated or {**thread, "request_id": None, "status": "DRAFT", "metadata": cleaned_metadata}
 
     def _merge_items(self, existing: list[dict[str, Any]], incoming: list[dict[str, Any]]) -> list[dict[str, Any]]:
         merged: list[dict[str, Any]] = []

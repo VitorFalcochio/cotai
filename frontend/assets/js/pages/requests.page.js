@@ -2,7 +2,6 @@ import { LOGIN_PATH } from "../config.js";
 import { requireAuth, signOut } from "../auth.js";
 import { fetchProcurementOverview } from "../procurementData.js";
 import { exportQuoteCsv, printQuoteReport } from "../quoteExport.js";
-import { submitSupplierReview } from "../suppliers.js";
 import { formatCurrencyBRL } from "../adminCommon.js";
 import { formatDateTime, initSidebar, qs, runPageBoot, setHTML, setTableSkeleton, setText, showFeedback } from "../ui.js";
 
@@ -12,12 +11,12 @@ let selectedRequest = null;
 const DUPLICATE_REQUEST_STORAGE_KEY = "cotai_request_prefill";
 
 const STATUS_LABELS = {
-  DONE: "Concluído",
+  DONE: "Concluido",
   ERROR: "Erro",
   PROCESSING: "Em andamento",
   PENDING_QUOTE: "Pendente",
-  AWAITING_CONFIRMATION: "Aguardando confirmação",
-  AWAITING_APPROVAL: "Aguardando aprovação",
+  AWAITING_CONFIRMATION: "Aguardando confirmacao",
+  AWAITING_APPROVAL: "Aguardando aprovacao",
   DRAFT: "Rascunho"
 };
 
@@ -44,7 +43,7 @@ function normalize(value) {
 
 function renderInsightList(items, formatter) {
   if (!items?.length) {
-    return '<article class="admin-status-row"><div><p>Sem dados</p><strong>Os dados aparecerão conforme o uso da plataforma.</strong></div><span class="app-badge is-muted">INFO</span></article>';
+    return '<article class="entity-list-item"><div class="entity-list-copy"><p>Sem dados</p><strong>Os dados aparecem conforme o uso da plataforma.</strong></div><span class="app-badge is-muted">INFO</span></article>';
   }
   return items.map(formatter).join("");
 }
@@ -58,10 +57,10 @@ function renderRows(rows) {
     .map(
       (row) => `
         <tr>
-          <td><strong>${row.request_code || row.requestCode || row.id}</strong><br /><small>${row.customer_name || row.customerName || "-"} ${row.previous_request_code ? `| parecido com ${row.previous_request_code}` : ""}</small></td>
-          <td><span class="app-badge ${badgeClass(row.status)}">${formatStatus(row.status)}</span><br /><small>${row.priority || "MEDIUM"}</small></td>
-          <td><strong>${row.best_supplier_name || "-"}</strong><br /><small>Economia: ${formatCurrencyBRL(row.potential_savings || 0)}</small></td>
-          <td>${row.delivery_location || "-"}<br /><small>${row.approval_status || "NOT_REQUIRED"}</small></td>
+          <td><div class="table-entity"><strong>${row.request_code || row.requestCode || row.id}</strong><small>${row.customer_name || row.customerName || "-"}${row.previous_request_code ? ` • parecido com ${row.previous_request_code}` : ""}</small></div></td>
+          <td><div class="table-entity"><span class="app-badge ${badgeClass(row.status)}">${formatStatus(row.status)}</span><small>${row.priority || "MEDIUM"}</small></div></td>
+          <td><div class="table-entity"><strong>${row.best_supplier_name || "-"}</strong><small>Economia ${formatCurrencyBRL(row.potential_savings || 0)}</small></div></td>
+          <td><div class="table-entity"><strong>${row.delivery_location || "-"}</strong><small>${row.approval_status || "NOT_REQUIRED"}</small></div></td>
           <td>${formatDateTime(row.created_at || row.createdAt)}</td>
           <td class="app-actions">
             <button class="btn btn-ghost" data-action="details" data-id="${row.id}">Detalhes</button>
@@ -77,14 +76,14 @@ function renderRows(rows) {
 
 function renderComparison(request) {
   if (!request?.comparison?.ranked?.length) {
-    return '<article class="admin-status-row"><div><p>Comparador</p><strong>Selecione um pedido com resultados consolidados.</strong></div><span class="app-badge is-muted">INFO</span></article>';
+    return '<article class="entity-list-item"><div class="entity-list-copy"><p>Comparador</p><strong>Selecione um pedido com resultados consolidados.</strong></div><span class="app-badge is-muted">INFO</span></article>';
   }
 
   return request.comparison.ranked
     .map(
       (supplier) => `
-        <article class="admin-status-row">
-          <div>
+        <article class="entity-list-item">
+          <div class="entity-list-copy">
             <p>${supplier.supplier}</p>
             <strong>${formatCurrencyBRL(supplier.totalPrice)}</strong>
           </div>
@@ -97,20 +96,10 @@ function renderComparison(request) {
     .join("");
 }
 
-function updateReviewSuppliers(request) {
-  const select = qs("#reviewSupplierSelect");
-  if (!select) return;
-  const suppliers = request?.comparison?.ranked || [];
-  select.innerHTML = suppliers.length
-    ? suppliers.map((supplier, index) => `<option value="${supplier.supplier_id || supplier.supplier || index}">${supplier.supplier}</option>`).join("")
-    : '<option value="">Sem fornecedor</option>';
-}
-
 function selectRequest(requestId) {
   selectedRequest = overview.requests.find((request) => request.id === requestId) || null;
   setText("#requestDetailTitle", selectedRequest?.request_code || selectedRequest?.requestCode || "Selecione um pedido");
   setHTML("#requestComparisonPanel", renderComparison(selectedRequest));
-  updateReviewSuppliers(selectedRequest);
 }
 
 function buildDuplicatePayload(request) {
@@ -127,7 +116,7 @@ function buildDuplicatePayload(request) {
   return {
     source_request_id: request.id,
     request_code: request.request_code || request.requestCode || request.id,
-    title: request.customer_name || request.request_code || "Nova cotação",
+    title: request.customer_name || request.request_code || "Nova cotacao",
     deliveryLocation: request.delivery_location || "",
     deliveryMode: request.delivery_mode || "",
     notes: request.notes || "",
@@ -138,8 +127,7 @@ function buildDuplicatePayload(request) {
 }
 
 function duplicateRequest(request) {
-  const payload = buildDuplicatePayload(request);
-  sessionStorage.setItem(DUPLICATE_REQUEST_STORAGE_KEY, JSON.stringify(payload));
+  sessionStorage.setItem(DUPLICATE_REQUEST_STORAGE_KEY, JSON.stringify(buildDuplicatePayload(request)));
   window.location.href = "new-request.html";
 }
 
@@ -193,7 +181,7 @@ function applyFilters() {
 
   setText("#requestsCount", `${filteredRequests.length} pedidos`);
   setHTML("#requestsTableBody", renderRows(filteredRequests));
-  if (!selectedRequest && filteredRequests.length) {
+  if ((!selectedRequest || !filteredRequests.some((item) => item.id === selectedRequest.id)) && filteredRequests.length) {
     selectRequest(filteredRequests[0].id);
   }
 }
@@ -219,8 +207,8 @@ async function init() {
     setHTML(
       "#requestsTopMaterials",
       renderInsightList(overview.topMaterials, (item) => `
-        <article class="admin-status-row">
-          <div><p>${item.name}</p><strong>${item.count} cotações</strong></div>
+        <article class="entity-list-item">
+          <div class="entity-list-copy"><p>${item.name}</p><strong>${item.count} cotacoes</strong></div>
           <span class="app-badge is-muted">MATERIAL</span>
         </article>
       `)
@@ -228,8 +216,8 @@ async function init() {
     setHTML(
       "#requestsPriceTrend",
       renderInsightList(overview.priceTrendByItem, (item) => `
-        <article class="admin-status-row">
-          <div><p>${item.item_name}</p><strong>${item.delta === null ? "Sem delta" : `${item.delta > 0 ? "+" : ""}${item.delta.toFixed(2)}`}</strong></div>
+        <article class="entity-list-item">
+          <div class="entity-list-copy"><p>${item.item_name}</p><strong>${item.delta === null ? "Sem delta" : `${item.delta > 0 ? "+" : ""}${item.delta.toFixed(2)}`}</strong></div>
           <span class="app-badge ${item.delta !== null && item.delta <= 0 ? "is-success" : "is-muted"}">${item.last === null ? "-" : item.last.toFixed(2)}</span>
         </article>
       `)
@@ -239,7 +227,7 @@ async function init() {
     }
     applyFilters();
   } catch (error) {
-    showFeedback("#requestsFeedback", error.message || "Não foi possível carregar os pedidos.");
+    showFeedback("#requestsFeedback", error.message || "Nao foi possivel carregar os pedidos.");
     setHTML("#requestsTableBody", '<tr><td colspan="6" class="app-empty">Erro ao carregar pedidos.</td></tr>');
     return;
   }
@@ -266,55 +254,25 @@ async function init() {
     if (!button) return;
     const request = overview.requests.find((item) => item.id === button.dataset.id);
     if (!request) return;
-    if (button.dataset.action === "details") {
-      selectRequest(request.id);
-      return;
-    }
-    if (button.dataset.action === "duplicate") {
-      duplicateRequest(request);
-      return;
-    }
+    if (button.dataset.action === "details") return selectRequest(request.id);
+    if (button.dataset.action === "duplicate") return duplicateRequest(request);
     if (button.dataset.action === "pdf") {
-      printQuoteReport({
+      return printQuoteReport({
         companyName: overview.companyName,
         request,
         comparison: request.comparison,
         results: overview.quoteResults.filter((row) => row.request_id === request.id)
       });
-      return;
     }
     if (button.dataset.action === "csv") {
-      exportQuoteCsv({
+      return exportQuoteCsv({
         request,
         results: overview.quoteResults.filter((row) => row.request_id === request.id)
       });
     }
   });
-
-  qs("#supplierReviewForm")?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    if (!selectedRequest) {
-      showFeedback("#requestsFeedback", "Selecione um pedido antes de avaliar o fornecedor.");
-      return;
-    }
-    try {
-      await submitSupplierReview({
-        request_id: selectedRequest.id,
-        supplier_id: qs("#reviewSupplierSelect")?.value,
-        price_rating: Number(qs("#reviewPrice")?.value || 5),
-        delivery_rating: Number(qs("#reviewDelivery")?.value || 5),
-        service_rating: Number(qs("#reviewService")?.value || 5),
-        reliability_rating: Number(qs("#reviewReliability")?.value || 5),
-        comment: qs("#reviewComment")?.value || ""
-      });
-      showFeedback("#requestsFeedback", "Avaliação registrada com sucesso.", false);
-      qs("#reviewComment").value = "";
-    } catch (error) {
-      showFeedback("#requestsFeedback", error.message || "Não foi possível registrar a avaliação.");
-    }
-  });
 }
 
-runPageBoot(init, { loadingMessage: "Carregando histórico de cotações." }).catch((error) => {
+runPageBoot(init, { loadingMessage: "Carregando historico de cotacoes." }).catch((error) => {
   showFeedback("#requestsFeedback", error.message || "Erro ao iniciar a tela de pedidos.");
 });

@@ -9,122 +9,75 @@
 </head>
 <body data-page="requests">
   <div class="app-shell app-layout dashboard-apex-layout">
-    <aside class="sidebar app-sidebar dashboard-apex-sidebar" id="appSidebar">
-      <div class="side-shell-head">
-        <a class="brand" href="dashboard.html">
-          <span class="brand-mark">C</span>
-          <span class="brand-name">Cotai</span>
-        </a>
-        <button class="btn btn-ghost side-collapse-btn" type="button" id="sidebarCollapse" aria-label="Colapsar menu" aria-expanded="true">
-          <span class="collapse-arrow" aria-hidden="true"><</span>
-        </button>
-      </div>
-
-      <nav class="app-nav" id="appNav">
-        <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
-        <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard"><span class="left"><span class="nav-label">Dashboard</span></span><span class="mini-badge">Resumo</span></a>
-        <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotação"><span class="left"><span class="nav-label">Nova cotação</span></span><span class="mini-badge">Novo</span></a>
-        <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span><span class="mini-badge">Histórico</span></a>
-        <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores"><span class="left"><span class="nav-label">Fornecedores</span></span><span class="mini-badge">Base</span></a>
-        <a class="side-link" data-nav="materials" href="materials.html" title="Materiais"><span class="left"><span class="nav-label">Materiais</span></span><span class="mini-badge">Catálogo</span></a>
-        <a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span><span class="mini-badge">Assinatura</span></a>
-        <a class="side-link" data-nav="settings" href="settings.html" title="Configurações"><span class="left"><span class="nav-label">Configurações</span></span><span class="mini-badge">Conta</span></a>
-      </nav>
-
-      <div class="app-sidebar-foot">
-        <a class="btn btn-ghost w-full" href="index.html">Voltar para o site</a>
-      </div>
-    </aside>
+    <aside class="sidebar app-sidebar dashboard-apex-sidebar" id="appSidebar"></aside>
     <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
 
     <main class="app-main dashboard-apex-main">
       <header class="app-topbar">
         <div>
-          <p class="eyebrow">Histórico operacional</p>
-          <h1>Pedidos e compras</h1>
+          <p class="eyebrow">Historico operacional</p>
+          <h1>Pedidos</h1>
           <p id="requestsCount">0 pedidos</p>
         </div>
         <div class="app-topbar-actions">
           <button class="btn btn-ghost" id="requestsExportCsv" type="button">Exportar CSV</button>
           <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
           <button class="btn btn-ghost" id="logoutButton" type="button">Sair</button>
-          <a class="btn btn-primary" href="new-request.html">Nova cotação</a>
+          <a class="btn btn-primary" href="new-request.html">Nova cotacao</a>
         </div>
       </header>
 
-      <section class="app-surface-hero hero-split">
-        <div class="hero-copy-stack">
-          <span class="badge">Leitura executiva de compras recorrentes</span>
-          <h2>Entenda o que foi comprado, onde houve economia e quais pedidos valem repetir</h2>
-          <p class="muted">Esta área deixa o histórico menos burocrático e mais útil para a tomada de decisão: comparar, duplicar e identificar o melhor fornecedor com velocidade.</p>
-          <div class="metric-band">
-            <article class="summary-chip"><span>Foco</span><strong>recompra e rastreabilidade</strong></article>
-            <article class="summary-chip"><span>Leitura</span><strong>economia, prazo e fornecedor</strong></article>
-            <article class="summary-chip"><span>Ação</span><strong>duplicar o pedido certo</strong></article>
-          </div>
-        </div>
-
-        <aside class="hero-info-card">
-          <p class="eyebrow">O que esta tela precisa mostrar bem</p>
-          <ul class="hero-key-points">
-            <li>Quais materiais aparecem com maior recorrência.</li>
-            <li>Quais fornecedores sustentam melhor economia e prazo.</li>
-            <li>Quais pedidos já viraram padrão operacional para a equipe.</li>
-          </ul>
-        </aside>
+      <section class="app-metrics app-metrics-compact">
+        <article class="card app-metric-card metric-card-compact"><p>Pedidos</p><h3 id="requestsMetricTotal">0</h3></article>
+        <article class="card app-metric-card metric-card-compact"><p>Material recorrente</p><h3 id="requestsMetricTopMaterial">-</h3></article>
+        <article class="card app-metric-card metric-card-compact"><p>Top fornecedor</p><h3 id="requestsMetricTopSupplier">-</h3></article>
+        <article class="card app-metric-card metric-card-compact"><p>Economia</p><h3 id="requestsMetricSavings">R$ 0</h3></article>
       </section>
 
-      <section class="app-metrics app-metrics-executive">
-        <article class="card app-metric-card"><p>Pedidos mapeados</p><h3 id="requestsMetricTotal">0</h3></article>
-        <article class="card app-metric-card"><p>Material recorrente</p><h3 id="requestsMetricTopMaterial">-</h3></article>
-        <article class="card app-metric-card"><p>Fornecedor dominante</p><h3 id="requestsMetricTopSupplier">-</h3></article>
-        <article class="card app-metric-card"><p>Economia consolidada</p><h3 id="requestsMetricSavings">R$ 0</h3></article>
-      </section>
-
-      <section class="admin-dual-panel">
+      <section class="insight-grid insight-grid-2">
         <article class="card table-shell">
           <div class="filter-shell-head">
             <div>
-              <p class="eyebrow">Padrões de compra</p>
+              <p class="eyebrow">Leituras</p>
               <h2>Materiais mais cotados</h2>
             </div>
           </div>
-          <div id="requestsTopMaterials" class="admin-status-stack"></div>
+          <div id="requestsTopMaterials" class="entity-list"></div>
         </article>
+
         <article class="card table-shell">
           <div class="filter-shell-head">
             <div>
-              <p class="eyebrow">Tensão de preço</p>
-              <h2>Histórico de variação</h2>
+              <p class="eyebrow">Preco</p>
+              <h2>Variacao recente</h2>
             </div>
           </div>
-          <div id="requestsPriceTrend" class="admin-status-stack"></div>
+          <div id="requestsPriceTrend" class="entity-list"></div>
         </article>
       </section>
 
-      <section class="card">
+      <section class="card table-shell">
         <div class="table-toolbar">
           <div>
-            <p class="eyebrow">Busca e comparação</p>
-            <h2>Histórico de pedidos e compras</h2>
+            <p class="eyebrow">Busca</p>
+            <h2>Historico de pedidos</h2>
           </div>
-          <p class="muted">Filtre por status, prioridade e fornecedor para encontrar rapidamente o melhor ponto de repetição ou auditoria.</p>
         </div>
 
-        <div class="app-filter-bar">
+        <div class="app-filter-bar app-filter-bar-compact">
           <div class="form-row">
             <label for="requestsSearch">Buscar</label>
-            <input id="requestsSearch" type="search" placeholder="Código, cliente, local ou fornecedor" />
+            <input id="requestsSearch" type="search" placeholder="Codigo, cliente, local ou fornecedor" />
           </div>
           <div class="form-row">
             <label for="requestsStatusFilter">Status</label>
             <select id="requestsStatusFilter">
               <option value="">Todos</option>
-              <option value="DONE">Concluído</option>
+              <option value="DONE">Concluido</option>
               <option value="PROCESSING">Em andamento</option>
               <option value="PENDING_QUOTE">Pendente</option>
               <option value="ERROR">Erro</option>
-              <option value="AWAITING_APPROVAL">Aguardando aprovação</option>
+              <option value="AWAITING_APPROVAL">Aguardando aprovacao</option>
             </select>
           </div>
           <div class="form-row">
@@ -145,9 +98,8 @@
               <option value="supplier">Melhor fornecedor</option>
             </select>
           </div>
-          <div class="form-row">
-            <label>&nbsp;</label>
-            <button class="btn btn-ghost" id="requestsClearFilters" type="button">Limpar filtros</button>
+          <div class="form-row form-row-end">
+            <button class="btn btn-ghost" id="requestsClearFilters" type="button">Limpar</button>
           </div>
         </div>
 
@@ -158,10 +110,10 @@
               <tr>
                 <th>Pedido</th>
                 <th>Status</th>
-                <th>Inteligência</th>
+                <th>Fornecedor</th>
                 <th>Entrega</th>
                 <th>Criado em</th>
-                <th>Ações</th>
+                <th>Acoes</th>
               </tr>
             </thead>
             <tbody id="requestsTableBody"></tbody>
@@ -169,41 +121,14 @@
         </div>
       </section>
 
-      <section class="admin-dual-panel">
-        <article class="card table-shell">
-          <div class="filter-shell-head">
-            <div>
-              <p class="eyebrow">Comparador</p>
-              <h2 id="requestDetailTitle">Selecione um pedido</h2>
-            </div>
+      <section class="card table-shell">
+        <div class="filter-shell-head">
+          <div>
+            <p class="eyebrow">Comparador</p>
+            <h2 id="requestDetailTitle">Selecione um pedido</h2>
           </div>
-          <div id="requestComparisonPanel" class="admin-status-stack"></div>
-        </article>
-        <article class="card table-shell">
-          <div class="filter-shell-head">
-            <div>
-              <p class="eyebrow">Pós-cotação</p>
-              <h2>Feedback do fornecedor</h2>
-            </div>
-          </div>
-          <form id="supplierReviewForm" class="form">
-            <div class="form-row">
-              <label for="reviewSupplierSelect">Fornecedor</label>
-              <select id="reviewSupplierSelect"></select>
-            </div>
-            <div class="app-grid-2">
-              <div class="form-row"><label for="reviewPrice">Preço</label><input id="reviewPrice" type="number" min="1" max="5" value="5" /></div>
-              <div class="form-row"><label for="reviewDelivery">Prazo</label><input id="reviewDelivery" type="number" min="1" max="5" value="5" /></div>
-              <div class="form-row"><label for="reviewService">Atendimento</label><input id="reviewService" type="number" min="1" max="5" value="5" /></div>
-              <div class="form-row"><label for="reviewReliability">Confiabilidade</label><input id="reviewReliability" type="number" min="1" max="5" value="5" /></div>
-            </div>
-            <div class="form-row">
-              <label for="reviewComment">Comentário</label>
-              <textarea id="reviewComment" rows="4" placeholder="O que funcionou bem ou mal nesta cotação?"></textarea>
-            </div>
-            <button class="btn btn-primary" type="submit">Salvar avaliação</button>
-          </form>
-        </article>
+        </div>
+        <div id="requestComparisonPanel" class="entity-list"></div>
       </section>
     </main>
   </div>

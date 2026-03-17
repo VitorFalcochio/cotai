@@ -3,84 +3,35 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cotai | Configurações</title>
+  <title>Cotai | Configuracoes</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
   <link rel="stylesheet" href="../assets/css/apex.css" />
 </head>
 <body data-page="settings">
   <div class="app-shell app-layout dashboard-apex-layout">
-    <aside class="sidebar app-sidebar dashboard-apex-sidebar" id="appSidebar">
-      <div class="side-shell-head">
-        <a class="brand" href="dashboard.html">
-          <span class="brand-mark">C</span>
-          <span class="brand-name">Cotai</span>
-        </a>
-        <button class="btn btn-ghost side-collapse-btn" type="button" id="sidebarCollapse" aria-label="Colapsar menu" aria-expanded="true">
-          <span class="collapse-arrow" aria-hidden="true"><</span>
-        </button>
-      </div>
-
-      <nav class="app-nav" id="appNav">
-        <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
-        <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard"><span class="left"><span class="nav-label">Dashboard</span></span><span class="mini-badge">Resumo</span></a>
-        <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotação"><span class="left"><span class="nav-label">Nova cotação</span></span><span class="mini-badge">Novo</span></a>
-        <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span><span class="mini-badge">Histórico</span></a>
-        <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores"><span class="left"><span class="nav-label">Fornecedores</span></span><span class="mini-badge">Base</span></a>
-        <a class="side-link" data-nav="materials" href="materials.html" title="Materiais"><span class="left"><span class="nav-label">Materiais</span></span><span class="mini-badge">Catálogo</span></a>
-        <a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span><span class="mini-badge">Assinatura</span></a>
-        <a class="side-link" data-nav="settings" href="settings.html" title="Configurações"><span class="left"><span class="nav-label">Configurações</span></span><span class="mini-badge">Conta</span></a>
-      </nav>
-
-      <div class="app-sidebar-foot">
-        <a class="btn btn-ghost w-full" href="index.html">Voltar para o site</a>
-      </div>
-    </aside>
+    <aside class="sidebar app-sidebar dashboard-apex-sidebar" id="appSidebar"></aside>
     <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
 
     <main class="app-main dashboard-apex-main">
       <header class="app-topbar">
         <div>
-          <p class="eyebrow">Perfil da operação</p>
-          <h1>Configurações</h1>
-          <p>Organize a identidade da empresa, os canais de contato e as preferências que impactam o dia a dia de compra.</p>
+          <p class="eyebrow">Conta</p>
+          <h1>Configuracoes</h1>
+          <p>Ajustes essenciais da operacao.</p>
         </div>
         <div class="app-topbar-actions">
           <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
         </div>
       </header>
 
-      <section class="app-surface-hero hero-split">
-        <div class="hero-copy-stack">
-          <span class="badge">Conta, contato e rotina</span>
-          <h2>Trate as configurações como base operacional, não como um formulário secundário</h2>
-          <p class="muted">Quando esses dados estão corretos, a Cotai consegue se comunicar melhor, preencher contexto e reduzir ruídos em pedidos recorrentes.</p>
-          <div class="metric-band">
-            <article class="summary-chip"><span>Conta</span><strong>empresa e responsável</strong></article>
-            <article class="summary-chip"><span>Canais</span><strong>WhatsApp e e-mail</strong></article>
-            <article class="summary-chip"><span>Rotina</span><strong>alertas e cidade-base</strong></article>
-          </div>
-        </div>
-
-        <aside class="hero-info-card">
-          <p class="eyebrow">Leituras importantes</p>
-          <ul class="hero-key-points">
-            <li>Mantenha o responsável principal sempre atualizado.</li>
-            <li>Padronize a cidade-base para reaproveitar pedidos com mais facilidade.</li>
-            <li>Ative alertas para não perder mudanças críticas de status.</li>
-          </ul>
-        </aside>
-      </section>
-
-      <section class="section-stack">
-        <form id="settingsForm" class="section-stack">
+      <form id="settingsForm" class="section-stack">
+        <section class="insight-grid insight-grid-2">
           <article class="card form-section-card">
-            <div class="form-section-head">
+            <div class="filter-shell-head">
               <div>
-                <p class="eyebrow">Identidade da empresa</p>
-                <h2>Dados institucionais</h2>
-                <p>Essas informações sustentam a forma como a equipe e os fornecedores reconhecem a sua operação.</p>
+                <p class="eyebrow">Empresa</p>
+                <h2>Identidade</h2>
               </div>
-              <span class="app-badge is-muted">Essencial</span>
             </div>
             <div class="app-grid-2">
               <div class="form-row">
@@ -88,20 +39,18 @@
                 <input id="setCompany" type="text" name="company" required />
               </div>
               <div class="form-row">
-                <label for="setResponsible">Responsável</label>
+                <label for="setResponsible">Responsavel</label>
                 <input id="setResponsible" type="text" name="responsible" />
               </div>
             </div>
           </article>
 
           <article class="card form-section-card">
-            <div class="form-section-head">
+            <div class="filter-shell-head">
               <div>
-                <p class="eyebrow">Comunicação</p>
-                <h2>Canais e localização</h2>
-                <p>Defina por onde a equipe e a plataforma devem se referenciar ao seu contexto de compra.</p>
+                <p class="eyebrow">Contato</p>
+                <h2>Canais</h2>
               </div>
-              <span class="app-badge is-success">Ativo</span>
             </div>
             <div class="app-grid-2">
               <div class="form-row">
@@ -118,26 +67,25 @@
               <input id="setCity" type="text" name="city" />
             </div>
           </article>
+        </section>
 
-          <article class="card form-section-card">
-            <div class="form-section-head">
-              <div>
-                <p class="eyebrow">Acompanhamento</p>
-                <h2>Alertas e rotina</h2>
-                <p>Escolha como a equipe recebe sinais de mudança no andamento dos pedidos.</p>
-              </div>
+        <article class="card form-section-card">
+          <div class="filter-shell-head">
+            <div>
+              <p class="eyebrow">Alertas</p>
+              <h2>Preferencias</h2>
             </div>
-            <label class="app-check" for="setNotifications">
-              <input id="setNotifications" type="checkbox" name="notifications" />
-              Receber notificações sobre atualizações de status dos pedidos
-            </label>
-            <div class="app-inline-actions">
-              <button class="btn btn-primary" type="submit">Salvar configurações</button>
-            </div>
-            <p id="settingsStatus" class="muted"></p>
-          </article>
-        </form>
-      </section>
+          </div>
+          <label class="app-check" for="setNotifications">
+            <input id="setNotifications" type="checkbox" name="notifications" />
+            Receber notificacoes sobre atualizacoes de status dos pedidos
+          </label>
+          <div class="app-inline-actions">
+            <button class="btn btn-primary" type="submit">Salvar configuracoes</button>
+          </div>
+          <p id="settingsStatus" class="muted"></p>
+        </article>
+      </form>
     </main>
   </div>
   <script src="../assets/js/app.js"></script>

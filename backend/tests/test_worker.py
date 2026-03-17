@@ -5,6 +5,9 @@ from dataclasses import replace
 
 from backend.shared.request_parser import extract_inline_items
 from backend.worker.config import load_settings
+from backend.worker.agent.catalog_normalizer import normalize_request_item
+from backend.worker.agent.price_validator import validate_offers
+from backend.worker.agent.ranker import rank_item_offers
 from backend.worker.main import WorkerApp, parse_request_message
 from backend.worker.services.ai_service import AIService
 from backend.worker.testing import InMemoryAIService, InMemorySearchService, InMemorySupabase
@@ -74,8 +77,34 @@ class WorkerTests(unittest.TestCase):
             [
                 {
                     "item_name": "cimento cp2 50kg",
+                    "canonical_name": "cimento 50kg",
                     "quantity": 20.0,
                     "unit": "saco",
+                    "analysis_confidence": 0.84,
+                    "market_context": {
+                        "lowest_unit_price": 34.9,
+                        "highest_unit_price": 37.5,
+                        "price_spread_pct": 7.45,
+                    },
+                    "best_overall_offer": {
+                        "price": 34.9,
+                        "unit_price": 34.9,
+                        "supplier": "Deposito Nova Obra",
+                        "source": "catalog",
+                        "delivery_label": "2 dia(s)",
+                    },
+                    "best_price_offer": {
+                        "price": 34.9,
+                        "unit_price": 34.9,
+                        "supplier": "Deposito Nova Obra",
+                    },
+                    "best_delivery_offer": {
+                        "price": 34.9,
+                        "unit_price": 34.9,
+                        "supplier": "Deposito Nova Obra",
+                        "delivery_label": "2 dia(s)",
+                    },
+                    "analysis_alerts": ["Alta dispersao de preco para cimento 50kg: 7.45%."],
                     "offers": [
                         {
                             "price": 34.9,
@@ -94,9 +123,90 @@ class WorkerTests(unittest.TestCase):
                 }
             ],
         )
-        self.assertEqual(provider, "local")
-        self.assertIn("Melhor oferta", summary)
-        self.assertIn("Total estimado", summary)
+        self.assertEqual(provider, "template")
+        self.assertIn("Cotacao encontrada", summary)
+        self.assertIn("Quantidade: 20 saco", summary)
+        self.assertIn("Melhores opcoes", summary)
+        self.assertIn("Total estimado: R$ 698,00", summary)
+        self.assertIn("Media: R$ 36,20 por saco", summary)
+        self.assertNotIn("confianca", summary)
+        self.assertNotIn("Alta dispersao", summary)
+
+    def test_local_ai_summary_stays_clean_when_only_one_offer_exists(self) -> None:
+        settings = replace(load_settings(), groq_api_key="")
+        ai = AIService(settings)
+        summary, provider = ai.summarize_quote(
+            "CT-1002",
+            [
+                {
+                    "item_name": "areia media",
+                    "canonical_name": "areia media",
+                    "quantity": 3.0,
+                    "unit": "m3",
+                    "analysis_confidence": 0.54,
+                    "market_context": {
+                        "median_unit_price": 145.0,
+                    },
+                    "best_overall_offer": {
+                        "price": 145.0,
+                        "unit_price": 145.0,
+                        "supplier": "Areia Brasil",
+                        "estimated_total": 435.0,
+                    },
+                    "offers": [
+                        {
+                            "price": 145.0,
+                            "unit_price": 145.0,
+                            "supplier": "Areia Brasil",
+                            "estimated_total": 435.0,
+                        }
+                    ],
+                }
+            ],
+        )
+        self.assertEqual(provider, "template")
+        self.assertIn("Areia media", summary)
+        self.assertIn("Areia Brasil", summary)
+        self.assertIn("Observacao", summary)
+        self.assertNotIn("Melhores opcoes", summary)
+        self.assertNotIn("analysis_confidence", summary)
+
+    def test_catalog_normalizer_builds_canonical_item_and_terms(self) -> None:
+        item = normalize_request_item("cimento cp ii 50kg", "saco")
+        self.assertEqual(item["category"], "cimento")
+        self.assertEqual(item["canonical_name"], "cimento 50kg")
+        self.assertTrue(item["search_terms"])
+        self.assertGreaterEqual(item["normalization_confidence"], 0.8)
+
+    def test_price_validator_and_ranker_identify_best_overall_offer(self) -> None:
+        item_analysis = normalize_request_item("cimento cp ii 50kg", "saco")
+        offers = [
+            {
+                "title": "Cimento CP2 50kg",
+                "supplier": "Fornecedor Seguro",
+                "price": 35.0,
+                "source": "snapshot",
+                "delivery_days": 2,
+                "delivery_label": "2 dia(s)",
+                "captured_at": "2026-03-16T12:00:00+00:00",
+            },
+            {
+                "title": "Cimento CP2 50kg promocao",
+                "supplier": "Marketplace X",
+                "price": 31.5,
+                "source": "mercado_livre",
+                "delivery_days": 7,
+                "delivery_label": "7 dia(s)",
+                "captured_at": "2026-02-01T12:00:00+00:00",
+            },
+        ]
+        validated = validate_offers(item_analysis=item_analysis, offers=offers, quantity=20.0)
+        ranked = rank_item_offers(item_analysis, validated)
+
+        self.assertEqual(ranked["best_price_offer"]["supplier"], "Marketplace X")
+        self.assertEqual(ranked["best_overall_offer"]["supplier"], "Fornecedor Seguro")
+        self.assertGreater(ranked["confidence"], 0.0)
+        self.assertTrue(ranked["alerts"])
 
     def test_internal_chat_request_writes_assistant_message_on_completion(self) -> None:
         supabase = InMemorySupabase()

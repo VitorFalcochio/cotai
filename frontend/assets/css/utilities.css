@@ -127,7 +127,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(300px, 0.84fr);
   gap: 18px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .dashboard-side-column,
@@ -135,6 +135,10 @@
 .dashboard-source-list {
   display: grid;
   gap: 18px;
+}
+
+.dashboard-side-column {
+  grid-auto-rows: minmax(0, auto);
 }
 
 .dashboard-panel-head {
