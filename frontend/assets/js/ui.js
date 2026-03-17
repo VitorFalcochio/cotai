@@ -35,6 +35,110 @@ const ACTION_ICON_MAP = {
   requestsExportCsv: "bx-export"
 };
 
+function getClientSidebarMarkup() {
+  return `
+    <div class="side-shell-head dashboard-brand-head">
+      <a class="brand dashboard-brand" href="dashboard.html">
+        <span class="brand-mark"><i class="bx bx-bolt-circle" aria-hidden="true"></i></span>
+        <span class="brand-copy">
+          <span class="brand-name">Cotai</span>
+          <span class="brand-meta">Dashboard</span>
+        </span>
+      </a>
+      <button class="btn btn-ghost side-collapse-btn" type="button" id="sidebarCollapse" aria-label="Colapsar menu" aria-expanded="true" data-icon-only="true">
+        <span class="collapse-arrow" aria-hidden="true"></span>
+      </button>
+    </div>
+
+    <div class="dashboard-nav-group">
+      <p class="dashboard-nav-title">Overview</p>
+      <nav class="app-nav" id="appNav">
+        <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
+        <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard"><span class="left"><span class="nav-label">Dashboard</span></span></a>
+        <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span></a>
+        <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores"><span class="left"><span class="nav-label">Fornecedores</span></span></a>
+        <a class="side-link" data-nav="materials" href="materials.html" title="Materiais"><span class="left"><span class="nav-label">Materiais</span></span></a>
+      </nav>
+    </div>
+
+    <div class="dashboard-nav-group">
+      <p class="dashboard-nav-title">Commerce</p>
+      <nav class="app-nav dashboard-subnav">
+        <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotacao"><span class="left"><span class="nav-label">Nova cotacao</span></span><span class="mini-badge">Novo</span></a>
+        <a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span></a>
+        <a class="side-link" data-nav="settings" href="settings.html" title="Configuracoes"><span class="left"><span class="nav-label">Configuracoes</span></span></a>
+      </nav>
+    </div>
+
+    <div class="dashboard-sidebar-divider"></div>
+
+    <div class="dashboard-sidebar-profile">
+      <div class="dashboard-avatar" id="dashboardAvatar">CO</div>
+      <div>
+        <strong id="companyNameSide">Cotai</strong>
+        <span id="dashboardRoleLabel">Equipe de compras</span>
+      </div>
+      <a class="dashboard-profile-link" href="settings.html" aria-label="Abrir perfil"><i class="bx bx-log-in-circle" aria-hidden="true"></i></a>
+    </div>
+  `;
+}
+
+function getAdminSidebarMarkup() {
+  return `
+    <div class="side-shell-head dashboard-brand-head">
+      <a class="brand dashboard-brand" href="admin-dashboard.html">
+        <span class="brand-mark"><i class="bx bx-shield-quarter" aria-hidden="true"></i></span>
+        <span class="brand-copy">
+          <span class="brand-name">Cotai</span>
+          <span class="brand-meta">Admin</span>
+        </span>
+      </a>
+      <button class="btn btn-ghost side-collapse-btn" type="button" id="sidebarCollapse" aria-label="Colapsar menu" aria-expanded="true" data-icon-only="true">
+        <span class="collapse-arrow" aria-hidden="true"></span>
+      </button>
+    </div>
+
+    <div class="dashboard-nav-group">
+      <p class="dashboard-nav-title">Platform</p>
+      <nav class="app-nav" id="appNav">
+        <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
+        <a class="side-link" data-nav="admin-dashboard" href="admin-dashboard.html" title="Visao geral"><span class="left"><span class="nav-label">Visao geral</span></span></a>
+        <a class="side-link" data-nav="admin-companies" href="admin-companies.html" title="Empresas"><span class="left"><span class="nav-label">Empresas</span></span></a>
+        <a class="side-link" data-nav="admin-users" href="admin-users.html" title="Usuarios"><span class="left"><span class="nav-label">Usuarios</span></span></a>
+        <a class="side-link" data-nav="admin-billing" href="admin-billing.html" title="Receita"><span class="left"><span class="nav-label">Receita</span></span></a>
+      </nav>
+    </div>
+
+    <div class="dashboard-nav-group">
+      <p class="dashboard-nav-title">Operations</p>
+      <nav class="app-nav dashboard-subnav">
+        <a class="side-link" data-nav="admin-requests" href="admin-requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span></a>
+        <a class="side-link" data-nav="admin-worker" href="admin-worker.html" title="Worker"><span class="left"><span class="nav-label">Worker</span></span></a>
+        <a class="side-link" data-nav="admin-snapshots" href="admin-snapshots.html" title="Snapshots"><span class="left"><span class="nav-label">Snapshots</span></span></a>
+        <a class="side-link" data-nav="admin-logs" href="admin-logs.html" title="Logs"><span class="left"><span class="nav-label">Logs</span></span></a>
+      </nav>
+    </div>
+
+    <div class="dashboard-sidebar-divider"></div>
+
+    <div class="dashboard-sidebar-profile">
+      <div class="dashboard-avatar">AD</div>
+      <div>
+        <strong id="adminIdentitySide">Admin Cotai</strong>
+        <span>Controle da plataforma</span>
+      </div>
+      <a class="dashboard-profile-link" href="dashboard.html" aria-label="Voltar ao cliente"><i class="bx bx-right-arrow-alt" aria-hidden="true"></i></a>
+    </div>
+  `;
+}
+
+function standardizeSidebarMarkup(sidebar, page) {
+  if (!sidebar) return;
+  const isAdminPage = String(page || "").startsWith("admin-");
+  sidebar.classList.add("dashboard-apex-sidebar");
+  sidebar.innerHTML = isAdminPage ? getAdminSidebarMarkup() : getClientSidebarMarkup();
+}
+
 function ensureBoxicons() {
   if (document.getElementById(BOXICONS_STYLESHEET_ID)) return;
   const link = document.createElement("link");
@@ -346,23 +450,41 @@ export function openWhatsApp(text) {
   window.open(url, "_blank", "noopener,noreferrer");
 }
 
+function normalizePageShell() {
+  const appMain = qs(".app-main");
+  if (!appMain) return;
+
+  const topbar = appMain.querySelector(":scope > .app-topbar");
+  if (!topbar || appMain.querySelector(":scope > .page")) return;
+
+  const page = document.createElement("main");
+  page.className = "page";
+
+  while (topbar.nextSibling) {
+    page.appendChild(topbar.nextSibling);
+  }
+
+  appMain.appendChild(page);
+}
+
 export function initSidebar() {
   const page = document.body.dataset.page;
   const current = page === "new-request" ? "new" : page;
   const sidebar = qs("#appSidebar");
+  const collapseStorageKey = "cotai_sidebar_collapsed";
+  const mobileBreakpoint = window.matchMedia("(max-width: 920px)");
+
+  ensureBoxicons();
+  standardizeSidebarMarkup(sidebar, page);
   const nav = qs("#appNav");
   const indicator = qs("#sideIndicator");
   const toggle = qs("#sidebarToggle");
   const collapseButton = qs("#sidebarCollapse");
   const overlay = qs("#appDrawerOverlay");
-  const collapseStorageKey = "cotai_sidebar_collapsed";
-  const mobileBreakpoint = window.matchMedia("(max-width: 920px)");
-
   if (!sidebar || !nav) return;
-
-  ensureBoxicons();
   decorateSidebarNav(nav);
   decorateActionButtons(document);
+  normalizePageShell();
   document.body.classList.toggle("apex-shell", page !== "new-request");
 
   const activeLink = nav.querySelector(`.side-link[data-nav="${current}"]`);

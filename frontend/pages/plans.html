@@ -8,157 +8,76 @@
   <link rel="stylesheet" href="../assets/css/apex.css" />
 </head>
 <body data-page="plans">
-  <div class="app-layout">
-    <aside class="app-sidebar" id="appSidebar">
-      <div class="side-shell-head">
-        <a class="brand" href="dashboard.html">
-          <span class="brand-mark">C</span>
-          <span class="brand-name">Cotai</span>
-        </a>
-        <button class="btn btn-ghost side-collapse-btn" type="button" id="sidebarCollapse" aria-label="Colapsar menu" aria-expanded="true">
-          <span class="collapse-arrow" aria-hidden="true"><</span>
-        </button>
-      </div>
-
-      <nav class="app-nav" id="appNav">
-        <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
-        <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard"><span class="left"><span class="nav-label">Dashboard</span></span><span class="mini-badge">Resumo</span></a>
-        <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotação"><span class="left"><span class="nav-label">Nova cotação</span></span><span class="mini-badge">Novo</span></a>
-        <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span><span class="mini-badge">Histórico</span></a>
-        <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores"><span class="left"><span class="nav-label">Fornecedores</span></span><span class="mini-badge">Base</span></a>
-        <a class="side-link" data-nav="materials" href="materials.html" title="Materiais"><span class="left"><span class="nav-label">Materiais</span></span><span class="mini-badge">Catálogo</span></a>
-        <a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span><span class="mini-badge">Assinatura</span></a>
-        <a class="side-link" data-nav="settings" href="settings.html" title="Configurações"><span class="left"><span class="nav-label">Configurações</span></span><span class="mini-badge">Conta</span></a>
-      </nav>
-
-      <div class="app-sidebar-foot">
-        <a class="btn btn-ghost w-full" href="index.html">Voltar para o site</a>
-      </div>
-    </aside>
+  <div class="app-shell app-layout dashboard-apex-layout">
+    <aside class="sidebar app-sidebar dashboard-apex-sidebar" id="appSidebar"></aside>
     <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
 
-    <main class="app-main">
+    <main class="app-main dashboard-apex-main">
       <header class="app-topbar">
         <div>
           <p class="eyebrow">Modelo comercial</p>
           <h1>Planos</h1>
-          <p>Posicione a Cotai por maturidade operacional, volume e nível de governança que o cliente precisa sustentar.</p>
+          <p>Escolha o plano ideal para o ritmo da sua operacao.</p>
         </div>
         <div class="app-topbar-actions">
           <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
         </div>
       </header>
 
-      <section class="app-surface-hero pricing-hero">
-        <span class="badge">Pricing desenhado para compras recorrentes</span>
-        <div class="hero-split">
-          <div class="hero-copy-stack">
-            <h2>Suba de nível conforme a equipe ganha volume, previsibilidade e controle</h2>
-            <p class="muted">A leitura de planos agora enfatiza operação e retorno, e não apenas limites de cadastro. Isso melhora a percepção comercial da plataforma.</p>
-            <div class="metric-band">
-              <article class="summary-chip"><span>Entrada</span><strong>equipe em validação</strong></article>
-              <article class="summary-chip"><span>Escala</span><strong>time em crescimento</strong></article>
-              <article class="summary-chip"><span>Governança</span><strong>operação madura</strong></article>
-            </div>
-          </div>
-
-          <aside class="hero-info-card">
-            <p class="eyebrow">Como escolher</p>
-            <ul class="hero-key-points">
-              <li>Volume mensal de pedidos e número de compradores.</li>
-              <li>Tamanho da base de fornecedores e histórico necessário.</li>
-              <li>Nível de importação, exportação e suporte esperado.</li>
-            </ul>
-          </aside>
-        </div>
-      </section>
-
-      <section class="app-plans-grid pricing-grid-enhanced">
-        <article class="card app-plan-card pricing-card-stack">
+      <section class="app-plans-grid pricing-grid-enhanced plans-compact-grid">
+        <article class="card app-plan-card pricing-card-stack plans-compact-card">
           <p class="app-plan-name">Plano Prata</p>
-          <div class="pricing-price-line"><h2>R$ 50 <small>/ mês</small></h2></div>
-          <p class="muted">Para operações enxutas que ainda estão padronizando a rotina.</p>
-          <div class="pricing-meta"><span class="app-badge is-muted">Piloto</span><span class="app-badge is-info">Baixo volume</span></div>
+          <div class="pricing-price-line"><h2>R$ 50 <small>/ mes</small></h2></div>
+          <p class="muted">Essencial para comecar.</p>
+          <div class="pricing-meta">
+            <span class="app-badge is-muted">Piloto</span>
+            <span class="app-badge is-info">Baixo volume</span>
+          </div>
           <ul class="app-plan-list feature-list">
-            <li>50 pedidos por mês</li>
-            <li>1 usuário</li>
-            <li>Até 10 fornecedores</li>
-            <li>Histórico de 30 dias</li>
-            <li>Suporte padrão em horário comercial</li>
+            <li>50 pedidos por mes</li>
+            <li>1 usuario</li>
+            <li>Ate 10 fornecedores</li>
+            <li>Historico de 30 dias</li>
+            <li>Suporte padrao</li>
           </ul>
           <button class="btn btn-ghost w-full" type="button">Escolher Prata</button>
         </article>
 
-        <article class="card app-plan-card app-plan-highlight pricing-card-stack">
+        <article class="card app-plan-card app-plan-highlight pricing-card-stack plans-compact-card">
           <p class="app-plan-name">Plano Ouro</p>
-          <div class="pricing-price-line"><h2>R$ 100 <small>/ mês</small></h2></div>
-          <p class="muted">Equilíbrio entre escala, governança e resposta mais rápida da operação.</p>
-          <div class="pricing-meta"><span class="app-badge is-success">Mais escolhido</span><span class="app-badge is-muted">Equipe em crescimento</span></div>
+          <div class="pricing-price-line"><h2>R$ 100 <small>/ mes</small></h2></div>
+          <p class="muted">Mais equilibrio para crescer.</p>
+          <div class="pricing-meta">
+            <span class="app-badge is-success">Mais escolhido</span>
+            <span class="app-badge is-muted">Equipe em crescimento</span>
+          </div>
           <ul class="app-plan-list feature-list">
-            <li>200 pedidos por mês</li>
-            <li>Até 3 usuários</li>
-            <li>Até 50 fornecedores</li>
-            <li>Histórico completo</li>
-            <li>1 importação CSV por mês</li>
+            <li>200 pedidos por mes</li>
+            <li>Ate 3 usuarios</li>
+            <li>Ate 50 fornecedores</li>
+            <li>Historico completo</li>
+            <li>1 importacao CSV por mes</li>
           </ul>
           <button class="btn btn-primary w-full" type="button">Escolher Ouro</button>
         </article>
 
-        <article class="card app-plan-card pricing-card-stack">
+        <article class="card app-plan-card pricing-card-stack plans-compact-card">
           <p class="app-plan-name">Plano Diamante</p>
-          <div class="pricing-price-line"><h2>R$ 250 <small>/ mês</small></h2></div>
-          <p class="muted">Para operações maduras, com volume alto, múltiplos times e base extensa.</p>
-          <div class="pricing-meta"><span class="app-badge is-info">Alta escala</span><span class="app-badge is-muted">Sem limites práticos</span></div>
+          <div class="pricing-price-line"><h2>R$ 250 <small>/ mes</small></h2></div>
+          <p class="muted">Estrutura completa para escala.</p>
+          <div class="pricing-meta">
+            <span class="app-badge is-info">Alta escala</span>
+            <span class="app-badge is-muted">Sem limites praticos</span>
+          </div>
           <ul class="app-plan-list feature-list">
             <li>Pedidos ilimitados</li>
-            <li>Usuários ilimitados</li>
+            <li>Usuarios ilimitados</li>
             <li>Fornecedores ilimitados</li>
-            <li>Importações CSV ilimitadas</li>
-            <li>Exportação e suporte premium</li>
+            <li>Importacoes CSV ilimitadas</li>
+            <li>Exportacao e suporte premium</li>
           </ul>
           <button class="btn btn-ghost w-full" type="button">Escolher Diamante</button>
         </article>
-      </section>
-
-      <section class="card table-shell">
-        <div class="filter-shell-head">
-          <div>
-            <p class="eyebrow">Comparativo</p>
-            <h2>O que muda entre os planos</h2>
-            <p>Uma leitura objetiva para alinhar a capacidade da plataforma ao tamanho da operação.</p>
-          </div>
-        </div>
-        <div class="app-table-wrap">
-          <table class="pricing-compare">
-            <thead>
-              <tr>
-                <th>Critério</th>
-                <th>Prata</th>
-                <th>Ouro</th>
-                <th>Diamante</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td>Pedidos por mês</td><td>50</td><td>200</td><td>Ilimitado</td></tr>
-              <tr><td>Usuários</td><td>1</td><td>Até 3</td><td>Ilimitado</td></tr>
-              <tr><td>Fornecedores</td><td>Até 10</td><td>Até 50</td><td>Ilimitado</td></tr>
-              <tr><td>Histórico</td><td>30 dias</td><td>Completo</td><td>Completo</td></tr>
-              <tr><td>Importação</td><td>Não</td><td>1 por mês</td><td>Ilimitada</td></tr>
-              <tr><td>Suporte</td><td>Padrão</td><td>Prioritário</td><td>Premium</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="grid-2 faq">
-        <details open>
-          <summary>Quando faz sentido sair do Prata para o Ouro?</summary>
-          <p>Quando a operação já tem volume recorrente, mais de uma pessoa usando o painel e necessidade de histórico completo para comparação e auditoria.</p>
-        </details>
-        <details>
-          <summary>O Diamante é só para empresas grandes?</summary>
-          <p>Não. Ele faz sentido para operações com processo mais maduro, múltiplos compradores, grande base de fornecedores ou necessidade intensa de importação e exportação.</p>
-        </details>
       </section>
     </main>
   </div>

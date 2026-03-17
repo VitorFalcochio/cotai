@@ -1,0 +1,140 @@
+@import url("./tokens.css");
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  background:
+    radial-gradient(circle at top left, rgba(25, 210, 107, 0.08), transparent 18%),
+    linear-gradient(180deg, #060a09 0%, #060a09 100%);
+  color: var(--text-primary);
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.hidden,
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.muted,
+.page-subtitle,
+.form-field label,
+label {
+  color: var(--text-secondary);
+}
+
+.eyebrow,
+.section-title,
+.sidebar-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.eyebrow,
+.section-title {
+  color: #86efac;
+}
+
+.page-title,
+.dashboard-heading h1,
+.app-topbar h1,
+.app-topbar h2 {
+  color: var(--text-primary);
+  letter-spacing: -0.05em;
+}
+
+.page-title {
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  line-height: 1.04;
+}
+
+.page-subtitle {
+  max-width: 70ch;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.app-feedback {
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid rgba(255, 90, 99, 0.2);
+  border-radius: var(--radius-sm);
+  background: rgba(127, 29, 29, 0.36);
+  color: #fecaca;
+}
+
+.app-feedback.is-success {
+  border-color: rgba(25, 210, 107, 0.22);
+  background: rgba(20, 83, 45, 0.42);
+  color: #bbf7d0;
+}
+
+.w-full {
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

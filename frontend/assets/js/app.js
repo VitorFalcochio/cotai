@@ -11,6 +11,133 @@
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+  const BOXICONS_STYLESHEET_ID = "cotai-boxicons-stylesheet";
+  const SIDEBAR_ICON_MAP = {
+    dashboard: "bx-grid-alt",
+    new: "bx-message-square-detail",
+    requests: "bx-receipt",
+    suppliers: "bx-store-alt",
+    materials: "bx-cube-alt",
+    plans: "bx-layer",
+    settings: "bx-cog"
+  };
+  const ACTION_ICON_MAP = {
+    sidebarToggle: "bx-menu-alt-left",
+    sidebarCollapse: "bx-chevrons-left",
+    newSupplierBtn: "bx-plus",
+    newMaterialBtn: "bx-plus"
+  };
+
+  const getClientSidebarMarkup = () => `
+    <div class="side-shell-head dashboard-brand-head">
+      <a class="brand dashboard-brand" href="dashboard.html">
+        <span class="brand-mark"><i class="bx bx-bolt-circle" aria-hidden="true"></i></span>
+        <span class="brand-copy">
+          <span class="brand-name">Cotai</span>
+          <span class="brand-meta">Dashboard</span>
+        </span>
+      </a>
+      <button class="btn btn-ghost side-collapse-btn" type="button" id="sidebarCollapse" aria-label="Colapsar menu" aria-expanded="true" data-icon-only="true">
+        <span class="collapse-arrow" aria-hidden="true"></span>
+      </button>
+    </div>
+
+    <div class="dashboard-nav-group">
+      <p class="dashboard-nav-title">Overview</p>
+      <nav class="app-nav" id="appNav">
+        <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
+        <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard"><span class="left"><span class="nav-label">Dashboard</span></span></a>
+        <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span></a>
+        <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores"><span class="left"><span class="nav-label">Fornecedores</span></span></a>
+        <a class="side-link" data-nav="materials" href="materials.html" title="Materiais"><span class="left"><span class="nav-label">Materiais</span></span></a>
+      </nav>
+    </div>
+
+    <div class="dashboard-nav-group">
+      <p class="dashboard-nav-title">Commerce</p>
+      <nav class="app-nav dashboard-subnav">
+        <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotacao"><span class="left"><span class="nav-label">Nova cotacao</span></span><span class="mini-badge">Novo</span></a>
+        <a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span></a>
+        <a class="side-link" data-nav="settings" href="settings.html" title="Configuracoes"><span class="left"><span class="nav-label">Configuracoes</span></span></a>
+      </nav>
+    </div>
+
+    <div class="dashboard-sidebar-divider"></div>
+
+    <div class="dashboard-sidebar-profile">
+      <div class="dashboard-avatar">CO</div>
+      <div>
+        <strong>Cotai</strong>
+        <span>Equipe de compras</span>
+      </div>
+      <a class="dashboard-profile-link" href="settings.html" aria-label="Abrir perfil"><i class="bx bx-log-in-circle" aria-hidden="true"></i></a>
+    </div>
+  `;
+
+  const ensureBoxicons = () => {
+    if (document.getElementById(BOXICONS_STYLESHEET_ID)) return;
+    const link = document.createElement("link");
+    link.id = BOXICONS_STYLESHEET_ID;
+    link.rel = "stylesheet";
+    link.href = "https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css";
+    document.head.appendChild(link);
+  };
+
+  const decorateSidebarNav = (nav) => {
+    if (!nav) return;
+    nav.querySelectorAll(".side-link").forEach((link) => {
+      if (link.querySelector(".side-link-icon")) return;
+      const navKey = link.dataset.nav || "";
+      const iconName = SIDEBAR_ICON_MAP[navKey] || "bx-circle";
+      const left = $(".left", link);
+      if (!left) return;
+      const icon = document.createElement("i");
+      icon.className = `bx ${iconName} side-link-icon`;
+      icon.setAttribute("aria-hidden", "true");
+      left.prepend(icon);
+    });
+  };
+
+  const decorateActionButtons = () => {
+    Object.entries(ACTION_ICON_MAP).forEach(([id, iconName]) => {
+      const element = document.getElementById(id);
+      if (!element || element.querySelector(".btn-icon")) return;
+      const iconOnly = element.classList.contains("side-collapse-btn");
+      const label = iconOnly ? "" : element.textContent.trim();
+      element.innerHTML = label
+        ? `<i class="bx ${iconName} btn-icon" aria-hidden="true"></i><span>${label}</span>`
+        : `<i class="bx ${iconName} btn-icon" aria-hidden="true"></i>`;
+    });
+
+    $$("[data-close-modal]").forEach((button) => {
+      if (button.dataset.apexIconized === "true") return;
+      button.dataset.apexIconized = "true";
+      button.innerHTML = '<i class="bx bx-x" aria-hidden="true"></i>';
+    });
+  };
+
+  const normalizePageShell = () => {
+    const appMain = $(".app-main");
+    if (!appMain) return;
+
+    const topbar = appMain.querySelector(":scope > .app-topbar");
+    if (!topbar || appMain.querySelector(":scope > .page")) return;
+
+    const page = document.createElement("main");
+    page.className = "page";
+
+    while (topbar.nextSibling) {
+      page.appendChild(topbar.nextSibling);
+    }
+
+    appMain.appendChild(page);
+  };
+
+  const standardizeSidebarMarkup = (sidebar) => {
+    if (!sidebar) return;
+    sidebar.classList.add("dashboard-apex-sidebar");
+    sidebar.innerHTML = getClientSidebarMarkup();
+  };
 
   const storage = {
     get(key, fallback) {
@@ -155,6 +282,7 @@
   };
 
   const initThemeSystem = () => {
+    ensureBoxicons();
     applyTheme();
 
     window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
@@ -178,15 +306,19 @@
     const current = navKeyMap[page] || page;
 
     const sidebar = $("#appSidebar");
+    const collapseStorageKey = "cotai_sidebar_collapsed";
+    const mobileBreakpoint = window.matchMedia("(max-width: 920px)");
+
+    standardizeSidebarMarkup(sidebar);
     const nav = $("#appNav");
     const indicator = $("#sideIndicator");
     const toggle = $("#sidebarToggle");
     const collapseBtn = $("#sidebarCollapse");
     const overlay = $("#appDrawerOverlay");
-    const collapseStorageKey = "cotai_sidebar_collapsed";
-    const mobileBreakpoint = window.matchMedia("(max-width: 920px)");
-
     if (!sidebar || !nav) return;
+    decorateSidebarNav(nav);
+    decorateActionButtons();
+    normalizePageShell();
 
     const active = current ? $(`.side-link[data-nav='${current}']`, nav) : null;
     if (active) active.classList.add("active");
