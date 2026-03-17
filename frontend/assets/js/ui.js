@@ -64,7 +64,8 @@ function decorateActionButtons(root = document) {
   Object.entries(ACTION_ICON_MAP).forEach(([id, iconName]) => {
     const element = root.getElementById ? root.getElementById(id) : qs(`#${id}`, root);
     if (!element || element.querySelector(".btn-icon")) return;
-    const label = element.dataset.iconOnly === "true" ? "" : element.textContent.trim();
+    const iconOnly = element.dataset.iconOnly === "true" || element.classList.contains("side-collapse-btn");
+    const label = iconOnly ? "" : element.textContent.trim();
     element.innerHTML = label
       ? `<i class="bx ${iconName} btn-icon" aria-hidden="true"></i><span>${label}</span>`
       : `<i class="bx ${iconName} btn-icon" aria-hidden="true"></i>`;
