@@ -79,19 +79,10 @@ function escapeHtml(value) {
 
 function renderMessage(row) {
   const tone = row.role === "user" ? "is-user" : row.role === "assistant" ? "is-assistant" : "is-system";
-  const label = row.role === "user" ? "Você" : row.role === "assistant" ? "Cotai" : "Sistema";
-  const timestamp = row.created_at ? formatDateTime(row.created_at) : "Agora";
-  const statusHint = row.metadata?.status ? `<small>${escapeHtml(formatStatus(row.metadata.status))}</small>` : "";
   return `
     <article class="chat-row ${tone}">
-      <div class="chat-avatar" aria-hidden="true">${row.role === "user" ? "VC" : row.role === "assistant" ? "AI" : "SY"}</div>
       <div class="chat-bubble ${tone}">
-        <div class="chat-bubble-meta">
-          <strong>${label}</strong>
-          <span>${timestamp}</span>
-        </div>
         <div class="chat-bubble-body">${escapeHtml(row.content || "").replace(/\n/g, "<br>")}</div>
-        ${statusHint}
       </div>
     </article>
   `;
@@ -246,15 +237,17 @@ function readDraftFromInputs() {
   currentDraft.priority = qs("#draftPriority")?.value || "MEDIUM";
 
   const rows = Array.from(document.querySelectorAll("[data-draft-item]"));
-  currentDraft.items = rows
-    .map((row) => ({
-      name: row.querySelector('[data-field="name"]')?.value?.trim() || "",
-      normalized_name: row.querySelector('[data-field="name"]')?.value?.trim() || "",
-      quantity: Number(row.querySelector('[data-field="quantity"]')?.value || 0) || null,
-      unit: row.querySelector('[data-field="unit"]')?.value?.trim() || "un",
-      raw: row.querySelector('[data-field="name"]')?.value?.trim() || ""
-    }))
-    .filter((item) => item.name);
+  if (rows.length) {
+    currentDraft.items = rows
+      .map((row) => ({
+        name: row.querySelector('[data-field="name"]')?.value?.trim() || "",
+        normalized_name: row.querySelector('[data-field="name"]')?.value?.trim() || "",
+        quantity: Number(row.querySelector('[data-field="quantity"]')?.value || 0) || null,
+        unit: row.querySelector('[data-field="unit"]')?.value?.trim() || "un",
+        raw: row.querySelector('[data-field="name"]')?.value?.trim() || ""
+      }))
+      .filter((item) => item.name);
+  }
 
   return currentDraft;
 }
@@ -333,6 +326,15 @@ function applyPrefillDraft(prefill, feedbackMessage = "") {
   );
 }
 
+function setChatStage(hasMessages) {
+  const page = document.querySelector(".quote-chat-page-bare");
+  const home = qs("#chatHomeState");
+  const stream = qs("#chatMessages");
+  if (page) page.classList.toggle("is-thread-active", hasMessages);
+  if (home) home.classList.toggle("hidden", hasMessages);
+  if (stream) stream.classList.toggle("hidden", !hasMessages);
+}
+
 function renderThread(payload) {
   activeThreadId = payload.thread.id;
   sessionStorage.setItem(THREAD_STORAGE_KEY, activeThreadId);
@@ -345,6 +347,7 @@ function renderThread(payload) {
       : '<div class="chat-empty"><div class="chat-empty-copy"><strong>Descreva os materiais e as quantidades para iniciar a cotação.</strong></div></div>';
     list.scrollTop = list.scrollHeight;
   }
+  setChatStage(Boolean(payload.messages.length));
 
   updateSidebar(payload);
   managePolling();
@@ -556,6 +559,10 @@ async function init() {
       sessionStorage.removeItem(THREAD_STORAGE_KEY);
       activeThreadId = "";
     }
+  }
+
+  if (!activeThreadId) {
+    setChatStage(false);
   }
 
   form?.addEventListener("submit", async (event) => {

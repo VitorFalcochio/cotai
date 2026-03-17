@@ -2,19 +2,23 @@ import { LOGIN_PATH } from "../config.js";
 import { requireAuth } from "../auth.js";
 import { fetchProcurementOverview } from "../procurementData.js";
 import { deleteSupplier, upsertSupplier } from "../suppliers.js";
-import { formatDateTime, initSidebar, qs, runPageBoot, setHTML, setText, showFeedback } from "../ui.js";
+import { initSidebar, qs, runPageBoot, setHTML, setText, showFeedback } from "../ui.js";
 
 let suppliers = [];
 
 function renderHighlights(items) {
   if (!items.length) {
-    return '<article class="admin-status-row"><div><p>Sem fornecedores</p><strong>Cadastre os primeiros parceiros para iniciar a base.</strong></div><span class="app-badge is-muted">INFO</span></article>';
+    return '<article class="entity-list-item"><div class="entity-list-copy"><p>Sem fornecedores</p><strong>Cadastre os primeiros parceiros para iniciar a base.</strong></div><span class="app-badge is-muted">INFO</span></article>';
   }
+
   return items
     .map(
       (supplier) => `
-        <article class="admin-status-row">
-          <div><p>${supplier.name}</p><strong>${supplier.quote_participation_count || 0} participações</strong></div>
+        <article class="entity-list-item">
+          <div class="entity-list-copy">
+            <p>${supplier.name}</p>
+            <strong>${supplier.quote_participation_count || 0} participacoes</strong>
+          </div>
           <span class="app-badge ${supplier.derived_rating && supplier.derived_rating >= 4 ? "is-success" : "is-muted"}">${supplier.derived_rating ? supplier.derived_rating.toFixed(1) : "Sem nota"}</span>
         </article>
       `
@@ -27,20 +31,31 @@ function renderCoverage(items) {
   items.forEach((supplier) => {
     (supplier.material_tags || []).forEach((tag) => counts.set(tag, (counts.get(tag) || 0) + 1));
   });
+
   const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6);
   if (!ranked.length) {
-    return '<article class="admin-status-row"><div><p>Sem tags</p><strong>Adicione materiais atendidos para formar a cobertura.</strong></div><span class="app-badge is-muted">INFO</span></article>';
+    return '<article class="entity-list-item"><div class="entity-list-copy"><p>Sem tags</p><strong>Adicione materiais atendidos para formar a cobertura.</strong></div><span class="app-badge is-muted">INFO</span></article>';
   }
+
   return ranked
     .map(
       ([tag, count]) => `
-        <article class="admin-status-row">
-          <div><p>${tag}</p><strong>${count} fornecedor(es)</strong></div>
+        <article class="entity-list-item">
+          <div class="entity-list-copy">
+            <p>${tag}</p>
+            <strong>${count} fornecedor(es)</strong>
+          </div>
           <span class="app-badge is-muted">TAG</span>
         </article>
       `
     )
     .join("");
+}
+
+function renderTags(tags) {
+  const values = (tags || []).slice(0, 3);
+  if (!values.length) return '<span class="mini-badge">Sem tags</span>';
+  return values.map((tag) => `<span class="mini-badge">${tag}</span>`).join("");
 }
 
 function renderRows(rows) {
@@ -52,10 +67,25 @@ function renderRows(rows) {
     .map(
       (supplier) => `
         <tr>
-          <td><strong>${supplier.name}</strong><br /><small>${supplier.region || "-"} ${supplier.state ? `| ${supplier.state}` : ""}</small></td>
-          <td>${supplier.city || "-"}<br /><small>${supplier.contact_name || "-"} | ${supplier.contact_channel || "-"}</small></td>
-          <td>${(supplier.material_tags || []).join(", ") || "-"}</td>
-          <td><strong>${supplier.quote_participation_count || 0} cotacoes</strong><br /><small>Rating: ${supplier.derived_rating ? supplier.derived_rating.toFixed(1) : "-"} | Prazo: ${supplier.average_delivery_days || "-"}d</small></td>
+          <td>
+            <div class="table-entity">
+              <strong>${supplier.name}</strong>
+              <small>${[supplier.region, supplier.state].filter(Boolean).join(" • ") || "Sem regiao definida"}</small>
+            </div>
+          </td>
+          <td>
+            <div class="table-entity">
+              <strong>${supplier.city || "Sem cidade"}</strong>
+              <small>${supplier.contact_name || "-"}${supplier.contact_channel ? ` • ${supplier.contact_channel}` : ""}</small>
+            </div>
+          </td>
+          <td><div class="tag-cluster">${renderTags(supplier.material_tags)}</div></td>
+          <td>
+            <div class="table-entity">
+              <strong>${supplier.quote_participation_count || 0} cotacoes</strong>
+              <small>Nota ${supplier.derived_rating ? supplier.derived_rating.toFixed(1) : "-"} • Prazo ${supplier.average_delivery_days || "-"}d</small>
+            </div>
+          </td>
           <td><span class="app-badge ${String(supplier.status || "").toLowerCase() === "active" ? "is-success" : "is-muted"}">${supplier.status || "active"}</span></td>
           <td class="app-actions">
             <button class="btn btn-ghost" data-action="edit" data-id="${supplier.id}">Editar</button>
@@ -97,11 +127,12 @@ function closeModal() {
 async function loadPage() {
   const overview = await fetchProcurementOverview();
   suppliers = overview.suppliers;
+
   setText("#supplierMetricTotal", String(suppliers.filter((supplier) => String(supplier.status || "").toLowerCase() === "active").length));
   setText("#supplierMetricRating", suppliers[0]?.derived_rating ? suppliers[0].derived_rating.toFixed(1) : "-");
   setText("#supplierMetricDelivery", suppliers[0]?.average_delivery_days ? `${suppliers[0].average_delivery_days}d` : "-");
   setText("#supplierMetricTop", suppliers[0]?.name || "-");
-  setHTML("#supplierHighlights", renderHighlights(suppliers.slice(0, 5)));
+  setHTML("#supplierHighlights", renderHighlights(suppliers.slice(0, 4)));
   setHTML("#supplierCoverage", renderCoverage(suppliers));
   setHTML("#suppliersTableBody", renderRows(suppliers));
   return overview;
@@ -141,7 +172,7 @@ async function init() {
       await loadPage();
       showFeedback("#supplierFeedback", "Fornecedor salvo com sucesso.", false);
     } catch (error) {
-      showFeedback("#supplierFeedback", error.message || "Não foi possível salvar o fornecedor.");
+      showFeedback("#supplierFeedback", error.message || "Nao foi possivel salvar o fornecedor.");
     }
   });
 
@@ -162,12 +193,12 @@ async function init() {
         await deleteSupplier(supplier.id);
         await loadPage();
       } catch (error) {
-        showFeedback("#supplierFeedback", error.message || "Não foi possível excluir o fornecedor.");
+        showFeedback("#supplierFeedback", error.message || "Nao foi possivel excluir o fornecedor.");
       }
     }
   });
 }
 
 runPageBoot(init, { loadingMessage: "Carregando a base de fornecedores." }).catch((error) => {
-  showFeedback("#supplierFeedback", error.message || "Erro ao iniciar a página de fornecedores.");
+  showFeedback("#supplierFeedback", error.message || "Erro ao iniciar a pagina de fornecedores.");
 });

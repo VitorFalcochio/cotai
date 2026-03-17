@@ -16,7 +16,7 @@
     dashboard: "bx-grid-alt",
     analytics: "bx-bar-chart-alt-2",
     alerts: "bx-bell",
-    new: "bx-message-square-detail",
+    new: "bx-bot",
     requests: "bx-receipt",
     approvals: "bx-check-shield",
     comparisons: "bx-git-compare",

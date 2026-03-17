@@ -5,6 +5,158 @@ import { showAdminShortcut } from "../adminPage.js";
 import { fetchProcurementOverview } from "../procurementData.js";
 import { initSidebar, qs, runPageBoot, setHTML, setText, showFeedback } from "../ui.js";
 
+function relativeTimeFromNow(value) {
+  const date = value ? new Date(value) : null;
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "Agora";
+  const diffMs = Date.now() - date.getTime();
+  const diffMinutes = Math.max(0, Math.round(diffMs / 60000));
+  if (diffMinutes < 1) return "Agora";
+  if (diffMinutes < 60) return `Ha ${diffMinutes} min`;
+  const diffHours = Math.round(diffMinutes / 60);
+  if (diffHours < 24) return `Ha ${diffHours}h`;
+  const diffDays = Math.round(diffHours / 24);
+  return `Ha ${diffDays}d`;
+}
+
+function buildNotifications(overview) {
+  const pendingApprovals = overview.requests.filter((request) => String(request.approval_status || "").toUpperCase() === "PENDING");
+  const processingRequests = overview.requests.filter((request) => ["PROCESSING", "PENDING_QUOTE"].includes(String(request.status || "").toUpperCase()));
+  const errorRequests = overview.requests.filter((request) => String(request.status || "").toUpperCase() === "ERROR");
+  const finishedRequests = overview.requests.filter((request) => String(request.status || "").toUpperCase() === "DONE").slice(0, 2);
+  const notifications = [];
+
+  if (pendingApprovals.length) {
+    notifications.push({
+      tone: "is-warning",
+      icon: "bx-check-shield",
+      title: `${pendingApprovals.length} pedido(s) aguardando aprovacao`,
+      description: "A equipe precisa validar as proximas compras antes de seguir para cotacao.",
+      meta: relativeTimeFromNow(pendingApprovals[0]?.updated_at || pendingApprovals[0]?.created_at),
+      href: "approvals.html"
+    });
+  }
+
+  if (processingRequests.length) {
+    notifications.push({
+      tone: "is-success",
+      icon: "bx-loader-circle",
+      title: `${processingRequests.length} cotacao(oes) em andamento`,
+      description: "O motor da Cotai esta comparando preco, prazo e melhor fornecedor.",
+      meta: relativeTimeFromNow(processingRequests[0]?.updated_at || processingRequests[0]?.created_at),
+      href: "requests.html"
+    });
+  }
+
+  if (overview.metrics.pendingMaterials > 0) {
+    notifications.push({
+      tone: "is-warning",
+      icon: "bx-package",
+      title: `${overview.metrics.pendingMaterials} material(is) pendentes nos projetos`,
+      description: "Existem frentes abertas que ainda dependem de compra ou reposicao.",
+      meta: "Projetos ativos",
+      href: "materials.html"
+    });
+  }
+
+  if (errorRequests.length) {
+    notifications.push({
+      tone: "is-danger",
+      icon: "bx-error-circle",
+      title: `${errorRequests.length} pedido(s) com falha`,
+      description: "Algumas cotacoes precisam de revisao antes de prosseguir.",
+      meta: relativeTimeFromNow(errorRequests[0]?.updated_at || errorRequests[0]?.created_at),
+      href: "requests.html"
+    });
+  }
+
+  finishedRequests.forEach((request) => {
+    notifications.push({
+      tone: "is-success",
+      icon: "bx-badge-check",
+      title: `${request.request_code || "Pedido"} concluido`,
+      description: `Melhor fornecedor: ${request.best_supplier_name || "Cotacao finalizada"}.`,
+      meta: relativeTimeFromNow(request.updated_at || request.created_at),
+      href: "requests.html"
+    });
+  });
+
+  overview.notices.slice(0, 2).forEach((notice) => {
+    notifications.push({
+      tone: "is-warning",
+      icon: "bx-info-circle",
+      title: "Aviso do sistema",
+      description: notice,
+      meta: "Ambiente",
+      href: "settings.html"
+    });
+  });
+
+  return notifications.slice(0, 7);
+}
+
+function renderNotifications(items) {
+  if (!items.length) {
+    return `<div class="dashboard-notification-empty">Nenhuma notificacao nova por agora.</div>`;
+  }
+
+  return items
+    .map(
+      (item) => `
+        <a class="dashboard-notification-item ${item.tone}" href="${item.href}">
+          <span class="dashboard-notification-icon"><i class="bx ${item.icon}" aria-hidden="true"></i></span>
+          <span class="dashboard-notification-copy">
+            <strong>${item.title}</strong>
+            <p>${item.description}</p>
+            <span>${item.meta}</span>
+          </span>
+        </a>
+      `
+    )
+    .join("");
+}
+
+function initNotifications(items) {
+  const panel = qs("#dashboardNotifications");
+  const toggle = qs("#dashboardNotificationsToggle");
+  const close = qs("#dashboardNotificationsClose");
+  const dot = qs("#dashboardBellDot");
+  if (!panel || !toggle) return;
+
+  setHTML("#dashboardNotificationsList", renderNotifications(items));
+  setText("#dashboardNotificationsMeta", `${items.length} atualizacao(oes)`);
+  dot?.classList.toggle("hidden", items.length === 0);
+
+  const closePanel = () => {
+    panel.classList.add("hidden");
+    toggle.setAttribute("aria-expanded", "false");
+  };
+
+  const openPanel = () => {
+    panel.classList.remove("hidden");
+    toggle.setAttribute("aria-expanded", "true");
+    dot?.classList.add("hidden");
+  };
+
+  toggle.addEventListener("click", (event) => {
+    event.stopPropagation();
+    if (panel.classList.contains("hidden")) {
+      openPanel();
+      return;
+    }
+    closePanel();
+  });
+
+  close?.addEventListener("click", closePanel);
+  document.addEventListener("click", (event) => {
+    if (panel.classList.contains("hidden")) return;
+    if (panel.contains(event.target) || toggle.contains(event.target)) return;
+    closePanel();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closePanel();
+  });
+}
+
 function formatCompactNumber(value) {
   return new Intl.NumberFormat("en-US", {
     notation: "compact",
@@ -235,6 +387,7 @@ async function init() {
     setHTML("#trafficSourcesList", renderTrafficSources(trafficSources));
     setDonutSegments(trafficSources);
     setHTML("#dashboardProjects", renderGoals(overview.projects, overview.projectMaterials));
+    initNotifications(buildNotifications(overview));
 
     if (overview.notices.length) {
       showFeedback(
@@ -256,6 +409,7 @@ async function init() {
         </article>
       `
     );
+    initNotifications([]);
   }
 }
 

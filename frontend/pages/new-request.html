@@ -9,56 +9,36 @@
 </head>
 <body data-page="new-request">
   <div class="app-shell app-layout dashboard-apex-layout">
-    <aside class="sidebar app-sidebar dashboard-apex-sidebar" id="appSidebar">
-      <div class="side-shell-head">
-        <a class="brand" href="dashboard.html">
-          <span class="brand-mark">C</span>
-          <span class="brand-name">Cotai</span>
-        </a>
-        <button class="btn btn-ghost side-collapse-btn" type="button" id="sidebarCollapse" aria-label="Colapsar menu" aria-expanded="true">
-          <span class="collapse-arrow" aria-hidden="true"><</span>
-        </button>
-      </div>
-
-      <nav class="app-nav" id="appNav">
-        <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
-        <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard"><span class="left"><span class="nav-label">Dashboard</span></span><span class="mini-badge">Resumo</span></a>
-        <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotacao"><span class="left"><span class="nav-label">Nova cotacao</span></span><span class="mini-badge">Novo</span></a>
-        <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span><span class="mini-badge">Historico</span></a>
-        <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores"><span class="left"><span class="nav-label">Fornecedores</span></span><span class="mini-badge">Base</span></a>
-        <a class="side-link" data-nav="materials" href="materials.html" title="Materiais"><span class="left"><span class="nav-label">Materiais</span></span><span class="mini-badge">Catalogo</span></a>
-        <a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span><span class="mini-badge">Assinatura</span></a>
-        <a class="side-link" data-nav="settings" href="settings.html" title="Configuracoes"><span class="left"><span class="nav-label">Configuracoes</span></span><span class="mini-badge">Conta</span></a>
-      </nav>
-
-      <div class="app-sidebar-foot">
-        <a class="btn btn-ghost w-full" href="index.html">Voltar para o site</a>
-      </div>
-    </aside>
+    <aside class="sidebar app-sidebar dashboard-apex-sidebar" id="appSidebar"></aside>
     <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
 
-    <main class="app-main dashboard-apex-main quote-chat-page quote-chat-page-minimal">
+    <main class="app-main dashboard-apex-main quote-chat-page quote-chat-page-bare">
       <p class="app-feedback hidden" id="newRequestFeedback" role="alert"></p>
 
-      <section class="quote-chat-layout quote-chat-layout-minimal">
-        <article class="quote-chat-panel quote-chat-panel-minimal">
-          <div class="quote-chat-shell quote-chat-shell-minimal">
-            <div class="quote-chat-stream quote-chat-stream-minimal" id="chatMessages">
-              <div class="chat-empty">
-                <div class="chat-empty-copy">
-                  <strong>Comece com o pedido principal.</strong>
-                  <span>Descreva material, quantidade, cidade de entrega, prazo e qualquer observacao importante.</span>
-                </div>
-              </div>
-            </div>
+      <section class="quote-chat-layout quote-chat-layout-solo">
+        <article class="quote-chat-panel quote-chat-panel-bare">
+          <div class="quote-chat-status-corner">
+            <span class="app-badge is-muted" id="chatRequestStatus">RASCUNHO</span>
+          </div>
 
-            <form class="quote-chat-composer quote-chat-composer-minimal" id="chatComposerForm">
+          <div class="quote-chat-shell quote-chat-shell-bare">
+            <section class="quote-chat-home" id="chatHomeState">
+              <div class="quote-chat-home-copy">
+                <span class="quote-chat-home-icon" aria-hidden="true">
+                  <i class="bx bx-bot"></i>
+                </span>
+                <h1 id="chatThreadTitle">Como posso ajudar com sua cotacao?</h1>
+              </div>
+            </section>
+
+            <div class="quote-chat-stream quote-chat-stream-bare hidden" id="chatMessages"></div>
+
+            <form class="quote-chat-composer quote-chat-composer-bare" id="chatComposerForm">
               <label class="sr-only" for="chatComposerInput">Mensagem</label>
-              <div class="quote-chat-composer-shell quote-chat-composer-shell-minimal">
-                <textarea id="chatComposerInput" rows="2" placeholder="Descreva os materiais, as quantidades, o local de entrega e as observacoes"></textarea>
-                <div class="quote-chat-actions quote-chat-actions-minimal">
-                  <button class="btn btn-ghost hidden" id="chatSaveDraftButton" type="button">Salvar rascunho</button>
-                  <button class="btn btn-ghost hidden" id="chatConfirmButton" type="button">Confirmar pedido</button>
+              <div class="quote-chat-composer-shell quote-chat-composer-shell-bare">
+                <textarea id="chatComposerInput" rows="1" placeholder="Digite o pedido, materiais, quantidades, prazo e local de entrega"></textarea>
+                <div class="quote-chat-actions quote-chat-actions-bare">
+                  <button class="btn btn-secondary hidden" id="chatConfirmButton" type="button">Confirmar</button>
                   <button class="btn btn-primary" id="chatComposerSubmit" type="submit">Enviar</button>
                 </div>
               </div>
@@ -66,27 +46,8 @@
           </div>
         </article>
       </section>
-
-      <section class="quote-chat-support-state" aria-hidden="true">
-        <h1 id="chatThreadTitle">Nova solicitacao</h1>
-        <span class="app-badge is-muted" id="chatRequestStatus">RASCUNHO</span>
-        <span id="chatRequestCode">Aguardando</span>
-        <span id="chatRequestUpdated">-</span>
-        <span id="chatRequestPriority">MEDIUM</span>
-        <span id="chatRequestSla">-</span>
-        <span id="chatApprovalStatus">-</span>
-        <p id="chatSummary">A conversa consolidara aqui os itens, contexto do pedido e proximos passos.</p>
-        <p id="chatComparisonSummary">A comparacao entre fornecedores aparecera aqui.</p>
-        <p id="chatPrefillNotice">Sem reaproveitamento aplicado nesta sessao.</p>
-        <div id="draftItemsEditor"></div>
-        <ul id="chatDetectedItems"></ul>
-        <ul id="chatQuoteResults"></ul>
-        <ul id="chatTimeline"></ul>
-        <ul id="chatNotifications"></ul>
-      </section>
     </main>
   </div>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="../assets/js/pages/new-request.page.js"></script>
 </body>

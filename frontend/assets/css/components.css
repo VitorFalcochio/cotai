@@ -357,6 +357,513 @@ textarea {
   border-radius: 20px;
 }
 
+.quote-suggestion-pill {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--transition-base), color var(--transition-base), border-color var(--transition-base);
+}
+
+.quote-suggestion-pill:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.quote-chat-panel,
+.quote-side-card {
+  background: linear-gradient(180deg, rgba(8, 12, 11, 0.98), rgba(6, 10, 10, 0.98));
+}
+
+.quote-chat-panel-whatsapp {
+  padding: 0;
+  min-height: calc(100vh - 132px);
+}
+
+.quote-chat-panel-solo {
+  width: min(100%, 960px);
+  margin-inline: auto;
+}
+
+.quote-chat-page-bare {
+  display: grid;
+  align-items: center;
+}
+
+.quote-chat-panel-bare {
+  position: relative;
+  width: min(100%, 980px);
+  min-height: calc(100vh - 140px);
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.quote-chat-status-corner {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+}
+
+.quote-chat-shell-bare {
+  min-height: calc(100vh - 140px);
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.quote-chat-home {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  min-height: 100%;
+  padding: 24px;
+  text-align: center;
+}
+
+.quote-chat-home-copy {
+  display: grid;
+  gap: 12px;
+  width: min(100%, 640px);
+}
+
+.quote-chat-home-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 8px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(25, 210, 107, 0.16);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top, rgba(25, 210, 107, 0.18), transparent 65%),
+    rgba(10, 16, 15, 0.9);
+  color: var(--accent-green);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.quote-chat-home-icon .bx {
+  font-size: 1.9rem;
+  line-height: 1;
+}
+
+.quote-chat-home-copy h1 {
+  font-size: clamp(2.2rem, 4vw, 3.2rem);
+  line-height: 1.08;
+  letter-spacing: -0.06em;
+  color: var(--text-primary);
+}
+
+.quote-chat-stream-bare {
+  width: min(100%, 820px);
+  margin: 0 auto;
+  padding: 12px 0 120px;
+  display: grid;
+  align-content: start;
+  gap: 16px;
+}
+
+.quote-chat-composer-bare {
+  width: min(100%, 820px);
+  margin: 0 auto;
+  padding: 18px 0 0;
+}
+
+.quote-chat-composer-shell-bare {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 24px;
+  background: rgba(11, 17, 16, 0.98);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+}
+
+.quote-chat-composer-shell-bare textarea {
+  min-height: 52px;
+  max-height: 220px;
+  padding: 14px 16px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  resize: none;
+}
+
+.quote-chat-composer-shell-bare textarea:focus {
+  box-shadow: none;
+}
+
+.quote-chat-actions-bare {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.quote-chat-actions-bare .btn {
+  min-height: 44px;
+  border-radius: 999px;
+}
+
+#newRequestFeedback {
+  width: min(100%, 980px);
+  margin: 0 auto 12px;
+}
+
+.quote-chat-page-bare.is-thread-active .quote-chat-home {
+  display: none;
+}
+
+.quote-chat-shell-whatsapp {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  min-height: calc(100vh - 132px);
+}
+
+.quote-chat-head {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: linear-gradient(180deg, rgba(10, 14, 13, 0.98), rgba(8, 12, 11, 0.92));
+}
+
+.quote-chat-head-copy {
+  display: grid;
+  gap: 8px;
+}
+
+.quote-chat-head-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.quote-chat-head h2 {
+  font-size: 1.45rem;
+  letter-spacing: -0.04em;
+}
+
+.quote-chat-head p {
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.quote-chat-head-whatsapp {
+  grid-template-columns: minmax(0, 1fr) auto;
+  display: grid;
+  align-items: center;
+  gap: 16px;
+}
+
+.quote-chat-suggestions {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(8, 12, 11, 0.72);
+}
+
+.quote-chat-stream-whatsapp {
+  padding: 24px 22px;
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  background:
+    radial-gradient(circle at top left, rgba(25, 210, 107, 0.05), transparent 18%),
+    linear-gradient(180deg, rgba(7, 10, 10, 0.98), rgba(7, 10, 10, 0.96));
+}
+
+.chat-empty {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.chat-empty-copy {
+  max-width: 460px;
+  display: grid;
+  gap: 10px;
+}
+
+.chat-empty-copy strong {
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.chat-empty-copy span {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.chat-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 74%;
+}
+
+.chat-row.is-user {
+  justify-self: end;
+}
+
+.chat-row.is-assistant,
+.chat-row.is-system {
+  justify-self: start;
+}
+
+.chat-avatar {
+  display: none;
+}
+
+.chat-bubble {
+  padding: 13px 15px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: none;
+}
+
+.chat-bubble.is-user {
+  background: linear-gradient(180deg, rgba(24, 210, 107, 0.98), rgba(18, 180, 92, 0.98));
+  color: #04150d;
+  border-bottom-right-radius: 8px;
+}
+
+.chat-bubble.is-assistant {
+  background: rgba(16, 21, 20, 0.96);
+  color: #eef3f8;
+  border-bottom-left-radius: 8px;
+}
+
+.chat-bubble.is-system {
+  background: rgba(34, 19, 19, 0.76);
+  color: #ffd5d5;
+  border-color: rgba(255, 90, 99, 0.18);
+  border-bottom-left-radius: 8px;
+}
+
+.chat-bubble-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+  font-size: 0.76rem;
+  opacity: 0.84;
+}
+
+.chat-bubble-body {
+  line-height: 1.7;
+  font-size: 0.95rem;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.quote-chat-composer-whatsapp {
+  position: sticky;
+  bottom: 0;
+  padding: 16px 18px 18px;
+  background: linear-gradient(180deg, rgba(7, 10, 10, 0), rgba(7, 10, 10, 0.94) 24%);
+}
+
+.quote-chat-composer-shell-whatsapp {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 22px;
+  background: rgba(13, 18, 17, 0.98);
+}
+
+.quote-chat-composer-shell-whatsapp textarea {
+  min-height: 46px;
+  max-height: 180px;
+  padding: 12px 14px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  resize: none;
+}
+
+.quote-chat-composer-shell-whatsapp textarea:focus {
+  box-shadow: none;
+}
+
+.quote-chat-actions-whatsapp {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.quote-chat-actions-whatsapp .btn {
+  min-height: 44px;
+  border-radius: 999px;
+  padding-inline: 18px;
+}
+
+.quote-side-card {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.quote-side-card-status {
+  background:
+    radial-gradient(circle at top right, rgba(25, 210, 107, 0.12), transparent 28%),
+    linear-gradient(180deg, rgba(10, 18, 15, 0.98), rgba(7, 12, 11, 0.98));
+}
+
+.quote-side-section-head {
+  display: grid;
+  gap: 4px;
+}
+
+.quote-side-section-head h3 {
+  font-size: 1rem;
+  letter-spacing: -0.03em;
+}
+
+.quote-side-meta {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.quote-side-meta div {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.quote-side-meta dt {
+  color: var(--text-secondary);
+}
+
+.quote-side-meta dd {
+  margin: 0;
+  text-align: right;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.quote-side-list {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.quote-side-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+}
+
+.quote-side-list li:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.quote-side-list strong,
+.quote-summary {
+  color: var(--text-primary);
+}
+
+.quote-inline-note {
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.app-metrics-compact {
+  gap: 14px;
+}
+
+.metric-card-compact {
+  min-height: 140px;
+}
+
+.metric-card-compact h3 {
+  font-size: clamp(1.6rem, 2vw, 2.2rem);
+}
+
+.insight-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.insight-grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.entity-list {
+  display: grid;
+  gap: 10px;
+}
+
+.entity-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.entity-list-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.entity-list-copy p {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
+.entity-list-copy strong {
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.table-entity {
+  display: grid;
+  gap: 4px;
+}
+
+.table-entity strong {
+  color: var(--text-primary);
+}
+
+.table-entity small {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.tag-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .plans-compact-grid {
   margin-top: 4px;
   align-items: stretch;

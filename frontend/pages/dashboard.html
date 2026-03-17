@@ -73,10 +73,23 @@
           <button class="icon-btn" type="button" aria-label="Tema"><i class="bx bx-sun" aria-hidden="true"></i></button>
           <a class="btn btn-ghost hidden" id="adminShortcut" href="admin-dashboard.html">Admin</a>
           <button class="icon-btn" type="button" aria-label="Ajuda"><i class="bx bx-help-circle" aria-hidden="true"></i></button>
-          <button class="icon-btn dashboard-bell" type="button" aria-label="Notificacoes"><i class="bx bx-bell" aria-hidden="true"></i><span class="dashboard-bell-dot"></span></button>
-          <button class="dashboard-user-chip" id="logoutButton" type="button" aria-label="Sair"><span id="dashboardUserChip">CO</span></button>
+          <button class="icon-btn dashboard-bell" id="dashboardNotificationsToggle" type="button" aria-label="Notificacoes" aria-expanded="false" aria-haspopup="dialog"><i class="bx bx-bell" aria-hidden="true"></i><span class="dashboard-bell-dot" id="dashboardBellDot"></span></button>
+          <button class="dashboard-user-chip" id="logoutButton" type="button" aria-label="Sair"><span id="dashboardUserChip"></span></button>
         </div>
       </header>
+
+      <div class="dashboard-notifications hidden" id="dashboardNotifications" role="dialog" aria-label="Notificacoes">
+        <div class="dashboard-notifications-head">
+          <div>
+            <strong>Notificacoes</strong>
+            <span id="dashboardNotificationsMeta">0 atualizacoes</span>
+          </div>
+          <button class="icon-btn dashboard-notifications-close" id="dashboardNotificationsClose" type="button" aria-label="Fechar notificacoes">
+            <i class="bx bx-x" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="dashboard-notifications-list" id="dashboardNotificationsList"></div>
+      </div>
 
       <section class="dashboard-heading">
         <div>

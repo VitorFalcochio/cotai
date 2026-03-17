@@ -9,32 +9,7 @@
 </head>
 <body data-page="suppliers">
   <div class="app-shell app-layout dashboard-apex-layout">
-    <aside class="sidebar app-sidebar dashboard-apex-sidebar" id="appSidebar">
-      <div class="side-shell-head">
-        <a class="brand" href="dashboard.html">
-          <span class="brand-mark">C</span>
-          <span class="brand-name">Cotai</span>
-        </a>
-        <button class="btn btn-ghost side-collapse-btn" type="button" id="sidebarCollapse" aria-label="Colapsar menu" aria-expanded="true">
-          <span class="collapse-arrow" aria-hidden="true"><</span>
-        </button>
-      </div>
-
-      <nav class="app-nav" id="appNav">
-        <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
-        <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard"><span class="left"><span class="nav-label">Dashboard</span></span><span class="mini-badge">Resumo</span></a>
-        <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotação"><span class="left"><span class="nav-label">Nova cotação</span></span><span class="mini-badge">Novo</span></a>
-        <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span><span class="mini-badge">Histórico</span></a>
-        <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores"><span class="left"><span class="nav-label">Fornecedores</span></span><span class="mini-badge">Base</span></a>
-        <a class="side-link" data-nav="materials" href="materials.html" title="Materiais"><span class="left"><span class="nav-label">Materiais</span></span><span class="mini-badge">Catálogo</span></a>
-        <a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span><span class="mini-badge">Assinatura</span></a>
-        <a class="side-link" data-nav="settings" href="settings.html" title="Configurações"><span class="left"><span class="nav-label">Configurações</span></span><span class="mini-badge">Conta</span></a>
-      </nav>
-
-      <div class="app-sidebar-foot">
-        <a class="btn btn-ghost w-full" href="index.html">Voltar para o site</a>
-      </div>
-    </aside>
+    <aside class="sidebar app-sidebar dashboard-apex-sidebar" id="appSidebar"></aside>
     <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
 
     <main class="app-main dashboard-apex-main">
@@ -42,7 +17,7 @@
         <div>
           <p class="eyebrow">Banco estruturado de fornecedores</p>
           <h1>Fornecedores</h1>
-          <p>Organize a rede por região, materiais atendidos, prazo médio, nota e participação em cotações.</p>
+          <p>Base limpa para acompanhar cobertura, prazo e parceiros mais confiáveis.</p>
         </div>
         <div class="app-topbar-actions">
           <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
@@ -51,31 +26,44 @@
       </header>
       <p class="app-feedback hidden" id="supplierFeedback" role="alert"></p>
 
-      <section class="app-metrics">
-        <article class="card app-metric-card"><p>Fornecedores ativos</p><h3 id="supplierMetricTotal">0</h3></article>
-        <article class="card app-metric-card"><p>Melhor avaliação</p><h3 id="supplierMetricRating">-</h3></article>
-        <article class="card app-metric-card"><p>Prazo médio</p><h3 id="supplierMetricDelivery">-</h3></article>
-        <article class="card app-metric-card"><p>Top parceiro</p><h3 id="supplierMetricTop">-</h3></article>
+      <section class="app-metrics app-metrics-compact">
+        <article class="card app-metric-card metric-card-compact">
+          <p>Fornecedores ativos</p>
+          <h3 id="supplierMetricTotal">0</h3>
+        </article>
+        <article class="card app-metric-card metric-card-compact">
+          <p>Melhor avaliação</p>
+          <h3 id="supplierMetricRating">-</h3>
+        </article>
+        <article class="card app-metric-card metric-card-compact">
+          <p>Prazo médio</p>
+          <h3 id="supplierMetricDelivery">-</h3>
+        </article>
+        <article class="card app-metric-card metric-card-compact">
+          <p>Top parceiro</p>
+          <h3 id="supplierMetricTop">-</h3>
+        </article>
       </section>
 
-      <section class="admin-dual-panel">
+      <section class="insight-grid insight-grid-2">
         <article class="card table-shell">
           <div class="filter-shell-head">
             <div>
-              <p class="eyebrow">Rede</p>
-              <h2>Fornecedores com melhor performance</h2>
+              <p class="eyebrow">Destaques</p>
+              <h2>Melhores parceiros</h2>
             </div>
           </div>
-          <div id="supplierHighlights" class="admin-status-stack"></div>
+          <div id="supplierHighlights" class="entity-list"></div>
         </article>
+
         <article class="card table-shell">
           <div class="filter-shell-head">
             <div>
               <p class="eyebrow">Cobertura</p>
-              <h2>Materiais atendidos</h2>
+              <h2>Tags mais atendidas</h2>
             </div>
           </div>
-          <div id="supplierCoverage" class="admin-status-stack"></div>
+          <div id="supplierCoverage" class="entity-list"></div>
         </article>
       </section>
 
@@ -84,6 +72,7 @@
           <div>
             <p class="eyebrow">Base operacional</p>
             <h2>Relacionamento com fornecedores</h2>
+            <p>Visão objetiva da rede, com foco em contato, cobertura e performance.</p>
           </div>
         </div>
         <div class="app-table-wrap">
@@ -91,7 +80,7 @@
             <thead>
               <tr>
                 <th>Fornecedor</th>
-                <th>Local / contato</th>
+                <th>Cobertura</th>
                 <th>Tags</th>
                 <th>Performance</th>
                 <th>Status</th>

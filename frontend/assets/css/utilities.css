@@ -22,6 +22,23 @@
   grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
 }
 
+.quote-chat-layout-whatsapp {
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.78fr);
+  align-items: start;
+}
+
+.quote-chat-layout-solo {
+  grid-template-columns: 1fr;
+}
+
+.quote-chat-sidebar-whatsapp {
+  position: sticky;
+  top: 92px;
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
 .app-metrics,
 .admin-grid,
 .admin-grid-metrics,
@@ -183,6 +200,10 @@
   .admin-overview-grid {
     grid-template-columns: 1fr;
   }
+
+  .quote-chat-layout-whatsapp {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 920px) {
@@ -202,5 +223,25 @@
   .dashboard-metrics-grid,
   .dashboard-content-grid {
     grid-template-columns: 1fr;
+  }
+
+  .quote-chat-composer-shell-whatsapp {
+    grid-template-columns: 1fr;
+  }
+
+  .quote-chat-composer-shell-bare {
+    grid-template-columns: 1fr;
+  }
+
+  .quote-chat-stream-whatsapp {
+    padding-inline: 16px;
+  }
+
+  .quote-chat-sidebar-whatsapp {
+    position: static;
+  }
+
+  .chat-row {
+    max-width: 100%;
   }
 }
