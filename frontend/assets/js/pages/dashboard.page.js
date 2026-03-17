@@ -253,6 +253,196 @@ function initCustomizer() {
   syncCustomizerState();
 }
 
+function normalizeText(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function buildSearchIndex(overview) {
+  const staticPages = [
+    { label: "Dashboard", subtitle: "Visao geral da operacao", href: "dashboard.html", group: "Paginas", icon: "bx-grid-alt", tag: "Pagina" },
+    { label: "Pedidos", subtitle: "Historico e acompanhamento", href: "requests.html", group: "Paginas", icon: "bx-receipt", tag: "Pagina" },
+    { label: "Aprovacoes", subtitle: "Fila de validacao", href: "approvals.html", group: "Paginas", icon: "bx-check-shield", tag: "Pagina" },
+    { label: "Comparativos", subtitle: "Melhor opcao por pedido", href: "comparisons.html", group: "Paginas", icon: "bx-git-compare", tag: "Pagina" },
+    { label: "Fornecedores", subtitle: "Base e performance", href: "suppliers.html", group: "Paginas", icon: "bx-store-alt", tag: "Pagina" },
+    { label: "Materiais", subtitle: "Catalogo e recorrencia", href: "materials.html", group: "Paginas", icon: "bx-cube-alt", tag: "Pagina" },
+    { label: "Nova cotacao", subtitle: "IA de compras", href: "new-request.html", group: "Paginas", icon: "bx-bot", tag: "Acao" },
+    { label: "Configuracoes", subtitle: "Conta e preferencias", href: "settings.html", group: "Paginas", icon: "bx-cog", tag: "Pagina" }
+  ];
+
+  const requests = overview.requests.slice(0, 10).map((request) => ({
+    label: request.request_code || "Pedido",
+    subtitle: `${request.customer_name || "Sem cliente"} · ${request.delivery_location || "Sem local"}`,
+    href: "requests.html",
+    group: "Pedidos",
+    icon: "bx-receipt",
+    tag: String(request.status || "pedido").replaceAll("_", " ")
+  }));
+
+  const suppliers = overview.suppliers.slice(0, 8).map((supplier) => ({
+    label: supplier.name || "Fornecedor",
+    subtitle: `${supplier.quote_participation_count || 0} participacoes`,
+    href: "suppliers.html",
+    group: "Fornecedores",
+    icon: "bx-store-alt",
+    tag: "Base"
+  }));
+
+  const materials = overview.topMaterials.slice(0, 8).map((material) => ({
+    label: material.name || "Material",
+    subtitle: `${material.count || 0} ocorrencias recentes`,
+    href: "materials.html",
+    group: "Materiais",
+    icon: "bx-cube-alt",
+    tag: "Catalogo"
+  }));
+
+  const projects = overview.projects.slice(0, 6).map((project) => ({
+    label: project.name || "Projeto",
+    subtitle: project.location || "Sem local definido",
+    href: "dashboard.html",
+    group: "Projetos",
+    icon: "bx-building-house",
+    tag: "Projeto"
+  }));
+
+  return [...staticPages, ...requests, ...suppliers, ...materials, ...projects].map((item) => ({
+    ...item,
+    searchText: normalizeText(`${item.label} ${item.subtitle} ${item.group} ${item.tag}`)
+  }));
+}
+
+function renderSearchResults(items) {
+  if (!items.length) {
+    return `<div class="dashboard-search-empty">Nenhum resultado para essa busca.</div>`;
+  }
+
+  const grouped = items.reduce((accumulator, item) => {
+    const bucket = accumulator.get(item.group) || [];
+    bucket.push(item);
+    accumulator.set(item.group, bucket);
+    return accumulator;
+  }, new Map());
+
+  return [...grouped.entries()]
+    .map(
+      ([group, entries]) => `
+        <section class="dashboard-search-group">
+          <div class="dashboard-search-group-label">${group}</div>
+          ${entries
+            .map(
+              (item, index) => `
+                <button class="dashboard-search-item${index === 0 ? " is-active" : ""}" type="button" data-search-href="${item.href}">
+                  <span class="dashboard-search-item-icon"><i class="bx ${item.icon}" aria-hidden="true"></i></span>
+                  <span class="dashboard-search-item-copy">
+                    <strong>${item.label}</strong>
+                    <span>${item.subtitle}</span>
+                  </span>
+                  <span class="dashboard-search-item-tag">${item.tag}</span>
+                </button>
+              `
+            )
+            .join("")}
+        </section>
+      `
+    )
+    .join("");
+}
+
+function initDashboardSearch(overview) {
+  const input = qs("#dashboardSearch");
+  const results = qs("#dashboardSearchResults");
+  if (!input || !results) return;
+
+  const searchPool = buildSearchIndex(overview);
+  let activeIndex = 0;
+
+  const getButtons = () => [...results.querySelectorAll(".dashboard-search-item")];
+
+  const syncActiveItem = () => {
+    getButtons().forEach((button, index) => {
+      button.classList.toggle("is-active", index === activeIndex);
+    });
+  };
+
+  const closeResults = () => {
+    results.classList.add("hidden");
+    activeIndex = 0;
+  };
+
+  const openResults = () => {
+    results.classList.remove("hidden");
+  };
+
+  const runSearch = () => {
+    const query = normalizeText(input.value);
+    const matched = query
+      ? searchPool.filter((item) => item.searchText.includes(query)).slice(0, 8)
+      : searchPool.slice(0, 8);
+    setHTML(results, renderSearchResults(matched));
+    activeIndex = 0;
+    syncActiveItem();
+    openResults();
+
+    getButtons().forEach((button) => {
+      button.addEventListener("click", () => {
+        const href = button.dataset.searchHref;
+        if (href) window.location.href = href;
+      });
+    });
+  };
+
+  input.addEventListener("focus", runSearch);
+  input.addEventListener("input", runSearch);
+
+  input.addEventListener("keydown", (event) => {
+    const buttons = getButtons();
+    if (!buttons.length) return;
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      activeIndex = (activeIndex + 1) % buttons.length;
+      syncActiveItem();
+      return;
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      activeIndex = (activeIndex - 1 + buttons.length) % buttons.length;
+      syncActiveItem();
+      return;
+    }
+
+    if (event.key === "Enter") {
+      event.preventDefault();
+      buttons[activeIndex]?.click();
+      return;
+    }
+
+    if (event.key === "Escape") {
+      closeResults();
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      input.focus();
+      input.select();
+      runSearch();
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (results.classList.contains("hidden")) return;
+    if (results.contains(event.target) || input.contains(event.target)) return;
+    closeResults();
+  });
+}
+
 function formatCompactNumber(value) {
   return new Intl.NumberFormat("en-US", {
     notation: "compact",
@@ -485,6 +675,7 @@ async function init() {
     setHTML("#dashboardProjects", renderGoals(overview.projects, overview.projectMaterials));
     initNotifications(buildNotifications(overview));
     initCustomizer();
+    initDashboardSearch(overview);
 
     if (overview.notices.length) {
       showFeedback(
