@@ -149,6 +149,11 @@ label {
   letter-spacing: -0.05em;
 }
 
+.dashboard-heading h1 {
+  font-size: clamp(2.35rem, 3.8vw, 3.25rem);
+  line-height: 1.02;
+}
+
 .page-title {
   font-size: clamp(2rem, 3vw, 2.8rem);
   line-height: 1.04;

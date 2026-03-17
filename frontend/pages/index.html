@@ -1,272 +1,1188 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cotai | Cotação profissional para obras</title>
-  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
-  <link rel="stylesheet" href="../assets/css/apex.css" />
-</head>
-<body class="landing-page">
-  <header class="header">
-    <div class="container nav">
-      <a class="brand" href="index.html">
-        <span class="brand-mark">C</span>
-        <span class="brand-name">Cotai</span>
-      </a>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cotai | Plataforma inteligente de cotacao</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+    <link rel="stylesheet" href="../assets/css/apex.css" />
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" />
+    <style>
+      :root {
+        --bg: #090d12;
+        --bg-soft: #0d1218;
+        --panel: #0d1117;
+        --panel-soft: #111722;
+        --line: rgba(255, 255, 255, 0.08);
+        --line-strong: rgba(34, 197, 94, 0.26);
+        --text: #f7f8fb;
+        --muted: #94a3b8;
+        --green: #22c55e;
+        --green-strong: #39e079;
+        --green-soft: rgba(34, 197, 94, 0.12);
+        --max: min(1120px, calc(100vw - 32px));
+        --shadow: 0 24px 60px rgba(0, 0, 0, 0.34);
+      }
 
-      <nav class="menu">
-        <a href="#problema">Problema</a>
-        <a href="#como-funciona">Fluxo</a>
-        <a href="#beneficios">Benefícios</a>
-        <a href="#faq">FAQ</a>
-        <a href="#resumo-planos">Planos</a>
-      </nav>
+      * {
+        box-sizing: border-box;
+      }
 
-      <div class="nav-cta">
-        <div class="toggle-switch theme-switcher-inline" id="landingThemeSwitcher" aria-label="Alternar tema">
-          <label class="switch-label" for="landingThemeCheckbox">
-            <input type="checkbox" class="checkbox" id="landingThemeCheckbox" />
-            <span class="slider"></span>
-          </label>
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body.landing-page {
+        min-height: 100vh;
+        margin: 0;
+        background: linear-gradient(180deg, var(--bg), var(--bg-soft));
+        color: var(--text);
+      }
+
+      .wrap {
+        width: var(--max);
+        margin: 0 auto;
+      }
+
+      .landing-header {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        background: rgba(9, 13, 18, 0.86);
+        backdrop-filter: blur(16px);
+      }
+
+      .nav-shell {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 78px;
+      }
+
+      .brand {
+        color: var(--text);
+        text-decoration: none;
+        font-size: 1.18rem;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+      }
+
+      .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        padding: 0 22px;
+        border: 1px solid transparent;
+        border-radius: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        transition:
+          transform var(--transition-base),
+          background-color var(--transition-base),
+          border-color var(--transition-base),
+          box-shadow var(--transition-base);
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+      }
+
+      .animate {
+        opacity: 0;
+        transform: translate3d(0, 28px, 0);
+        transition:
+          opacity 0.8s ease,
+          transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        transition-delay: calc(var(--animate-delay, 0) * 90ms);
+      }
+
+      .animate-visible {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+      }
+
+      .btn-primary {
+        background: linear-gradient(180deg, #34d975, #22c55e);
+        color: #031109;
+        box-shadow: 0 16px 34px rgba(34, 197, 94, 0.22);
+      }
+
+      .btn-secondary {
+        border-color: var(--line);
+        background: transparent;
+        color: var(--text);
+      }
+
+      .hero {
+        padding: 96px 0 118px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      }
+
+      .hero-shell {
+        display: grid;
+        place-items: center;
+        text-align: center;
+      }
+
+      .hero-badge,
+      .future-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 44px;
+        padding: 0 18px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 999px;
+        background: rgba(14, 19, 27, 0.8);
+        color: var(--muted);
+        font-size: 0.98rem;
+        transition:
+          transform var(--transition-base),
+          border-color var(--transition-base),
+          box-shadow var(--transition-base),
+          background-color var(--transition-base);
+      }
+
+      .hero-badge i,
+      .future-pill i {
+        color: var(--green);
+        font-size: 1rem;
+      }
+
+      .hero-copy {
+        max-width: 980px;
+        margin-top: 30px;
+        animation: heroFloat 8s ease-in-out infinite;
+      }
+
+      .hero-copy h1,
+      .section-title,
+      .future-title {
+        margin: 0;
+        font-size: clamp(3.05rem, 7vw, 5.05rem);
+        line-height: 1.02;
+        letter-spacing: -0.065em;
+        text-transform: none;
+      }
+
+      .section-title,
+      .future-title {
+        font-size: clamp(2.4rem, 5vw, 4rem);
+        letter-spacing: -0.055em;
+        text-transform: none;
+      }
+
+      .hero-copy h1 span,
+      .section-title span,
+      .future-title span {
+        color: var(--green);
+      }
+
+      .hero-copy p,
+      .section-copy,
+      .future-copy {
+        max-width: 820px;
+        margin: 24px auto 0;
+        color: var(--muted);
+        font-size: clamp(1.08rem, 1.9vw, 1.22rem);
+        line-height: 1.6;
+      }
+
+      .hero-actions {
+        display: flex;
+        justify-content: center;
+        gap: 14px;
+        margin-top: 38px;
+        flex-wrap: wrap;
+      }
+
+      .hero-actions .btn {
+        min-width: 184px;
+        min-height: 54px;
+        border-radius: 16px;
+        font-size: 1rem;
+      }
+
+      .hero-actions .btn i {
+        margin-left: 10px;
+        font-size: 1.1rem;
+        transition: transform var(--transition-base);
+      }
+
+      .hero-actions .btn:hover i {
+        transform: translateX(3px);
+      }
+
+      .section {
+        padding: 108px 0 0;
+      }
+
+      .section + .section {
+        padding-top: 126px;
+      }
+
+      .section-head {
+        max-width: 980px;
+        margin: 0 auto 58px;
+        text-align: center;
+      }
+
+      .section-eyebrow {
+        margin-bottom: 18px;
+        color: var(--green);
+        font-size: 1.06rem;
+        font-weight: 800;
+        letter-spacing: 0.03em;
+        text-transform: none;
+      }
+
+      .problem-grid,
+      .solution-grid,
+      .benefits-grid {
+        display: grid;
+        gap: 20px;
+      }
+
+      .preview {
+        padding-top: 34px;
+      }
+
+      .preview-shell {
+        padding: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 28px;
+        background:
+          radial-gradient(circle at top center, rgba(34, 197, 94, 0.12), transparent 24%),
+          rgba(13, 17, 23, 0.92);
+        box-shadow: var(--shadow);
+      }
+
+      .preview-frame {
+        display: grid;
+        grid-template-columns: 220px minmax(0, 1fr);
+        min-height: 420px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 22px;
+        background: #060a09;
+      }
+
+      .preview-sidebar {
+        padding: 18px 14px;
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+        background:
+          radial-gradient(circle at top left, rgba(34, 197, 94, 0.1), transparent 24%),
+          linear-gradient(180deg, #070b09, #050908);
+      }
+
+      .preview-brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 26px;
+        font-size: 1rem;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+      }
+
+      .preview-brand-mark {
+        width: 32px;
+        height: 32px;
+        display: grid;
+        place-items: center;
+        border-radius: 11px;
+        background: linear-gradient(180deg, var(--green-strong), var(--green));
+        color: #031109;
+        font-size: 1rem;
+      }
+
+      .preview-nav {
+        display: grid;
+        gap: 8px;
+      }
+
+      .preview-nav span {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 42px;
+        padding: 0 12px;
+        border-radius: 14px;
+        color: #90a0af;
+        font-size: 0.96rem;
+      }
+
+      .preview-nav span i {
+        color: #708090;
+        font-size: 1.05rem;
+      }
+
+      .preview-nav span.is-active {
+        background: linear-gradient(180deg, rgba(10, 27, 19, 0.96), rgba(8, 21, 15, 0.96));
+        color: var(--green-strong);
+        box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.1);
+      }
+
+      .preview-nav span.is-active i {
+        color: var(--green-strong);
+      }
+
+      .preview-main {
+        padding: 18px 20px 20px;
+      }
+
+      .preview-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .preview-search {
+        width: min(100%, 320px);
+        height: 44px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 14px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        color: #7f8d99;
+        background: #0a100f;
+      }
+
+      .preview-topbar .btn {
+        min-height: 42px;
+        border-radius: 14px;
+        padding: 0 18px;
+      }
+
+      .preview-body {
+        display: grid;
+        gap: 18px;
+        padding-top: 18px;
+      }
+
+      .preview-copy h3 {
+        margin: 0 0 8px;
+        font-size: 2rem;
+        letter-spacing: -0.06em;
+      }
+
+      .preview-copy p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 1rem;
+      }
+
+      .preview-metrics {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .preview-metric {
+        padding: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .preview-metric strong {
+        display: block;
+        margin-top: 6px;
+        font-size: 1.7rem;
+        letter-spacing: -0.06em;
+      }
+
+      .preview-metric span {
+        color: #8090a0;
+        font-size: 0.92rem;
+      }
+
+      .preview-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.8fr);
+        gap: 16px;
+      }
+
+      .preview-panel {
+        min-height: 250px;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .preview-panel h4 {
+        margin: 0 0 6px;
+        font-size: 1.2rem;
+        letter-spacing: -0.04em;
+      }
+
+      .preview-panel p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .preview-chart {
+        display: grid;
+        align-items: end;
+        grid-template-columns: repeat(8, minmax(0, 1fr));
+        gap: 10px;
+        height: 174px;
+        margin-top: 18px;
+      }
+
+      .preview-chart span {
+        border-radius: 999px 999px 12px 12px;
+        background: linear-gradient(180deg, rgba(34, 197, 94, 0.9), rgba(34, 197, 94, 0.16));
+      }
+
+      .preview-chart span:nth-child(1) { height: 44px; }
+      .preview-chart span:nth-child(2) { height: 62px; }
+      .preview-chart span:nth-child(3) { height: 58px; }
+      .preview-chart span:nth-child(4) { height: 88px; }
+      .preview-chart span:nth-child(5) { height: 102px; }
+      .preview-chart span:nth-child(6) { height: 116px; }
+      .preview-chart span:nth-child(7) { height: 108px; }
+      .preview-chart span:nth-child(8) { height: 142px; }
+
+      .preview-list {
+        display: grid;
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .preview-list div {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .preview-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 999px;
+      }
+
+      .preview-dot.direct { background: #22c55e; }
+      .preview-dot.organic { background: #14b8a6; }
+      .preview-dot.referral { background: #4ade80; }
+
+      .problem-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .solution-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .benefits-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        row-gap: 48px;
+      }
+
+      .card {
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        background: var(--panel);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+        transition:
+          transform var(--transition-base),
+          border-color var(--transition-base),
+          box-shadow var(--transition-base);
+      }
+
+      .card:hover {
+        transform: translateY(-4px);
+        border-color: var(--line-strong);
+        box-shadow:
+          0 18px 44px rgba(0, 0, 0, 0.24),
+          0 0 0 1px rgba(34, 197, 94, 0.06);
+      }
+
+      .hero-badge:hover,
+      .future-pill:hover {
+        transform: translateY(-2px);
+        border-color: var(--line-strong);
+        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
+        background: rgba(17, 24, 33, 0.95);
+      }
+
+      .problem-card,
+      .solution-card {
+        min-height: 184px;
+        padding: 28px;
+      }
+
+      .card-icon,
+      .benefit-icon {
+        width: 52px;
+        height: 52px;
+        display: grid;
+        place-items: center;
+        margin-bottom: 24px;
+        border-radius: 16px;
+        background: rgba(34, 197, 94, 0.1);
+        color: var(--green);
+        font-size: 1.5rem;
+      }
+
+      .problem-card h3,
+      .solution-card h3,
+      .benefit-item h3,
+      .step-item h3 {
+        margin: 0 0 14px;
+        font-size: 1.12rem;
+        line-height: 1.35;
+        letter-spacing: -0.03em;
+      }
+
+      .problem-card p,
+      .solution-card p,
+      .benefit-item p,
+      .step-item p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 1rem;
+        line-height: 1.72;
+      }
+
+      .benefit-item {
+        text-align: center;
+        padding: 0 16px;
+      }
+
+      .benefit-icon {
+        margin: 0 auto 24px;
+      }
+
+      .steps-row {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 40px;
+      }
+
+      .step-item {
+        position: relative;
+        padding-top: 48px;
+      }
+
+      .step-item::before {
+        content: "";
+        position: absolute;
+        top: 26px;
+        left: 0;
+        width: calc(100% - 34px);
+        height: 1px;
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .step-item:last-child::before {
+        display: none;
+      }
+
+      .step-number {
+        position: absolute;
+        top: 0;
+        left: 0;
+        color: rgba(34, 197, 94, 0.16);
+        font-size: clamp(3.2rem, 6vw, 4.7rem);
+        font-weight: 800;
+        letter-spacing: -0.08em;
+        line-height: 1;
+      }
+
+      .step-content {
+        position: relative;
+        z-index: 1;
+        padding-top: 74px;
+      }
+
+      .future {
+        padding: 126px 0 116px;
+      }
+
+      .future-shell {
+        text-align: center;
+      }
+
+      .proof {
+        padding: 22px 0 0;
+      }
+
+      .proof-shell {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .proof-card {
+        padding: 22px 24px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        background: rgba(13, 17, 23, 0.82);
+        text-align: center;
+        transition:
+          transform var(--transition-base),
+          border-color var(--transition-base),
+          box-shadow var(--transition-base);
+      }
+
+      .proof-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--line-strong);
+        box-shadow: 0 18px 44px rgba(0, 0, 0, 0.24);
+      }
+
+      .proof-card strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 1.16rem;
+        letter-spacing: -0.04em;
+      }
+
+      .proof-card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.98rem;
+        line-height: 1.65;
+      }
+
+      .future-pills {
+        display: flex;
+        justify-content: center;
+        gap: 14px;
+        margin-top: 50px;
+        flex-wrap: wrap;
+      }
+
+      .final-cta {
+        padding: 22px 0 116px;
+      }
+
+      .final-cta-shell {
+        display: grid;
+        gap: 18px;
+        justify-items: center;
+        text-align: center;
+        padding: 38px 28px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 28px;
+        background:
+          radial-gradient(circle at top center, rgba(34, 197, 94, 0.12), transparent 34%),
+          rgba(13, 17, 23, 0.9);
+        box-shadow: var(--shadow);
+      }
+
+      .final-cta-shell h2 {
+        margin: 0;
+        font-size: clamp(2rem, 4vw, 3rem);
+        line-height: 1.06;
+        letter-spacing: -0.06em;
+      }
+
+      .final-cta-shell p {
+        max-width: 720px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 1.06rem;
+        line-height: 1.68;
+      }
+
+      .future-pill {
+        min-height: 48px;
+        padding: 0 20px;
+        color: var(--text);
+      }
+
+      .footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.04);
+        padding: 24px 0 36px;
+      }
+
+      .footer-shell {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      @keyframes heroFloat {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-4px);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .animate,
+        .animate-visible,
+        .hero-copy,
+        .btn,
+        .card,
+        .hero-badge,
+        .future-pill {
+          animation: none !important;
+          transition: none !important;
+          transform: none !important;
+          opacity: 1 !important;
+        }
+      }
+
+      @media (max-width: 980px) {
+        .problem-grid,
+        .benefits-grid,
+        .steps-row,
+        .proof-shell {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .solution-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .preview-frame,
+        .preview-grid,
+        .preview-metrics {
+          grid-template-columns: 1fr;
+        }
+
+        .preview-sidebar {
+          display: none;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .wrap {
+          width: min(100vw - 24px, 100%);
+        }
+
+        .nav-shell {
+          min-height: 68px;
+        }
+
+        .hero {
+          padding: 72px 0 92px;
+        }
+
+        .hero-copy h1,
+        .section-title,
+        .future-title {
+          font-size: clamp(2.45rem, 10vw, 3.6rem);
+        }
+
+        .section-title,
+        .future-title {
+          font-size: clamp(2.1rem, 8vw, 3rem);
+        }
+
+        .problem-grid,
+        .solution-grid,
+        .benefits-grid,
+        .steps-row,
+        .proof-shell {
+          grid-template-columns: 1fr;
+        }
+
+        .section {
+          padding-top: 82px;
+        }
+
+        .section + .section {
+          padding-top: 92px;
+        }
+
+        .problem-card,
+        .solution-card {
+          min-height: auto;
+        }
+
+        .step-item::before {
+          width: 1px;
+          height: calc(100% - 24px);
+          left: 18px;
+          top: 28px;
+        }
+
+        .step-content {
+          padding-top: 86px;
+        }
+
+        .footer-shell {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body class="landing-page">
+    <header class="landing-header header">
+      <div class="wrap">
+        <div class="nav-shell">
+          <a class="brand" href="index.html">cotai</a>
+          <div class="nav-actions">
+            <a class="btn btn-primary" href="signup.html">Começar agora</a>
+          </div>
         </div>
-        <a class="btn btn-ghost" href="login.html">Entrar</a>
-        <a class="btn btn-ghost" href="signup.html">Criar conta</a>
-        <button class="btn btn-primary" id="openQuoteTop" data-demo-source="topo" type="button">Solicitar demonstração</button>
       </div>
+    </header>
 
-      <button class="hamburger" id="hamburger" aria-label="Abrir menu">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
+    <main>
+      <section class="hero">
+        <div class="wrap hero-shell">
+          <div class="hero-badge animate" data-animate>
+            <i class="bx bx-sparkles"></i>
+            <span>Plataforma inteligente de cotação</span>
+          </div>
 
-    <div class="container mobile-menu" id="mobileMenu">
-      <a href="#problema">Problema</a>
-      <a href="#como-funciona">Fluxo</a>
-      <a href="#beneficios">Benefícios</a>
-      <a href="#faq">FAQ</a>
-      <a class="btn btn-ghost w-full" href="login.html">Entrar</a>
-      <button class="btn btn-primary w-full" id="openQuoteMobile" data-demo-source="menu-mobile" type="button">Solicitar demonstração</button>
-    </div>
-  </header>
+          <div class="hero-copy animate" data-animate>
+            <h1>
+              Cotações de materiais.<br />
+              <span>Rápidas, claras e inteligentes.</span>
+            </h1>
+            <p>
+              O Cotai centraliza, organiza e compara cotações de materiais de construção — para que você decida mais rápido e compre melhor.
+            </p>
+          </div>
 
-  <main>
-    <section class="hero hero-premium">
-      <div class="container hero-grid">
-        <div class="hero-copy">
-          <div class="badge hero-sequence hero-kicker">SaaS para compras técnicas • construção civil • cotação centralizada</div>
-          <h1 class="hero-sequence hero-title">Menos ruído na compra. Mais <span class="accent">controle, prazo e confiança</span> para a obra.</h1>
-          <p class="hero-sequence hero-subtitle">
-            A Cotai centraliza pedidos de materiais, estrutura itens automaticamente, compara fornecedores e devolve uma decisão clara de preço, prazo e disponibilidade.
-            Sua equipe deixa de cotar no improviso e passa a operar com contexto, histórico e critério.
+          <div class="hero-actions animate" data-animate>
+            <a class="btn btn-primary" href="signup.html">Comece agora <i class="bx bx-right-arrow-alt"></i></a>
+            <a class="btn btn-secondary" href="#problema">Saiba mais</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="preview">
+        <div class="wrap">
+          <div class="preview-shell animate" data-animate>
+            <div class="preview-frame">
+              <aside class="preview-sidebar">
+                <div class="preview-brand">
+                  <span class="preview-brand-mark"><i class="bx bx-bolt-circle"></i></span>
+                  <span>Cotai</span>
+                </div>
+                <div class="preview-nav">
+                  <span class="is-active"><i class="bx bx-grid-alt"></i>Dashboard</span>
+                  <span><i class="bx bx-receipt"></i>Pedidos</span>
+                  <span><i class="bx bx-store-alt"></i>Fornecedores</span>
+                  <span><i class="bx bx-cube-alt"></i>Materiais</span>
+                  <span><i class="bx bx-bot"></i>Nova cotacao</span>
+                </div>
+              </aside>
+
+              <div class="preview-main">
+                <div class="preview-topbar">
+                  <div class="preview-search">
+                    <i class="bx bx-search"></i>
+                    <span>Search anything...</span>
+                  </div>
+                  <a class="btn btn-primary" href="signup.html">New Order</a>
+                </div>
+
+                <div class="preview-body">
+                  <div class="preview-copy">
+                    <h3>Dashboard</h3>
+                    <p>Welcome back. Here's what's happening with your operation today.</p>
+                  </div>
+
+                  <div class="preview-metrics">
+                    <article class="preview-metric">
+                      <span>Total Revenue</span>
+                      <strong>R$ 1.495</strong>
+                    </article>
+                    <article class="preview-metric">
+                      <span>Active Users</span>
+                      <strong>12</strong>
+                    </article>
+                    <article class="preview-metric">
+                      <span>Total Orders</span>
+                      <strong>14</strong>
+                    </article>
+                    <article class="preview-metric">
+                      <span>Page Views</span>
+                      <strong>1K</strong>
+                    </article>
+                  </div>
+
+                  <div class="preview-grid">
+                    <article class="preview-panel">
+                      <h4>Overview</h4>
+                      <p>Monthly performance for the current year</p>
+                      <div class="preview-chart">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                      </div>
+                    </article>
+
+                    <article class="preview-panel">
+                      <h4>Traffic Sources</h4>
+                      <p>Where your visitors come from</p>
+                      <div class="preview-list">
+                        <div><span class="preview-dot direct"></span><span>Direct</span><strong>35%</strong></div>
+                        <div><span class="preview-dot organic"></span><span>Organic</span><strong>28%</strong></div>
+                        <div><span class="preview-dot referral"></span><span>Referral</span><strong>22%</strong></div>
+                      </div>
+                    </article>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="problema">
+        <div class="wrap">
+          <div class="section-head animate" data-animate>
+            <div class="section-eyebrow">O problema</div>
+            <h2 class="section-title">Cotar materiais ainda é <span>analógico demais.</span></h2>
+            <p class="section-copy">
+              Engenheiros e compradores perdem tempo demais em processos que deveriam ser simples.
+            </p>
+          </div>
+
+          <div class="problem-grid">
+            <article class="card problem-card animate" data-animate>
+              <div class="card-icon"><i class="bx bx-time-five"></i></div>
+              <h3>Horas perdidas</h3>
+              <p>Cotações manuais consomem tempo que deveria ir para a obra.</p>
+            </article>
+            <article class="card problem-card animate" data-animate>
+              <div class="card-icon"><i class="bx bx-phone-call"></i></div>
+              <h3>Ligações infinitas</h3>
+              <p>Entrar em contato com fornecedor por fornecedor, um a um.</p>
+            </article>
+            <article class="card problem-card animate" data-animate>
+              <div class="card-icon"><i class="bx bx-shuffle"></i></div>
+              <h3>Dados espalhados</h3>
+              <p>Preços em planilhas, WhatsApp, e-mail — sem organização.</p>
+            </article>
+            <article class="card problem-card animate" data-animate>
+              <div class="card-icon"><i class="bx bx-git-compare"></i></div>
+              <h3>Difícil comparar</h3>
+              <p>Sem um padrão claro, entender a melhor proposta vira esforço manual.</p>
+            </article>
+            <article class="card problem-card animate" data-animate>
+              <div class="card-icon"><i class="bx bx-error-circle"></i></div>
+              <h3>Decisões no escuro</h3>
+              <p>Falta contexto para decidir com segurança e velocidade.</p>
+            </article>
+            <article class="card problem-card animate" data-animate>
+              <div class="card-icon"><i class="bx bx-block"></i></div>
+              <h3>Retrabalho constante</h3>
+              <p>Erros, refações e perda de histórico atrapalham a operação.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="solucao">
+        <div class="wrap">
+          <div class="section-head animate" data-animate>
+            <div class="section-eyebrow">A solução</div>
+            <h2 class="section-title">Cotação organizada. <span>Decisão acelerada.</span></h2>
+            <p class="section-copy">
+              O Cotai transforma o jeito que você cota e compra materiais de construção.
+            </p>
+          </div>
+
+          <div class="solution-grid">
+            <article class="card solution-card animate" data-animate>
+              <div class="card-icon"><i class="bx bx-layer"></i></div>
+              <h3>Centraliza seus pedidos</h3>
+              <p>Todos os materiais organizados em um só lugar. Sem planilhas espalhadas, sem confusão.</p>
+            </article>
+            <article class="card solution-card animate" data-animate>
+              <div class="card-icon"><i class="bx bx-bar-chart-square"></i></div>
+              <h3>Compara com inteligência</h3>
+              <p>Veja opções lado a lado, com clareza para tomar a melhor decisão de compra.</p>
+            </article>
+            <article class="card solution-card animate" data-animate>
+              <div class="card-icon"><i class="bx bx-bolt-circle"></i></div>
+              <h3>Acelera o processo</h3>
+              <p>Reduza o tempo entre pedir, cotar, comparar e fechar.</p>
+            </article>
+            <article class="card solution-card animate" data-animate>
+              <div class="card-icon"><i class="bx bx-target-lock"></i></div>
+              <h3>Decisões com confiança</h3>
+              <p>Mais contexto, mais organização e mais clareza para a equipe inteira.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="beneficios">
+        <div class="wrap">
+          <div class="section-head animate" data-animate>
+            <div class="section-eyebrow">Benefícios</div>
+            <h2 class="section-title">O que muda com o Cotai.</h2>
+          </div>
+
+          <div class="benefits-grid">
+            <article class="benefit-item animate" data-animate>
+              <div class="benefit-icon"><i class="bx bx-tachometer"></i></div>
+              <h3>Mais rapidez</h3>
+              <p>Menos tempo cotando, mais tempo construindo.</p>
+            </article>
+            <article class="benefit-item animate" data-animate>
+              <div class="benefit-icon"><i class="bx bx-show"></i></div>
+              <h3>Mais clareza</h3>
+              <p>Informações organizadas e fáceis de entender.</p>
+            </article>
+            <article class="benefit-item animate" data-animate>
+              <div class="benefit-icon"><i class="bx bx-like"></i></div>
+              <h3>Melhor decisão</h3>
+              <p>Compare com dados reais e escolha com confiança.</p>
+            </article>
+            <article class="benefit-item animate" data-animate>
+              <div class="benefit-icon"><i class="bx bx-reset"></i></div>
+              <h3>Menos retrabalho</h3>
+              <p>Cotações precisas reduzem erros e refações.</p>
+            </article>
+            <article class="benefit-item animate" data-animate>
+              <div class="benefit-icon"><i class="bx bx-slider-alt"></i></div>
+              <h3>Mais controle</h3>
+              <p>Acompanhe cada etapa do processo de compra.</p>
+            </article>
+            <article class="benefit-item animate" data-animate>
+              <div class="benefit-icon"><i class="bx bx-stopwatch"></i></div>
+              <h3>Economia de tempo</h3>
+              <p>Automatize o que antes era feito manualmente.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="proof">
+        <div class="wrap">
+          <div class="proof-shell">
+            <article class="proof-card animate" data-animate>
+              <strong>Pedido mais organizado</strong>
+              <p>Menos informação solta e mais clareza para comprar.</p>
+            </article>
+            <article class="proof-card animate" data-animate>
+              <strong>Comparação mais rápida</strong>
+              <p>Visualize opções sem depender de planilha ou retrabalho.</p>
+            </article>
+            <article class="proof-card animate" data-animate>
+              <strong>Decisão mais segura</strong>
+              <p>Escolha com contexto, histórico e leitura mais limpa.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="como-funciona">
+        <div class="wrap">
+          <div class="section-head animate" data-animate>
+            <div class="section-eyebrow">Como funciona</div>
+            <h2 class="section-title">Simples por design.</h2>
+          </div>
+
+          <div class="steps-row">
+            <article class="step-item animate" data-animate>
+              <div class="step-number">01</div>
+              <div class="step-content">
+                <h3>Informe os materiais</h3>
+                <p>Adicione sua lista de materiais — de forma rápida, sem complicação.</p>
+              </div>
+            </article>
+            <article class="step-item animate" data-animate>
+              <div class="step-number">02</div>
+              <div class="step-content">
+                <h3>O Cotai organiza tudo</h3>
+                <p>A plataforma interpreta, categoriza e prepara seu pedido de cotação.</p>
+              </div>
+            </article>
+            <article class="step-item animate" data-animate>
+              <div class="step-number">03</div>
+              <div class="step-content">
+                <h3>Compare as opções</h3>
+                <p>Visualize propostas lado a lado e identifique as melhores condições.</p>
+              </div>
+            </article>
+            <article class="step-item animate" data-animate>
+              <div class="step-number">04</div>
+              <div class="step-content">
+                <h3>Decida com confiança</h3>
+                <p>Tome decisões embasadas em dados organizados e comparativos claros.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="future">
+        <div class="wrap future-shell">
+          <div class="section-eyebrow animate" data-animate>Visão de futuro</div>
+          <h2 class="future-title animate" data-animate>Construindo o futuro das <span>compras na construção civil.</span></h2>
+          <p class="future-copy animate" data-animate>
+            O Cotai está apenas começando. Nosso objetivo é ser a plataforma definitiva para inteligência de compras em obras.
           </p>
 
-          <div class="hero-actions hero-sequence hero-cta-group">
-            <button class="btn btn-primary" id="openQuoteHero" data-demo-source="hero" type="button">Pedir cotação demo</button>
-            <a class="btn btn-ghost" href="signup.html">Criar conta piloto</a>
-          </div>
-
-          <div class="trust animate" data-animate>
-            <div class="trust-item"><span class="dot"></span>Comparativo objetivo entre fornecedores</div>
-            <div class="trust-item"><span class="dot"></span>Histórico por pedido e por empresa</div>
-            <div class="trust-item"><span class="dot"></span>Fluxo pensado para engenharia e suprimentos</div>
-          </div>
-
-          <div class="metric-band animate" data-animate>
-            <article class="summary-chip">
-              <span>Tempo operacional</span>
-              <strong>menos idas e vindas</strong>
-            </article>
-            <article class="summary-chip">
-              <span>Decisão</span>
-              <strong>preço, prazo e risco</strong>
-            </article>
-            <article class="summary-chip">
-              <span>Recompra</span>
-              <strong>base histórica confiável</strong>
-            </article>
+          <div class="future-pills">
+            <div class="future-pill animate" data-animate><i class="bx bx-brain"></i><span>Cotação inteligente</span></div>
+            <div class="future-pill animate" data-animate><i class="bx bx-trending-up"></i><span>Comparação de preços</span></div>
+            <div class="future-pill animate" data-animate><i class="bx bx-store"></i><span>Rede de fornecedores</span></div>
+            <div class="future-pill animate" data-animate><i class="bx bx-cart"></i><span>Compras para obras</span></div>
+            <div class="future-pill animate" data-animate><i class="bx bx-bar-chart-alt-2"></i><span>Inteligência de mercado</span></div>
           </div>
         </div>
+      </section>
 
-        <div class="hero-card animate" data-animate>
-          <div class="card premium-hero-card">
-            <div class="card-head">
-              <p class="eyebrow">Leitura executiva</p>
-              <h3>Console de compras com critério real de decisão</h3>
-              <p>Um pedido centralizado, várias ofertas comparadas e um fornecedor recomendado com base em preço, prazo e confiabilidade.</p>
-            </div>
-
-            <div class="premium-proof-grid">
-              <article class="premium-proof-card premium-proof-card-strong">
-                <span>Melhor consolidado</span>
-                <strong>Obra Forte Distribuição</strong>
-                <small>economia potencial de R$ 1.240 no pedido</small>
-              </article>
-              <article class="premium-proof-card">
-                <span>Prazo mais rápido</span>
-                <strong>24h</strong>
-                <small>Depósito Horizonte</small>
-              </article>
-              <article class="premium-proof-card">
-                <span>Fornecedores comparados</span>
-                <strong>08</strong>
-                <small>com histórico e critérios visíveis</small>
-              </article>
-            </div>
-
-            <div class="quote-table premium-quote-table">
-              <div class="qt-row qt-head">
-                <span>Fornecedor</span>
-                <span>Preço</span>
-                <span>Prazo</span>
-              </div>
-              <div class="qt-row">
-                <span>Depósito Horizonte</span>
-                <span>R$ 28,90</span>
-                <span>24h</span>
-              </div>
-              <div class="qt-row">
-                <span>Construmax Regional</span>
-                <span>R$ 27,50</span>
-                <span>48h</span>
-              </div>
-              <div class="qt-row qt-best">
-                <span>Obra Forte Distribuição</span>
-                <span>R$ 26,90</span>
-                <span>72h</span>
-              </div>
-            </div>
-
-            <div class="card-foot">
-              <button class="btn btn-primary w-full" id="openQuoteCard" data-demo-source="card-comparativo" type="button">Quero ver esse fluxo na prática</button>
-              <small>Valide com um pedido real e veja economia potencial, prazo e fornecedor recomendado.</small>
+      <section class="final-cta">
+        <div class="wrap">
+          <div class="final-cta-shell animate" data-animate>
+            <div class="section-eyebrow">Próximo passo</div>
+            <h2>Leve um pedido real da sua obra para dentro da Cotai.</h2>
+            <p>Veja em poucos minutos como a sua equipe pode cotar com mais clareza, mais velocidade e muito menos ruído operacional.</p>
+            <div class="hero-actions" style="margin-top: 4px">
+              <a class="btn btn-primary" href="signup.html">Criar conta</a>
+              <a class="btn btn-secondary" href="login.html">Entrar</a>
             </div>
           </div>
         </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="wrap footer-shell">
+        <span>Cotai</span>
+        <span>&copy; <span id="year"></span> Cotai. Todos os direitos reservados.</span>
       </div>
-    </section>
+    </footer>
 
-    <section class="section section-tight animate" id="resultado-premium" data-animate>
-      <div class="container premium-strip">
-        <article class="premium-strip-card">
-          <span>Tempo médio de resposta</span>
-          <strong>menos acompanhamento manual</strong>
-          <p>O pedido entra estruturado e o comprador acompanha tudo no mesmo fluxo.</p>
-        </article>
-        <article class="premium-strip-card">
-          <span>Controle operacional</span>
-          <strong>status, histórico e duplicidade</strong>
-          <p>Sem depender de memória, mensagens espalhadas ou planilhas paralelas.</p>
-        </article>
-        <article class="premium-strip-card">
-          <span>Pronto para crescer</span>
-          <strong>base de fornecedores e recompra</strong>
-          <p>Cada cotação vira dado reutilizável para compras futuras.</p>
-        </article>
-      </div>
-    </section>
-
-    <section class="section animate" id="problema" data-animate>
-      <div class="container">
-        <div class="section-head animate" data-animate>
-          <h2>O problema não é só cotar. É cotar sem estrutura.</h2>
-          <p>Quando cada compra nasce em uma conversa diferente, o custo aparece em atraso, retrabalho e baixa previsibilidade.</p>
-        </div>
-
-        <div class="grid-3">
-          <article class="box animate" data-animate>
-            <h3>Preço sem contexto</h3>
-            <p>A equipe compra sob pressão, sem visão comparativa consistente entre fornecedores e sem histórico confiável.</p>
-          </article>
-          <article class="box animate" data-animate>
-            <h3>Tempo desperdiçado</h3>
-            <p>WhatsApp, telefone, planilha e acompanhamento manual criam um fluxo lento para algo que deveria ser operacional.</p>
-          </article>
-          <article class="box animate" data-animate>
-            <h3>Prazo instável</h3>
-            <p>Quando o material atrasa ou falta no meio da obra, a execução para e o custo de uma decisão ruim fica exposto.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section alt animate" id="como-funciona" data-animate>
-      <div class="container">
-        <div class="section-head animate" data-animate>
-          <h2>Como a Cotai organiza o fluxo de compra</h2>
-          <p>Um processo simples para a equipe usar no dia a dia e robusto o bastante para gerar visibilidade operacional.</p>
-        </div>
-
-        <div class="steps">
-          <div class="step animate" data-animate>
-            <div class="step-num">1</div>
-            <div>
-              <h3>Descreva o pedido</h3>
-              <p>Materiais, quantidades, cidade de entrega, prazo desejado e observações técnicas em um único fluxo.</p>
-            </div>
-          </div>
-          <div class="step animate" data-animate>
-            <div class="step-num">2</div>
-            <div>
-              <h3>Receba a consolidação</h3>
-              <p>A Cotai organiza os itens, acompanha o status e reúne as melhores opções para a equipe decidir com contexto.</p>
-            </div>
-          </div>
-          <div class="step animate" data-animate>
-            <div class="step-num">3</div>
-            <div>
-              <h3>Compre com histórico</h3>
-              <p>O pedido fica registrado, o status é rastreável e a comparação deixa de depender de memória ou conversa solta.</p>
-            </div>
-          </div>
-        </div>
-        <br />
-        <div class="cta-row animate" data-animate>
-          <div>
-            <h3>Quer validar com uma demanda real da sua operação?</h3>
-            <p class="muted">Em poucos minutos, dá para simular um pedido e entender o ganho no fluxo.</p>
-          </div>
-          <button class="btn btn-primary" id="openQuoteHow" data-demo-source="fluxo" type="button">Agendar demonstração</button>
-        </div>
-      </div>
-    </section>
-
-    <section class="section animate" id="beneficios" data-animate>
-      <div class="container">
-        <div class="section-head animate" data-animate>
-          <h2>Um produto que passa <span class="accent">credibilidade</span> para quem compra e para quem gerencia</h2>
-          <p>O foco é reduzir a fricção operacional sem transformar o processo em um software pesado ou burocrático.</p>
-        </div>
-
-        <div class="grid-2">
-          <article class="box animate" data-animate>
-            <h3>Para quem está na operação</h3>
-            <ul class="list">
-              <li>Pedido mais claro e rápido de montar</li>
-              <li>Status visível sem depender de mensagens dispersas</li>
-              <li>Comparação objetiva entre preço e prazo</li>
-              <li>Menos retrabalho em cotações recorrentes</li>
-            </ul>
-          </article>
-          <article class="box animate" data-animate>
-            <h3>Para quem decide e acompanha</h3>
-            <ul class="list">
-              <li>Histórico mais consistente por pedido</li>
-              <li>Melhor leitura de fornecedores e recorrência</li>
-              <li>Mais previsibilidade para prazo e custo</li>
-              <li>Base melhor para auditoria e recompra</li>
-            </ul>
-          </article>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <script type="module">
-    import { initLandingMotion } from "../assets/js/ui.js";
-
-    initLandingMotion();
-  </script>
-  <script src="../assets/js/script.js"></script>
-</body>
+    <script type="module">
+      import { initLandingMotion } from "../assets/js/ui.js";
+      initLandingMotion();
+    </script>
+    <script>
+      const year = document.getElementById("year");
+      if (year) year.textContent = new Date().getFullYear();
+    </script>
+  </body>
 </html>

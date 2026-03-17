@@ -69,7 +69,7 @@
 
         <div class="dashboard-topbar-actions">
           <a class="btn btn-primary" href="new-request.html"><i class="bx bx-plus" aria-hidden="true"></i><span>New Order</span></a>
-          <button class="icon-btn" type="button" aria-label="Tema"><i class="bx bx-sun" aria-hidden="true"></i></button>
+          <button class="icon-btn dashboard-customize-trigger" id="dashboardCustomizeToggle" type="button" aria-label="Personalizar dashboard" aria-expanded="false" aria-haspopup="dialog"><i class="bx bx-palette" aria-hidden="true"></i></button>
           <a class="btn btn-ghost hidden" id="adminShortcut" href="admin-dashboard.html">Admin</a>
           <button class="icon-btn" type="button" aria-label="Ajuda"><i class="bx bx-help-circle" aria-hidden="true"></i></button>
           <button class="icon-btn dashboard-bell" id="dashboardNotificationsToggle" type="button" aria-label="Notificacoes" aria-expanded="false" aria-haspopup="dialog"><i class="bx bx-bell" aria-hidden="true"></i><span class="dashboard-bell-dot" id="dashboardBellDot"></span></button>
@@ -88,6 +88,66 @@
           </button>
         </div>
         <div class="dashboard-notifications-list" id="dashboardNotificationsList"></div>
+      </div>
+
+      <div class="dashboard-customize-panel hidden" id="dashboardCustomizePanel" role="dialog" aria-label="Personalizar dashboard">
+        <div class="dashboard-customize-head">
+          <div>
+            <strong>Customize</strong>
+            <span>Personalize your dashboard experience.</span>
+          </div>
+          <button class="icon-btn dashboard-customize-close" id="dashboardCustomizeClose" type="button" aria-label="Fechar personalizacao">
+            <i class="bx bx-x" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <div class="dashboard-customize-section">
+          <h3>Theme</h3>
+          <div class="dashboard-customize-grid theme-grid">
+            <button class="dashboard-customize-option" type="button" data-theme-choice="light">
+              <i class="bx bx-sun" aria-hidden="true"></i>
+              <span>Light</span>
+            </button>
+            <button class="dashboard-customize-option" type="button" data-theme-choice="dark">
+              <i class="bx bx-moon" aria-hidden="true"></i>
+              <span>Dark</span>
+            </button>
+            <button class="dashboard-customize-option" type="button" data-theme-choice="system">
+              <i class="bx bx-desktop" aria-hidden="true"></i>
+              <span>System</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="dashboard-customize-section">
+          <h3>Color</h3>
+          <div class="dashboard-customize-grid color-grid">
+            <button class="dashboard-customize-option" type="button" data-accent-choice="emerald" data-swatch="#19d26b"><span class="swatch"></span><span>Emerald</span></button>
+            <button class="dashboard-customize-option" type="button" data-accent-choice="blue" data-swatch="#2f8cff"><span class="swatch"></span><span>Blue</span></button>
+            <button class="dashboard-customize-option" type="button" data-accent-choice="violet" data-swatch="#7c5cff"><span class="swatch"></span><span>Violet</span></button>
+            <button class="dashboard-customize-option" type="button" data-accent-choice="rose" data-swatch="#e14f9f"><span class="swatch"></span><span>Rose</span></button>
+            <button class="dashboard-customize-option" type="button" data-accent-choice="orange" data-swatch="#f97316"><span class="swatch"></span><span>Orange</span></button>
+            <button class="dashboard-customize-option" type="button" data-accent-choice="slate" data-swatch="#94a3b8"><span class="swatch"></span><span>Slate</span></button>
+          </div>
+        </div>
+
+        <div class="dashboard-customize-section">
+          <h3>Density</h3>
+          <div class="dashboard-customize-grid density-grid">
+            <button class="dashboard-customize-option" type="button" data-density-choice="compact">
+              <i class="bx bx-grid-small" aria-hidden="true"></i>
+              <span>Compact</span>
+            </button>
+            <button class="dashboard-customize-option" type="button" data-density-choice="comfortable">
+              <i class="bx bx-grid-alt" aria-hidden="true"></i>
+              <span>Comfortable</span>
+            </button>
+            <button class="dashboard-customize-option" type="button" data-density-choice="spacious">
+              <i class="bx bx-layout" aria-hidden="true"></i>
+              <span>Spacious</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <section class="dashboard-heading">

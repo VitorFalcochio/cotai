@@ -3,7 +3,17 @@ import { getAdminProfile, getCompanyDisplayName, requireAuth, signOut } from "..
 import { formatCurrencyBRL } from "../adminCommon.js";
 import { showAdminShortcut } from "../adminPage.js";
 import { fetchProcurementOverview } from "../procurementData.js";
-import { initSidebar, qs, runPageBoot, setHTML, setText, showFeedback } from "../ui.js";
+import {
+  initSidebar,
+  qs,
+  runPageBoot,
+  setAccentPreference,
+  setDensityPreference,
+  setHTML,
+  setText,
+  setThemePreference,
+  showFeedback
+} from "../ui.js";
 
 function relativeTimeFromNow(value) {
   const date = value ? new Date(value) : null;
@@ -155,6 +165,92 @@ function initNotifications(items) {
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") closePanel();
   });
+}
+
+function syncCustomizerState() {
+  const themePreference = document.documentElement.dataset.themePreference || "system";
+  const accentPreference = document.documentElement.dataset.accent || "emerald";
+  const densityPreference = document.documentElement.dataset.density || "comfortable";
+
+  document.querySelectorAll("[data-theme-choice]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.themeChoice === themePreference);
+  });
+
+  document.querySelectorAll("[data-accent-choice]").forEach((button) => {
+    const swatch = button.querySelector(".swatch");
+    if (swatch && button.dataset.swatch) {
+      swatch.style.setProperty("--swatch-color", button.dataset.swatch);
+    }
+    button.classList.toggle("is-active", button.dataset.accentChoice === accentPreference);
+  });
+
+  document.querySelectorAll("[data-density-choice]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.densityChoice === densityPreference);
+  });
+}
+
+function initCustomizer() {
+  const panel = qs("#dashboardCustomizePanel");
+  const toggle = qs("#dashboardCustomizeToggle");
+  const close = qs("#dashboardCustomizeClose");
+  if (!panel || !toggle) return;
+
+  const closePanel = () => {
+    panel.classList.add("hidden");
+    toggle.classList.remove("is-active");
+    toggle.setAttribute("aria-expanded", "false");
+  };
+
+  const openPanel = () => {
+    panel.classList.remove("hidden");
+    toggle.classList.add("is-active");
+    toggle.setAttribute("aria-expanded", "true");
+    syncCustomizerState();
+  };
+
+  toggle.addEventListener("click", (event) => {
+    event.stopPropagation();
+    if (panel.classList.contains("hidden")) {
+      openPanel();
+      return;
+    }
+    closePanel();
+  });
+
+  close?.addEventListener("click", closePanel);
+
+  panel.querySelectorAll("[data-theme-choice]").forEach((button) => {
+    button.addEventListener("click", () => {
+      setThemePreference(button.dataset.themeChoice);
+      syncCustomizerState();
+    });
+  });
+
+  panel.querySelectorAll("[data-accent-choice]").forEach((button) => {
+    button.addEventListener("click", () => {
+      setAccentPreference(button.dataset.accentChoice);
+      syncCustomizerState();
+    });
+  });
+
+  panel.querySelectorAll("[data-density-choice]").forEach((button) => {
+    button.addEventListener("click", () => {
+      setDensityPreference(button.dataset.densityChoice);
+      syncCustomizerState();
+    });
+  });
+
+  document.addEventListener("click", (event) => {
+    if (panel.classList.contains("hidden")) return;
+    if (panel.contains(event.target) || toggle.contains(event.target)) return;
+    closePanel();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closePanel();
+  });
+
+  syncCustomizerState();
 }
 
 function formatCompactNumber(value) {
@@ -388,6 +484,7 @@ async function init() {
     setDonutSegments(trafficSources);
     setHTML("#dashboardProjects", renderGoals(overview.projects, overview.projectMaterials));
     initNotifications(buildNotifications(overview));
+    initCustomizer();
 
     if (overview.notices.length) {
       showFeedback(
@@ -410,6 +507,7 @@ async function init() {
       `
     );
     initNotifications([]);
+    initCustomizer();
   }
 }
 

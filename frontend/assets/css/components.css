@@ -141,16 +141,16 @@
 
 .dashboard-panel {
   min-height: 100%;
-  padding: 22px 24px;
+  padding: 24px 26px;
 }
 
 .dashboard-overview-panel {
-  min-height: 520px;
+  min-height: 548px;
 }
 
 .dashboard-donut-panel,
 .dashboard-goals-panel {
-  min-height: 250px;
+  min-height: 264px;
 }
 
 .card,
@@ -186,8 +186,8 @@
   display: grid;
   gap: 12px;
   align-content: space-between;
-  min-height: 184px;
-  padding: 18px 20px;
+  min-height: 192px;
+  padding: 20px 22px;
 }
 
 .metric-card p,

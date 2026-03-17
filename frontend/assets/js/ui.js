@@ -4,6 +4,10 @@ export const qs = (selector, root = document) => root.querySelector(selector);
 
 const THEME_STORAGE_KEY = "cotai_theme_preference";
 const THEME_OPTIONS = ["system", "light", "dark"];
+const ACCENT_STORAGE_KEY = "cotai_accent_preference";
+const ACCENT_OPTIONS = ["emerald", "blue", "violet", "rose", "orange", "slate"];
+const DENSITY_STORAGE_KEY = "cotai_density_preference";
+const DENSITY_OPTIONS = ["compact", "comfortable", "spacious"];
 const BOXICONS_STYLESHEET_ID = "cotai-boxicons-stylesheet";
 let themeControlElement = null;
 let themeMediaQuery = null;
@@ -216,6 +220,16 @@ function getStoredThemePreference() {
   return THEME_OPTIONS.includes(stored) ? stored : "system";
 }
 
+function getStoredAccentPreference() {
+  const stored = String(window.localStorage.getItem(ACCENT_STORAGE_KEY) || "emerald").trim().toLowerCase();
+  return ACCENT_OPTIONS.includes(stored) ? stored : "emerald";
+}
+
+function getStoredDensityPreference() {
+  const stored = String(window.localStorage.getItem(DENSITY_STORAGE_KEY) || "comfortable").trim().toLowerCase();
+  return DENSITY_OPTIONS.includes(stored) ? stored : "comfortable";
+}
+
 function getSystemTheme() {
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
@@ -253,6 +267,32 @@ export function setThemePreference(themePreference) {
   return applyThemePreference(nextPreference);
 }
 
+export function applyAccentPreference(accentPreference = getStoredAccentPreference()) {
+  const nextPreference = ACCENT_OPTIONS.includes(accentPreference) ? accentPreference : "emerald";
+  document.documentElement.dataset.accent = nextPreference;
+  document.body?.setAttribute("data-accent", nextPreference);
+  return nextPreference;
+}
+
+export function setAccentPreference(accentPreference) {
+  const nextPreference = ACCENT_OPTIONS.includes(accentPreference) ? accentPreference : "emerald";
+  window.localStorage.setItem(ACCENT_STORAGE_KEY, nextPreference);
+  return applyAccentPreference(nextPreference);
+}
+
+export function applyDensityPreference(densityPreference = getStoredDensityPreference()) {
+  const nextPreference = DENSITY_OPTIONS.includes(densityPreference) ? densityPreference : "comfortable";
+  document.documentElement.dataset.density = nextPreference;
+  document.body?.setAttribute("data-density", nextPreference);
+  return nextPreference;
+}
+
+export function setDensityPreference(densityPreference) {
+  const nextPreference = DENSITY_OPTIONS.includes(densityPreference) ? densityPreference : "comfortable";
+  window.localStorage.setItem(DENSITY_STORAGE_KEY, nextPreference);
+  return applyDensityPreference(nextPreference);
+}
+
 function ensureThemeControl() {
   if (themeControlElement?.isConnected || !document.body) return themeControlElement;
   if (!document.body.classList.contains("landing-page")) return null;
@@ -280,6 +320,8 @@ export function initThemeSystem() {
   }
 
   applyThemePreference();
+  applyAccentPreference();
+  applyDensityPreference();
   ensureBoxicons();
 
   if (document.readyState === "loading") {
