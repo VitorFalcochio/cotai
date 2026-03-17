@@ -3320,3 +3320,603 @@ html[data-theme="dark"] .premium-proof-card-strong {
     transform: none !important;
   }
 }
+
+body[data-page="new-request"],
+body[data-page="dashboard"] {
+  background:
+    radial-gradient(circle at top left, rgba(24, 199, 120, 0.12), transparent 20%),
+    radial-gradient(circle at top right, rgba(44, 132, 86, 0.14), transparent 24%),
+    linear-gradient(180deg, #08110d 0%, #09130f 42%, #07100c 100%);
+  color: #e8f3ec;
+}
+
+body[data-page="new-request"] .app-main,
+body[data-page="dashboard"] .app-main {
+  background: transparent;
+}
+
+body[data-page="new-request"] .app-sidebar,
+body[data-page="dashboard"] .app-sidebar {
+  background:
+    radial-gradient(circle at top right, rgba(54, 190, 116, 0.12), transparent 24%),
+    radial-gradient(circle at bottom left, rgba(26, 108, 67, 0.2), transparent 28%),
+    linear-gradient(180deg, #0b1711 0%, #0a1510 50%, #08120d 100%);
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.04), 18px 0 38px rgba(0, 0, 0, 0.28);
+}
+
+body[data-page="new-request"] .brand,
+body[data-page="new-request"] .brand-name,
+body[data-page="dashboard"] .brand,
+body[data-page="dashboard"] .brand-name {
+  color: #edf7f0;
+}
+
+body[data-page="new-request"] .brand-mark,
+body[data-page="dashboard"] .brand-mark {
+  background: linear-gradient(135deg, #1fdd83, #11945b);
+  color: #03150c;
+  box-shadow: 0 16px 32px rgba(31, 221, 131, 0.22);
+}
+
+body[data-page="new-request"] .side-link,
+body[data-page="new-request"] .mini-badge,
+body[data-page="dashboard"] .side-link,
+body[data-page="dashboard"] .mini-badge {
+  color: rgba(232, 243, 236, 0.78);
+}
+
+body[data-page="new-request"] .side-link.active,
+body[data-page="dashboard"] .side-link.active {
+  background: rgba(31, 221, 131, 0.12);
+  color: #effaf2;
+}
+
+body[data-page="new-request"] .btn-ghost,
+body[data-page="dashboard"] .btn-ghost {
+  background: rgba(13, 28, 21, 0.8);
+  border-color: rgba(76, 145, 103, 0.3);
+  color: #dbede1;
+  box-shadow: none;
+}
+
+body[data-page="new-request"] .btn-ghost:hover,
+body[data-page="dashboard"] .btn-ghost:hover {
+  background: rgba(21, 43, 32, 0.95);
+  color: #f1faf4;
+}
+
+body[data-page="new-request"] .btn-primary,
+body[data-page="dashboard"] .btn-primary {
+  border-color: rgba(31, 221, 131, 0.4);
+  background: linear-gradient(135deg, #1fdd83, #17bb6d);
+  color: #03130b;
+  box-shadow: none;
+}
+
+body[data-page="new-request"] .btn-primary:hover,
+body[data-page="dashboard"] .btn-primary:hover {
+  background: linear-gradient(135deg, #2ae48c, #1ac172);
+}
+
+body[data-page="dashboard"] .app-topbar,
+body[data-page="dashboard"] .app-metric-card,
+body[data-page="dashboard"] .card,
+body[data-page="dashboard"] .app-table-wrap {
+  background:
+    radial-gradient(circle at top right, rgba(31, 221, 131, 0.08), transparent 20%),
+    linear-gradient(180deg, rgba(12, 24, 18, 0.96), rgba(10, 20, 15, 0.94));
+  border-color: rgba(74, 118, 91, 0.28);
+  box-shadow: none;
+}
+
+body[data-page="dashboard"] .app-topbar h1,
+body[data-page="dashboard"] .app-section-head h2,
+body[data-page="dashboard"] .app-metric-card h3,
+body[data-page="dashboard"] .eyebrow,
+body[data-page="dashboard"] p,
+body[data-page="dashboard"] th,
+body[data-page="dashboard"] td {
+  color: #e8f3ec;
+}
+
+body[data-page="dashboard"] .app-topbar p,
+body[data-page="dashboard"] .app-metric-card p {
+  color: rgba(232, 243, 236, 0.72);
+}
+
+body[data-page="dashboard"] .app-table th {
+  background: rgba(31, 221, 131, 0.08);
+}
+
+body[data-page="new-request"] .quote-chat-page-minimal {
+  display: grid;
+  align-content: start;
+  gap: 0.8rem;
+  min-height: 100vh;
+}
+
+body[data-page="new-request"] .quote-chat-layout-minimal {
+  display: block;
+}
+
+body[data-page="new-request"] .quote-chat-panel-minimal,
+body[data-page="new-request"] .quote-chat-shell-minimal,
+body[data-page="new-request"] .quote-chat-stream-minimal,
+body[data-page="new-request"] .quote-chat-composer-minimal,
+body[data-page="new-request"] .quote-chat-composer-shell-minimal,
+body[data-page="new-request"] .chat-empty {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+body[data-page="new-request"] .quote-chat-panel-minimal:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+body[data-page="new-request"] .quote-chat-shell-minimal {
+  min-height: calc(100vh - 3rem);
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+body[data-page="new-request"] .quote-chat-stream-minimal {
+  width: min(100%, 860px);
+  margin: 0 auto;
+  padding: 2rem 0 1.5rem;
+  overflow: visible;
+  background: transparent;
+  border: 0;
+}
+
+body[data-page="new-request"] .chat-empty {
+  min-height: 52vh;
+  place-items: center;
+  padding: 2rem 0 4rem;
+}
+
+body[data-page="new-request"] .chat-empty-copy {
+  max-width: 560px;
+  gap: 0.5rem;
+}
+
+body[data-page="new-request"] .chat-empty-copy strong {
+  color: #f1faf4;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+body[data-page="new-request"] .chat-empty-copy span {
+  color: rgba(232, 243, 236, 0.7);
+  font-size: 1rem;
+}
+
+body[data-page="new-request"] .chat-row,
+body[data-page="new-request"] .chat-row.is-user {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+body[data-page="new-request"] .chat-row.is-user {
+  justify-items: end;
+}
+
+body[data-page="new-request"] .chat-avatar {
+  display: none;
+}
+
+body[data-page="new-request"] .chat-bubble {
+  max-width: min(100%, 720px);
+  padding: 0.9rem 1rem;
+  border-radius: 1.35rem;
+  border: 1px solid rgba(73, 118, 91, 0.3);
+  box-shadow: none;
+}
+
+body[data-page="new-request"] .chat-bubble.is-assistant,
+body[data-page="new-request"] .chat-bubble.is-system {
+  background: rgba(12, 24, 18, 0.92);
+  color: #eef8f1;
+}
+
+body[data-page="new-request"] .chat-bubble.is-user {
+  background: linear-gradient(135deg, #1fb86f, #17995b);
+  color: #03130b;
+}
+
+body[data-page="new-request"] .chat-bubble-meta {
+  margin-bottom: 0.45rem;
+  color: rgba(232, 243, 236, 0.62);
+}
+
+body[data-page="new-request"] .chat-bubble.is-user .chat-bubble-meta {
+  color: rgba(3, 19, 11, 0.64);
+}
+
+body[data-page="new-request"] .chat-bubble-body {
+  font-size: 0.98rem;
+  line-height: 1.68;
+}
+
+body[data-page="new-request"] .quote-chat-composer-minimal {
+  position: sticky;
+  bottom: 1rem;
+  padding: 0 0 1rem;
+  background: transparent;
+}
+
+body[data-page="new-request"] .quote-chat-composer-shell-minimal {
+  width: min(100%, 860px);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.7rem;
+  padding: 0.55rem;
+  border-radius: 1.5rem;
+  background: rgba(12, 24, 18, 0.96);
+  border: 1px solid rgba(73, 118, 91, 0.3);
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.24);
+}
+
+body[data-page="new-request"] .quote-chat-composer-shell-minimal textarea {
+  min-height: 44px;
+  max-height: 140px;
+  padding: 0.5rem 0.7rem;
+  color: #eef8f1;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+body[data-page="new-request"] .quote-chat-composer-shell-minimal textarea::placeholder {
+  color: rgba(232, 243, 236, 0.48);
+}
+
+body[data-page="new-request"] .quote-chat-actions-minimal {
+  gap: 0.55rem;
+  justify-content: flex-end;
+}
+
+body[data-page="new-request"] .quote-chat-actions-minimal .muted {
+  display: none;
+}
+
+body[data-page="new-request"] .quote-chat-actions-minimal .btn {
+  min-height: 42px;
+  padding: 0.72rem 1rem;
+  border-radius: 1rem;
+  box-shadow: none;
+}
+
+body[data-page="new-request"] .quote-chat-support-state {
+  display: none;
+}
+
+@media (max-width: 920px) {
+  body[data-page="new-request"] .quote-chat-stream-minimal {
+    padding-top: 1rem;
+  }
+
+  body[data-page="new-request"] .quote-chat-composer-shell-minimal {
+    grid-template-columns: 1fr;
+  }
+
+  body[data-page="new-request"] .quote-chat-actions-minimal {
+    width: 100%;
+  }
+
+  body[data-page="new-request"] .quote-chat-actions-minimal .btn {
+    flex: 1 1 auto;
+  }
+}
+
+body[data-page]:not([data-page="new-request"]) {
+  background:
+    radial-gradient(circle at top left, rgba(99, 102, 241, 0.12), transparent 20%),
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.12), transparent 24%),
+    linear-gradient(180deg, #f4f7fb 0%, #edf2f8 42%, #e8eef6 100%);
+  color: #10233c;
+}
+
+body[data-page]:not([data-page="new-request"]) .app-main {
+  background: transparent;
+}
+
+body[data-page]:not([data-page="new-request"]) .app-sidebar {
+  background:
+    radial-gradient(circle at top right, rgba(129, 140, 248, 0.18), transparent 22%),
+    radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.12), transparent 24%),
+    linear-gradient(180deg, #111827 0%, #0f172a 52%, #0b1220 100%);
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.04), 18px 0 38px rgba(15, 23, 42, 0.16);
+}
+
+body[data-page]:not([data-page="new-request"]) .brand,
+body[data-page]:not([data-page="new-request"]) .brand-name,
+body[data-page]:not([data-page="new-request"]) .app-sidebar .btn,
+body[data-page]:not([data-page="new-request"]) .side-link,
+body[data-page]:not([data-page="new-request"]) .mini-badge {
+  color: rgba(236, 243, 255, 0.84);
+}
+
+body[data-page]:not([data-page="new-request"]) .brand-mark {
+  background: linear-gradient(135deg, #ffffff, #c7d2fe);
+  color: #1e3a8a;
+  box-shadow: 0 16px 32px rgba(99, 102, 241, 0.22);
+}
+
+body[data-page]:not([data-page="new-request"]) .side-link.active {
+  background: rgba(99, 102, 241, 0.16);
+  color: #ffffff;
+}
+
+body[data-page]:not([data-page="new-request"]) .side-link:hover {
+  background: rgba(148, 163, 184, 0.12);
+  color: #ffffff;
+}
+
+body[data-page]:not([data-page="new-request"]) .app-topbar {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(148, 163, 184, 0.22);
+  box-shadow: 0 18px 46px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(18px);
+}
+
+body[data-page]:not([data-page="new-request"]) .card,
+body[data-page]:not([data-page="new-request"]) .box,
+body[data-page]:not([data-page="new-request"]) .app-metric-card,
+body[data-page]:not([data-page="new-request"]) .admin-metric-card,
+body[data-page]:not([data-page="new-request"]) .app-modal-card,
+body[data-page]:not([data-page="new-request"]) .table-shell,
+body[data-page]:not([data-page="new-request"]) .filter-shell,
+body[data-page]:not([data-page="new-request"]) .app-table-wrap,
+body[data-page]:not([data-page="new-request"]) .app-surface-hero,
+body[data-page]:not([data-page="new-request"]) .hero-info-card,
+body[data-page]:not([data-page="new-request"]) .summary-chip,
+body[data-page]:not([data-page="new-request"]) .admin-hero-card,
+body[data-page]:not([data-page="new-request"]) .admin-panel,
+body[data-page]:not([data-page="new-request"]) .admin-side-panel,
+body[data-page]:not([data-page="new-request"]) .admin-status-row,
+body[data-page]:not([data-page="new-request"]) .admin-note,
+body[data-page]:not([data-page="new-request"]) .admin-inline-card,
+body[data-page]:not([data-page="new-request"]) .admin-mini-card,
+body[data-page]:not([data-page="new-request"]) .auth-shell-card,
+body[data-page]:not([data-page="new-request"]) .app-login-card,
+body[data-page]:not([data-page="new-request"]) .app-plan-card,
+body[data-page]:not([data-page="new-request"]) .plan-preview,
+body[data-page]:not([data-page="new-request"]) .faq details,
+body[data-page]:not([data-page="new-request"]) .step,
+body[data-page]:not([data-page="new-request"]) .item-row,
+body[data-page]:not([data-page="new-request"]) .cta-row,
+body[data-page]:not([data-page="new-request"]) .footer-cta {
+  background:
+    radial-gradient(circle at top right, rgba(191, 219, 254, 0.28), transparent 18%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 250, 253, 0.94));
+  border-color: rgba(191, 219, 254, 0.78);
+  box-shadow: 0 22px 54px rgba(15, 23, 42, 0.08);
+}
+
+body[data-page]:not([data-page="new-request"]) .card:hover,
+body[data-page]:not([data-page="new-request"]) .box:hover {
+  box-shadow: 0 28px 64px rgba(15, 23, 42, 0.12);
+}
+
+body[data-page]:not([data-page="new-request"]) .app-topbar h1,
+body[data-page]:not([data-page="new-request"]) .app-topbar h2,
+body[data-page]:not([data-page="new-request"]) .card h2,
+body[data-page]:not([data-page="new-request"]) .card h3,
+body[data-page]:not([data-page="new-request"]) .app-section-head h2,
+body[data-page]:not([data-page="new-request"]) .app-metric-card h3,
+body[data-page]:not([data-page="new-request"]) .admin-metric-card h3,
+body[data-page]:not([data-page="new-request"]) .summary-chip strong,
+body[data-page]:not([data-page="new-request"]) strong {
+  color: #0f172a;
+}
+
+body[data-page]:not([data-page="new-request"]) p,
+body[data-page]:not([data-page="new-request"]) label,
+body[data-page]:not([data-page="new-request"]) th,
+body[data-page]:not([data-page="new-request"]) td,
+body[data-page]:not([data-page="new-request"]) .app-empty,
+body[data-page]:not([data-page="new-request"]) .list,
+body[data-page]:not([data-page="new-request"]) .hero-key-points li {
+  color: #334155;
+}
+
+body[data-page]:not([data-page="new-request"]) .eyebrow,
+body[data-page]:not([data-page="new-request"]) .muted,
+body[data-page]:not([data-page="new-request"]) .app-topbar p,
+body[data-page]:not([data-page="new-request"]) .app-metric-card p,
+body[data-page]:not([data-page="new-request"]) .admin-metric-card p,
+body[data-page]:not([data-page="new-request"]) .summary-chip span,
+body[data-page]:not([data-page="new-request"]) .hero-info-card p,
+body[data-page]:not([data-page="new-request"]) .mini-badge,
+body[data-page]:not([data-page="new-request"]) small {
+  color: #64748b;
+}
+
+body[data-page]:not([data-page="new-request"]) .app-badge,
+body[data-page]:not([data-page="new-request"]) .badge,
+body[data-page]:not([data-page="new-request"]) .mini-badge {
+  background: rgba(248, 250, 252, 0.94);
+  border-color: rgba(191, 219, 254, 0.92);
+  color: #334155;
+}
+
+body[data-page]:not([data-page="new-request"]) .app-badge.is-success {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #047857;
+}
+
+body[data-page]:not([data-page="new-request"]) .app-badge.is-warning {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #b45309;
+}
+
+body[data-page]:not([data-page="new-request"]) .app-badge.is-danger {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+body[data-page]:not([data-page="new-request"]) .app-badge.is-info,
+body[data-page]:not([data-page="new-request"]) .app-badge.is-muted {
+  color: #475569;
+}
+
+body[data-page]:not([data-page="new-request"]) .btn-ghost {
+  background: rgba(255, 255, 255, 0.84);
+  border-color: rgba(191, 219, 254, 0.92);
+  color: #10233c;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+}
+
+body[data-page]:not([data-page="new-request"]) .btn-ghost:hover {
+  background: rgba(239, 246, 255, 0.96);
+  color: #1d4ed8;
+}
+
+body[data-page]:not([data-page="new-request"]) .btn-primary {
+  border-color: rgba(79, 70, 229, 0.24);
+  background: linear-gradient(135deg, #4f46e5, #2563eb);
+  color: #ffffff;
+  box-shadow: 0 18px 34px rgba(79, 70, 229, 0.18);
+}
+
+body[data-page]:not([data-page="new-request"]) .btn-primary:hover {
+  background: linear-gradient(135deg, #4338ca, #1d4ed8);
+}
+
+body[data-page]:not([data-page="new-request"]) input,
+body[data-page]:not([data-page="new-request"]) select,
+body[data-page]:not([data-page="new-request"]) textarea {
+  background: rgba(255, 255, 255, 0.94);
+  color: #10233c;
+  border-color: rgba(191, 219, 254, 0.92);
+  box-shadow: none;
+}
+
+body[data-page]:not([data-page="new-request"]) input::placeholder,
+body[data-page]:not([data-page="new-request"]) textarea::placeholder {
+  color: #94a3b8;
+}
+
+body[data-page]:not([data-page="new-request"]) input:focus,
+body[data-page]:not([data-page="new-request"]) select:focus,
+body[data-page]:not([data-page="new-request"]) textarea:focus {
+  background: #ffffff;
+  border-color: rgba(79, 70, 229, 0.36);
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+}
+
+body[data-page]:not([data-page="new-request"]) .app-table th {
+  background: rgba(241, 245, 249, 0.96);
+}
+
+body[data-page]:not([data-page="new-request"]) .app-table th,
+body[data-page]:not([data-page="new-request"]) .app-table td {
+  border-bottom-color: rgba(226, 232, 240, 0.95);
+}
+
+body[data-page]:not([data-page="new-request"]) .app-table tbody tr:hover td {
+  background: rgba(239, 246, 255, 0.84);
+}
+
+body[data-page]:not([data-page="new-request"]) .app-feedback {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+body[data-page]:not([data-page="new-request"]) .app-feedback.is-success {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #047857;
+}
+
+body[data-page]:not([data-page="new-request"]) .skeleton {
+  background: linear-gradient(90deg, rgba(203, 213, 225, 0.45), rgba(226, 232, 240, 0.7), rgba(203, 213, 225, 0.45));
+}
+
+body[data-page]:not([data-page="new-request"]) .side-link .left,
+body[data-page]:not([data-page="new-request"]) .btn,
+body[data-page]:not([data-page="new-request"]) .icon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+body[data-page]:not([data-page="new-request"]) .side-link {
+  min-height: 52px;
+  padding: 0.85rem 0.95rem;
+  border-radius: 1rem;
+  transition: background-color 0.22s ease, color 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+body[data-page]:not([data-page="new-request"]) .side-link:hover {
+  transform: translateX(3px);
+}
+
+body[data-page]:not([data-page="new-request"]) .side-link-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+  opacity: 0.94;
+}
+
+body[data-page]:not([data-page="new-request"]) .btn-icon,
+body[data-page]:not([data-page="new-request"]) .icon-btn i {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+body[data-page]:not([data-page="new-request"]) .icon-btn,
+body[data-page]:not([data-page="new-request"]) [data-close-modal] {
+  width: 42px;
+  height: 42px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 0.95rem;
+  border: 1px solid rgba(191, 219, 254, 0.92);
+  background: rgba(255, 255, 255, 0.86);
+  color: #1e293b;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+  transition: transform 0.22s ease, background-color 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+body[data-page]:not([data-page="new-request"]) .icon-btn:hover,
+body[data-page]:not([data-page="new-request"]) [data-close-modal]:hover {
+  transform: translateY(-2px);
+  background: rgba(239, 246, 255, 0.96);
+  color: #1d4ed8;
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+}
+
+body[data-page]:not([data-page="new-request"]) .app-topbar-actions {
+  gap: 0.85rem;
+}
+
+body[data-page]:not([data-page="new-request"]) .app-sidebar-foot .btn,
+body[data-page]:not([data-page="new-request"]) .app-topbar-actions .btn {
+  min-height: 44px;
+}
+
+body[data-page]:not([data-page="new-request"]) .modal-card,
+body[data-page]:not([data-page="new-request"]) .app-modal-card {
+  border-radius: 1.35rem;
+}
+
+body[data-page]:not([data-page="new-request"]) .app-modal-backdrop {
+  backdrop-filter: blur(8px);
+  background: rgba(15, 23, 42, 0.34);
+}
+
+body[data-page]:not([data-page="new-request"]) .modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}

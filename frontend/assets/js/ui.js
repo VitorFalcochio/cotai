@@ -4,8 +4,79 @@ export const qs = (selector, root = document) => root.querySelector(selector);
 
 const THEME_STORAGE_KEY = "cotai_theme_preference";
 const THEME_OPTIONS = ["system", "light", "dark"];
+const BOXICONS_STYLESHEET_ID = "cotai-boxicons-stylesheet";
 let themeControlElement = null;
 let themeMediaQuery = null;
+
+const SIDEBAR_ICON_MAP = {
+  dashboard: "bx-grid-alt",
+  new: "bx-message-square-detail",
+  requests: "bx-receipt",
+  suppliers: "bx-store-alt",
+  materials: "bx-cube-alt",
+  plans: "bx-layer",
+  settings: "bx-cog",
+  "admin-dashboard": "bx-home-circle",
+  "admin-companies": "bx-buildings",
+  "admin-users": "bx-user-circle",
+  "admin-requests": "bx-spreadsheet",
+  "admin-worker": "bx-bot",
+  "admin-snapshots": "bx-line-chart",
+  "admin-billing": "bx-wallet",
+  "admin-logs": "bx-file"
+};
+
+const ACTION_ICON_MAP = {
+  sidebarToggle: "bx-menu-alt-left",
+  sidebarCollapse: "bx-chevrons-left",
+  logoutButton: "bx-log-out",
+  backToClientButton: "bx-left-arrow-alt",
+  newSupplierBtn: "bx-plus",
+  requestsExportCsv: "bx-export"
+};
+
+function ensureBoxicons() {
+  if (document.getElementById(BOXICONS_STYLESHEET_ID)) return;
+  const link = document.createElement("link");
+  link.id = BOXICONS_STYLESHEET_ID;
+  link.rel = "stylesheet";
+  link.href = "https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css";
+  document.head.appendChild(link);
+}
+
+function decorateSidebarNav(nav) {
+  if (!nav) return;
+  nav.querySelectorAll(".side-link").forEach((link) => {
+    if (link.querySelector(".side-link-icon")) return;
+    const navKey = link.dataset.nav || "";
+    const iconName = SIDEBAR_ICON_MAP[navKey] || "bx-circle";
+    const label = link.querySelector(".nav-label");
+    const left = link.querySelector(".left");
+    if (!label || !left) return;
+    const icon = document.createElement("i");
+    icon.className = `bx ${iconName} side-link-icon`;
+    icon.setAttribute("aria-hidden", "true");
+    left.prepend(icon);
+  });
+}
+
+function decorateActionButtons(root = document) {
+  Object.entries(ACTION_ICON_MAP).forEach(([id, iconName]) => {
+    const element = root.getElementById ? root.getElementById(id) : qs(`#${id}`, root);
+    if (!element || element.querySelector(".btn-icon")) return;
+    const label = element.dataset.iconOnly === "true" ? "" : element.textContent.trim();
+    element.innerHTML = label
+      ? `<i class="bx ${iconName} btn-icon" aria-hidden="true"></i><span>${label}</span>`
+      : `<i class="bx ${iconName} btn-icon" aria-hidden="true"></i>`;
+  });
+
+  root.querySelectorAll('.icon-btn:not([data-apex-iconized]), [data-close-modal]:not([data-apex-iconized])').forEach((button) => {
+    button.dataset.apexIconized = "true";
+    if (button.dataset.closeModal !== undefined) {
+      button.innerHTML = '<i class="bx bx-x" aria-hidden="true"></i>';
+    }
+  });
+}
 
 function getStoredThemePreference() {
   const stored = String(window.localStorage.getItem(THEME_STORAGE_KEY) || "system").trim().toLowerCase();
@@ -76,6 +147,7 @@ export function initThemeSystem() {
   }
 
   applyThemePreference();
+  ensureBoxicons();
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => ensureThemeControl(), { once: true });
@@ -287,6 +359,11 @@ export function initSidebar() {
 
   if (!sidebar || !nav) return;
 
+  ensureBoxicons();
+  decorateSidebarNav(nav);
+  decorateActionButtons(document);
+  document.body.classList.toggle("apex-shell", page !== "new-request");
+
   const activeLink = nav.querySelector(`.side-link[data-nav="${current}"]`);
   if (activeLink) activeLink.classList.add("active");
 
@@ -312,6 +389,10 @@ export function initSidebar() {
     if (collapseButton) {
       collapseButton.setAttribute("aria-expanded", isCollapsed ? "false" : "true");
       collapseButton.setAttribute("aria-label", isCollapsed ? "Expandir menu" : "Colapsar menu");
+      const icon = collapseButton.querySelector(".btn-icon, .bx");
+      if (icon) {
+        icon.className = `bx ${isCollapsed ? "bx-chevrons-right" : "bx-chevrons-left"} btn-icon`;
+      }
     }
     requestAnimationFrame(moveIndicator);
   };

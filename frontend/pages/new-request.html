@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cotai | Nova cotação</title>
+  <title>Cotai | Nova cotacao</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
-  <link rel="stylesheet" href="../assets/css/styles.css" />
+  <link rel="stylesheet" href="../assets/css/apex.css" />
 </head>
 <body data-page="new-request">
   <div class="app-layout">
@@ -23,12 +23,12 @@
       <nav class="app-nav" id="appNav">
         <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
         <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard"><span class="left"><span class="nav-label">Dashboard</span></span><span class="mini-badge">Resumo</span></a>
-        <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotação"><span class="left"><span class="nav-label">Nova cotação</span></span><span class="mini-badge">Novo</span></a>
-        <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span><span class="mini-badge">Histórico</span></a>
+        <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotacao"><span class="left"><span class="nav-label">Nova cotacao</span></span><span class="mini-badge">Novo</span></a>
+        <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span><span class="mini-badge">Historico</span></a>
         <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores"><span class="left"><span class="nav-label">Fornecedores</span></span><span class="mini-badge">Base</span></a>
-        <a class="side-link" data-nav="materials" href="materials.html" title="Materiais"><span class="left"><span class="nav-label">Materiais</span></span><span class="mini-badge">Catálogo</span></a>
+        <a class="side-link" data-nav="materials" href="materials.html" title="Materiais"><span class="left"><span class="nav-label">Materiais</span></span><span class="mini-badge">Catalogo</span></a>
         <a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span><span class="mini-badge">Assinatura</span></a>
-        <a class="side-link" data-nav="settings" href="settings.html" title="Configurações"><span class="left"><span class="nav-label">Configurações</span></span><span class="mini-badge">Conta</span></a>
+        <a class="side-link" data-nav="settings" href="settings.html" title="Configuracoes"><span class="left"><span class="nav-label">Configuracoes</span></span><span class="mini-badge">Conta</span></a>
       </nav>
 
       <div class="app-sidebar-foot">
@@ -37,236 +37,52 @@
     </aside>
     <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
 
-    <main class="app-main quote-chat-page">
-      <header class="app-topbar quote-chat-topbar">
-        <div class="quote-chat-topbar-copy">
-          <p class="eyebrow">Mesa de compras</p>
-          <h1>Nova cotação</h1>
-          <p>Centralize o pedido, normalize os itens e compare fornecedores em uma interface feita para decisão operacional, não para conversa solta.</p>
-        </div>
-        <div class="app-topbar-actions">
-          <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
-          <a class="btn btn-ghost" href="requests.html">Ver pedidos</a>
-          <button class="btn btn-ghost" id="logoutButton" type="button">Sair</button>
-        </div>
-      </header>
-
-      <section class="quote-command-deck quote-command-deck-premium">
-        <article class="quote-command-card quote-command-card-primary">
-          <span class="quote-command-label">Objetivo</span>
-          <strong>Sair com uma decisão defensável para a obra</strong>
-          <p>O sistema precisa organizar o pedido, expor riscos e destacar a melhor opção de compra.</p>
-        </article>
-        <article class="quote-command-card">
-          <span class="quote-command-label">Entrada</span>
-          <strong>Linguagem natural ou lista rápida</strong>
-          <p>Escreva como a equipe realmente pede no dia a dia.</p>
-        </article>
-        <article class="quote-command-card">
-          <span class="quote-command-label">Saída</span>
-          <strong>Preço, prazo e melhor consolidado</strong>
-          <p>O comparador sintetiza o retorno para leitura executiva.</p>
-        </article>
-        <article class="quote-command-card">
-          <span class="quote-command-label">Governança</span>
-          <strong>Status, SLA e aprovação</strong>
-          <p>Tudo fica visível no mesmo fluxo, sem troca de tela.</p>
-        </article>
-      </section>
-
+    <main class="app-main quote-chat-page quote-chat-page-minimal">
       <p class="app-feedback hidden" id="newRequestFeedback" role="alert"></p>
 
-      <section class="quote-chat-layout quote-chat-layout-premium">
-        <article class="card quote-chat-panel">
-          <div class="quote-chat-shell">
-            <div class="quote-chat-head">
-              <div class="quote-chat-head-copy">
-                <p class="eyebrow">Console de cotação</p>
-                <h2 id="chatThreadTitle">Nova solicitação</h2>
-                <p>Comece pelo pedido principal. A Cotai estrutura os itens, organiza o rascunho e prepara a comparação.</p>
-              </div>
-              <div class="quote-chat-head-actions">
-                <span class="quote-chat-head-note">Operação interna de suprimentos</span>
-                <button class="btn btn-ghost" id="chatSaveDraftButton" type="button">Salvar rascunho</button>
-                <button class="btn btn-primary hidden" id="chatConfirmButton" type="button">Confirmar pedido</button>
-              </div>
-            </div>
-
-            <div class="quote-chat-suggestions" id="chatSuggestions">
-              <button class="quote-suggestion-pill" type="button" data-suggestion="Preciso de 50 sacos de cimento CP-II, 20 barras de ferro 10 mm e 5 m3 de areia média para entrega em São José do Rio Preto até sexta.">Pedido completo</button>
-              <button class="quote-suggestion-pill" type="button" data-suggestion="Quero cotar argamassa ACIII, bloco estrutural 14x19x39 e vergalhão CA-50 8 mm para obra residencial.">Estrutura e acabamento</button>
-              <button class="quote-suggestion-pill" type="button" data-suggestion="Preciso de materiais com entrega urgente e nota fiscal para obra em andamento.">Entrega urgente</button>
-            </div>
-
-            <div class="quote-chat-stream" id="chatMessages">
+      <section class="quote-chat-layout quote-chat-layout-minimal">
+        <article class="quote-chat-panel quote-chat-panel-minimal">
+          <div class="quote-chat-shell quote-chat-shell-minimal">
+            <div class="quote-chat-stream quote-chat-stream-minimal" id="chatMessages">
               <div class="chat-empty">
                 <div class="chat-empty-copy">
-                  <strong>Comece pelo pedido principal.</strong>
-                  <span>Inclua material, quantidade, cidade de entrega, prazo desejado e qualquer restrição importante.</span>
+                  <strong>Comece com o pedido principal.</strong>
+                  <span>Descreva material, quantidade, cidade de entrega, prazo e qualquer observacao importante.</span>
                 </div>
               </div>
             </div>
 
-            <form class="quote-chat-composer" id="chatComposerForm">
+            <form class="quote-chat-composer quote-chat-composer-minimal" id="chatComposerForm">
               <label class="sr-only" for="chatComposerInput">Mensagem</label>
-              <div class="quote-chat-composer-shell">
-                <textarea id="chatComposerInput" rows="2" placeholder="Ex.: Preciso de 50 sacos de cimento, 20 barras de ferro 10 mm e 5 m3 de areia média para entrega em Rio Preto até sexta"></textarea>
-                <div class="quote-chat-actions">
-                  <p class="muted">A Cotai extrai os itens, permite editar, aplica prioridade e acompanha a resposta no mesmo painel.</p>
+              <div class="quote-chat-composer-shell quote-chat-composer-shell-minimal">
+                <textarea id="chatComposerInput" rows="2" placeholder="Descreva os materiais, as quantidades, o local de entrega e as observacoes"></textarea>
+                <div class="quote-chat-actions quote-chat-actions-minimal">
+                  <button class="btn btn-ghost hidden" id="chatSaveDraftButton" type="button">Salvar rascunho</button>
+                  <button class="btn btn-ghost hidden" id="chatConfirmButton" type="button">Confirmar pedido</button>
                   <button class="btn btn-primary" id="chatComposerSubmit" type="submit">Enviar</button>
                 </div>
               </div>
             </form>
           </div>
         </article>
+      </section>
 
-        <aside class="quote-chat-sidebar">
-          <section class="quote-side-section">
-            <div class="quote-side-section-head">
-              <p class="eyebrow">Governança</p>
-              <h3>Execução e aprovação</h3>
-            </div>
-
-            <article class="card quote-side-card quote-side-card-status">
-              <div class="quote-side-header">
-                <p class="eyebrow">Status</p>
-                <span class="app-badge is-muted" id="chatRequestStatus">RASCUNHO</span>
-              </div>
-              <dl class="quote-side-meta">
-                <div><dt>Código</dt><dd id="chatRequestCode">Aguardando</dd></div>
-                <div><dt>Última atualização</dt><dd id="chatRequestUpdated">-</dd></div>
-                <div><dt>Prioridade</dt><dd id="chatRequestPriority">MEDIUM</dd></div>
-                <div><dt>SLA</dt><dd id="chatRequestSla">-</dd></div>
-                <div><dt>Aprovação</dt><dd id="chatApprovalStatus">-</dd></div>
-              </dl>
-            </article>
-
-            <article class="card quote-side-card">
-              <div class="quote-side-header">
-                <p class="eyebrow">Resumo consolidado</p>
-              </div>
-              <p class="quote-summary" id="chatSummary">A conversa consolidará aqui os itens, o contexto do pedido e os próximos passos.</p>
-              <p class="quote-inline-note" id="chatPrefillNotice">Sem reaproveitamento aplicado nesta sessão.</p>
-            </article>
-          </section>
-
-          <section class="quote-side-section">
-            <div class="quote-side-section-head">
-              <p class="eyebrow">Montagem do pedido</p>
-              <h3>Entrada e normalização</h3>
-            </div>
-
-            <article class="card quote-side-card">
-              <div class="quote-side-header">
-                <p class="eyebrow">Entrada rápida</p>
-              </div>
-              <p class="quote-inline-note">Cole uma lista simples para montar o rascunho mais rápido. Ex.: <code>cimento cp2 - 20 sacos</code>.</p>
-              <div class="form-row">
-                <label for="importItemsTextarea">Importar lista</label>
-                <textarea id="importItemsTextarea" rows="4" placeholder="cimento cp2 - 20 sacos&#10;areia média - 5 m3&#10;vergalhão 10 mm - 30 barras"></textarea>
-              </div>
-              <button class="btn btn-ghost" id="applyImportedItemsButton" type="button">Aplicar lista ao rascunho</button>
-            </article>
-
-            <article class="card quote-side-card">
-              <div class="quote-side-header">
-                <p class="eyebrow">Editar antes de confirmar</p>
-              </div>
-              <div class="form-row">
-                <label for="draftTitleInput">Título</label>
-                <input id="draftTitleInput" type="text" placeholder="Nova cotação" />
-              </div>
-              <div class="form-row">
-                <label for="draftDeliveryMode">Entrega</label>
-                <input id="draftDeliveryMode" type="text" placeholder="Entrega programada" />
-              </div>
-              <div class="form-row">
-                <label for="draftDeliveryLocation">Local</label>
-                <input id="draftDeliveryLocation" type="text" placeholder="Cidade ou obra" />
-              </div>
-              <div class="form-row">
-                <label for="draftPriority">Prioridade</label>
-                <select id="draftPriority">
-                  <option value="LOW">Baixa</option>
-                  <option value="MEDIUM" selected>Média</option>
-                  <option value="HIGH">Alta</option>
-                  <option value="URGENT">Urgente</option>
-                </select>
-              </div>
-              <div class="form-row">
-                <label for="draftNotesInput">Observações</label>
-                <textarea id="draftNotesInput" rows="3" placeholder="Prazo, restrições, nota fiscal e observações"></textarea>
-              </div>
-              <div class="quote-side-header">
-                <p class="eyebrow">Itens editáveis</p>
-                <button class="btn btn-ghost" id="draftAddItemButton" type="button">Adicionar item</button>
-              </div>
-              <div id="draftItemsEditor"></div>
-            </article>
-
-            <article class="card quote-side-card">
-              <div class="quote-side-header">
-                <p class="eyebrow">Itens detectados</p>
-              </div>
-              <ul class="quote-side-list" id="chatDetectedItems">
-                <li class="app-empty">Nenhum item detectado ainda.</li>
-              </ul>
-            </article>
-          </section>
-
-          <section class="quote-side-section">
-            <div class="quote-side-section-head">
-              <p class="eyebrow">Decisão de compra</p>
-              <h3>Comparador e apoio técnico</h3>
-            </div>
-
-            <article class="card quote-side-card">
-              <div class="quote-side-header">
-                <p class="eyebrow">Melhores ofertas</p>
-              </div>
-              <ul class="quote-side-list" id="chatQuoteResults">
-                <li class="app-empty">Os resultados aparecerão aqui quando a cotação terminar.</li>
-              </ul>
-              <p class="quote-summary" id="chatComparisonSummary">A comparação entre fornecedores aparecerá aqui.</p>
-            </article>
-
-            <article class="card quote-side-card">
-              <div class="quote-side-header">
-                <p class="eyebrow">Estimativa inicial</p>
-              </div>
-              <div class="app-grid-2">
-                <div class="form-row">
-                  <label for="estimateType">Tipo</label>
-                  <select id="estimateType">
-                    <option value="wall">Parede</option>
-                    <option value="floor">Piso</option>
-                    <option value="slab">Laje</option>
-                  </select>
-                </div>
-                <div class="form-row">
-                  <label for="estimateArea">Área (m²)</label>
-                  <input id="estimateArea" type="number" min="1" step="0.1" placeholder="120" />
-                </div>
-              </div>
-              <button class="btn btn-ghost" id="estimateMaterialsButton" type="button">Gerar estimativa</button>
-              <ul class="quote-side-list" id="estimateResults">
-                <li class="app-empty">Use como estimativa inicial, não como memorial definitivo.</li>
-              </ul>
-            </article>
-
-            <article class="card quote-side-card">
-              <div class="quote-side-header">
-                <p class="eyebrow">Alertas e histórico</p>
-              </div>
-              <ul class="quote-side-list" id="chatNotifications">
-                <li class="app-empty">Nenhum alerta no momento.</li>
-              </ul>
-              <ul class="quote-side-list" id="chatTimeline">
-                <li class="app-empty">O histórico operacional aparecerá aqui.</li>
-              </ul>
-            </article>
-          </section>
-        </aside>
+      <section class="quote-chat-support-state" aria-hidden="true">
+        <h1 id="chatThreadTitle">Nova solicitacao</h1>
+        <span class="app-badge is-muted" id="chatRequestStatus">RASCUNHO</span>
+        <span id="chatRequestCode">Aguardando</span>
+        <span id="chatRequestUpdated">-</span>
+        <span id="chatRequestPriority">MEDIUM</span>
+        <span id="chatRequestSla">-</span>
+        <span id="chatApprovalStatus">-</span>
+        <p id="chatSummary">A conversa consolidara aqui os itens, contexto do pedido e proximos passos.</p>
+        <p id="chatComparisonSummary">A comparacao entre fornecedores aparecera aqui.</p>
+        <p id="chatPrefillNotice">Sem reaproveitamento aplicado nesta sessao.</p>
+        <div id="draftItemsEditor"></div>
+        <ul id="chatDetectedItems"></ul>
+        <ul id="chatQuoteResults"></ul>
+        <ul id="chatTimeline"></ul>
+        <ul id="chatNotifications"></ul>
       </section>
     </main>
   </div>

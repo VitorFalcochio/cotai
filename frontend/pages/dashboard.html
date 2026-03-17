@@ -5,145 +5,222 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cotai | Dashboard</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
-  <link rel="stylesheet" href="../assets/css/styles.css" />
+  <link rel="stylesheet" href="../assets/css/apex.css" />
 </head>
 <body data-page="dashboard">
-  <div class="app-layout">
-    <aside class="app-sidebar" id="appSidebar">
-      <div class="side-shell-head">
-        <a class="brand" href="dashboard.html">
-          <span class="brand-mark">C</span>
-          <span class="brand-name">Cotai</span>
+  <div class="app-layout dashboard-apex-layout">
+    <aside class="app-sidebar dashboard-apex-sidebar" id="appSidebar">
+      <div class="side-shell-head dashboard-brand-head">
+        <a class="brand dashboard-brand" href="dashboard.html">
+          <span class="brand-mark"><i class="bx bx-bolt-circle" aria-hidden="true"></i></span>
+          <span class="brand-copy">
+            <span class="brand-name">Cotai</span>
+            <span class="brand-meta">Dashboard</span>
+          </span>
         </a>
-        <button class="btn btn-ghost side-collapse-btn" type="button" id="sidebarCollapse" aria-label="Colapsar menu" aria-expanded="true">
-          <span class="collapse-arrow" aria-hidden="true"><</span>
+        <button class="btn btn-ghost side-collapse-btn" type="button" id="sidebarCollapse" aria-label="Colapsar menu" aria-expanded="true" data-icon-only="true">
+          <span class="collapse-arrow" aria-hidden="true"></span>
         </button>
       </div>
 
-      <nav class="app-nav" id="appNav">
-        <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
-        <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard"><span class="left"><span class="nav-label">Dashboard</span></span><span class="mini-badge">Resumo</span></a>
-        <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotação"><span class="left"><span class="nav-label">Nova cotação</span></span><span class="mini-badge">Novo</span></a>
-        <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span><span class="mini-badge">Histórico</span></a>
-        <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores"><span class="left"><span class="nav-label">Fornecedores</span></span><span class="mini-badge">Base</span></a>
-        <a class="side-link" data-nav="materials" href="materials.html" title="Materiais"><span class="left"><span class="nav-label">Materiais</span></span><span class="mini-badge">Catálogo</span></a>
-        <a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span><span class="mini-badge">Assinatura</span></a>
-        <a class="side-link" data-nav="settings" href="settings.html" title="Configurações"><span class="left"><span class="nav-label">Configurações</span></span><span class="mini-badge">Conta</span></a>
-      </nav>
+      <div class="dashboard-nav-group">
+        <p class="dashboard-nav-title">Overview</p>
+        <nav class="app-nav" id="appNav">
+          <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
+          <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard"><span class="left"><span class="nav-label">Dashboard</span></span></a>
+          <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span></a>
+          <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores"><span class="left"><span class="nav-label">Fornecedores</span></span></a>
+          <a class="side-link" data-nav="materials" href="materials.html" title="Materiais"><span class="left"><span class="nav-label">Materiais</span></span></a>
+        </nav>
+      </div>
 
-      <div class="app-sidebar-foot">
-        <a class="btn btn-ghost w-full" href="index.html">Voltar para o site</a>
+      <div class="dashboard-nav-group">
+        <p class="dashboard-nav-title">Commerce</p>
+        <nav class="app-nav dashboard-subnav">
+          <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotacao"><span class="left"><span class="nav-label">Nova cotacao</span></span><span class="mini-badge">Novo</span></a>
+          <a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span></a>
+          <a class="side-link" data-nav="settings" href="settings.html" title="Configuracoes"><span class="left"><span class="nav-label">Configuracoes</span></span></a>
+        </nav>
+      </div>
+
+      <div class="dashboard-sidebar-divider"></div>
+
+      <div class="dashboard-sidebar-profile">
+        <div class="dashboard-avatar" id="dashboardAvatar">CO</div>
+        <div>
+          <strong id="companyNameSide">Cotai</strong>
+          <span id="dashboardRoleLabel">Equipe de compras</span>
+        </div>
+        <a class="dashboard-profile-link" href="settings.html" aria-label="Abrir perfil"><i class="bx bx-log-in-circle" aria-hidden="true"></i></a>
       </div>
     </aside>
 
     <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
 
-    <main class="app-main">
-      <header class="app-topbar">
-        <div>
-          <p class="eyebrow">Hub executivo de compras</p>
-          <h1 id="companyName">Minha empresa</h1>
-          <p>Leia volume, ganho operacional, fornecedores recorrentes e sinais de risco em uma única tela.</p>
+    <main class="app-main dashboard-apex-main">
+      <header class="app-topbar dashboard-apex-topbar">
+        <div class="dashboard-search-shell">
+          <button class="btn btn-ghost dashboard-mobile-menu" id="sidebarToggle" type="button">Menu</button>
+          <label class="dashboard-search" for="dashboardSearch">
+            <i class="bx bx-search" aria-hidden="true"></i>
+            <input id="dashboardSearch" type="search" placeholder="Search anything..." />
+            <span class="dashboard-search-shortcut">Ctrl K</span>
+          </label>
         </div>
-        <div class="app-topbar-actions">
-          <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
+
+        <div class="dashboard-topbar-actions">
+          <a class="btn btn-primary" href="new-request.html"><i class="bx bx-plus" aria-hidden="true"></i><span>New Order</span></a>
+          <button class="icon-btn" type="button" aria-label="Tema"><i class="bx bx-sun" aria-hidden="true"></i></button>
           <a class="btn btn-ghost hidden" id="adminShortcut" href="admin-dashboard.html">Admin</a>
-          <button class="btn btn-ghost" id="logoutButton" type="button">Sair</button>
-          <a class="btn btn-primary" href="new-request.html">Nova cotação</a>
+          <button class="icon-btn" type="button" aria-label="Ajuda"><i class="bx bx-help-circle" aria-hidden="true"></i></button>
+          <button class="icon-btn dashboard-bell" type="button" aria-label="Notificacoes"><i class="bx bx-bell" aria-hidden="true"></i><span class="dashboard-bell-dot"></span></button>
+          <button class="dashboard-user-chip" id="logoutButton" type="button" aria-label="Sair"><span id="dashboardUserChip">CO</span></button>
         </div>
       </header>
 
-      <section class="app-surface-hero dashboard-hero-surface">
-        <div class="hero-split">
-          <div class="hero-copy-stack">
-            <span class="badge">Centro de decisão da operação</span>
-            <h2>Compre com histórico, contexto e critério de execução</h2>
-            <p class="muted">O dashboard precisa responder três perguntas rapidamente: o que entrou, onde existe risco e onde a equipe está comprando melhor.</p>
-            <div class="metric-band">
-              <article class="summary-chip"><span>Foco do dia</span><strong>fila, aprovação e ganho</strong></article>
-              <article class="summary-chip"><span>Leitura rápida</span><strong>pedido, fornecedor e projeto</strong></article>
-              <article class="summary-chip"><span>Próxima ação</span><strong>nova cotação ou recompra</strong></article>
-            </div>
-          </div>
-
-          <aside class="hero-info-card">
-            <p class="eyebrow">Painel de controle</p>
-            <dl class="hero-data-list">
-              <div><dt>Operação esperada</dt><dd>ritmo contínuo de cotação</dd></div>
-              <div><dt>Decisão crítica</dt><dd>preço, prazo e confiabilidade</dd></div>
-              <div><dt>Base de valor</dt><dd>histórico reutilizável</dd></div>
-            </dl>
-          </aside>
+      <section class="dashboard-heading">
+        <div>
+          <h1>Dashboard</h1>
+          <p id="dashboardWelcome">Welcome back. Here's what's happening with your operation today.</p>
         </div>
+        <p class="app-feedback hidden" id="dashboardFeedback"></p>
       </section>
 
-      <section class="app-metrics app-metrics-executive">
-        <article class="card app-metric-card"><p>Total de pedidos</p><h3 id="metricRequests">0</h3></article>
-        <article class="card app-metric-card"><p>Materiais cotados</p><h3 id="metricMaterialsQuoted">0</h3></article>
-        <article class="card app-metric-card"><p>Economia estimada</p><h3 id="metricSavings">R$ 0</h3></article>
-        <article class="card app-metric-card"><p>Tempo economizado</p><h3 id="metricTimeSaved">0h</h3></article>
-        <article class="card app-metric-card"><p>Fornecedores consultados</p><h3 id="metricSuppliersConsulted">0</h3></article>
-        <article class="card app-metric-card"><p>Fornecedor recorrente</p><h3 id="metricBestSupplier">-</h3></article>
-        <article class="card app-metric-card"><p>Projetos ativos</p><h3 id="metricProjects">0</h3></article>
-        <article class="card app-metric-card"><p>Materiais pendentes</p><h3 id="metricPendingMaterials">0</h3></article>
+      <section class="dashboard-metrics-grid">
+        <article class="dashboard-metric-card metric-green">
+          <div class="dashboard-metric-head">
+            <div>
+              <p>Total Revenue</p>
+              <h3 id="metricSavings">R$ 0</h3>
+            </div>
+            <span class="dashboard-metric-icon"><i class="bx bx-dollar-circle" aria-hidden="true"></i></span>
+          </div>
+          <p class="dashboard-metric-trend is-positive" id="metricSavingsTrend">+0% <span>vs last month</span></p>
+          <svg class="dashboard-sparkline" viewBox="0 0 240 72" preserveAspectRatio="none"><path id="sparkRevenue" d=""></path></svg>
+        </article>
+
+        <article class="dashboard-metric-card metric-cyan">
+          <div class="dashboard-metric-head">
+            <div>
+              <p>Active Users</p>
+              <h3 id="metricProjects">0</h3>
+            </div>
+            <span class="dashboard-metric-icon"><i class="bx bx-group" aria-hidden="true"></i></span>
+          </div>
+          <p class="dashboard-metric-trend is-positive" id="metricProjectsTrend">+0% <span>vs last month</span></p>
+          <svg class="dashboard-sparkline" viewBox="0 0 240 72" preserveAspectRatio="none"><path id="sparkUsers" d=""></path></svg>
+        </article>
+
+        <article class="dashboard-metric-card metric-blue">
+          <div class="dashboard-metric-head">
+            <div>
+              <p>Total Orders</p>
+              <h3 id="metricRequests">0</h3>
+            </div>
+            <span class="dashboard-metric-icon"><i class="bx bx-cart" aria-hidden="true"></i></span>
+          </div>
+          <p class="dashboard-metric-trend is-negative" id="metricRequestsTrend">-0% <span>vs last month</span></p>
+          <svg class="dashboard-sparkline" viewBox="0 0 240 72" preserveAspectRatio="none"><path id="sparkOrders" d=""></path></svg>
+        </article>
+
+        <article class="dashboard-metric-card metric-amber">
+          <div class="dashboard-metric-head">
+            <div>
+              <p>Page Views</p>
+              <h3 id="metricSuppliersConsulted">0</h3>
+            </div>
+            <span class="dashboard-metric-icon"><i class="bx bx-show-alt" aria-hidden="true"></i></span>
+          </div>
+          <p class="dashboard-metric-trend is-positive" id="metricSuppliersTrend">+0% <span>vs last month</span></p>
+          <svg class="dashboard-sparkline" viewBox="0 0 240 72" preserveAspectRatio="none"><path id="sparkViews" d=""></path></svg>
+        </article>
       </section>
 
-      <section class="admin-dual-panel">
-        <article class="card table-shell">
-          <div class="app-section-head">
+      <section class="dashboard-content-grid">
+        <article class="dashboard-panel dashboard-overview-panel">
+          <div class="dashboard-panel-head">
             <div>
-              <p class="eyebrow">Pedidos recentes</p>
-              <h2>Últimas solicitações</h2>
+              <h2>Overview</h2>
+              <p>Monthly performance for the current year</p>
             </div>
-            <a class="btn btn-ghost" href="requests.html">Ver histórico completo</a>
+            <div class="dashboard-tabs">
+              <button class="dashboard-tab is-active" type="button">Revenue</button>
+              <button class="dashboard-tab" type="button">Orders</button>
+              <button class="dashboard-tab" type="button">Profit</button>
+            </div>
           </div>
-          <p class="app-feedback hidden" id="dashboardFeedback" role="alert"></p>
-          <div class="app-table-wrap">
-            <table class="app-table">
-              <thead>
-                <tr>
-                  <th>Pedido</th>
-                  <th>Status</th>
-                  <th>Melhor fornecedor</th>
-                  <th>Economia</th>
-                  <th>Criado em</th>
-                </tr>
-              </thead>
-              <tbody id="dashboardRecentBody"></tbody>
-            </table>
+
+          <div class="dashboard-chart-shell">
+            <div class="dashboard-chart-axis">
+              <span>$60K</span>
+              <span>$45K</span>
+              <span>$30K</span>
+              <span>$15K</span>
+            </div>
+            <div class="dashboard-chart-stage">
+              <div class="dashboard-grid-lines" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <svg class="dashboard-overview-chart" viewBox="0 0 880 360" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="overviewFill" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stop-color="rgba(34,197,94,0.34)"></stop>
+                    <stop offset="100%" stop-color="rgba(34,197,94,0.02)"></stop>
+                  </linearGradient>
+                </defs>
+                <path id="overviewAreaPath" class="dashboard-overview-area" d=""></path>
+                <path id="overviewLinePath" class="dashboard-overview-line" d=""></path>
+              </svg>
+            </div>
           </div>
         </article>
 
-        <article class="card table-shell">
-          <div class="app-section-head">
-            <div>
-              <p class="eyebrow">Inteligência de compra</p>
-              <h2>Materiais e tendências</h2>
+        <div class="dashboard-side-column">
+          <article class="dashboard-panel dashboard-donut-panel">
+            <div class="dashboard-panel-head">
+              <div>
+                <h2>Traffic Sources</h2>
+                <p>Where your visitors come from</p>
+              </div>
             </div>
-          </div>
-          <div id="dashboardInsights" class="admin-status-stack"></div>
-        </article>
-      </section>
 
-      <section class="admin-dual-panel">
-        <article class="card table-shell">
-          <div class="app-section-head">
-            <div>
-              <p class="eyebrow">Rede preferencial</p>
-              <h2>Fornecedores em destaque</h2>
+            <div class="dashboard-donut-layout">
+              <div class="dashboard-donut-wrap">
+                <svg class="dashboard-donut" viewBox="0 0 120 120" aria-hidden="true">
+                  <circle cx="60" cy="60" r="42" class="dashboard-donut-track"></circle>
+                  <circle cx="60" cy="60" r="42" class="dashboard-donut-segment seg-direct"></circle>
+                  <circle cx="60" cy="60" r="42" class="dashboard-donut-segment seg-organic"></circle>
+                  <circle cx="60" cy="60" r="42" class="dashboard-donut-segment seg-referral"></circle>
+                  <circle cx="60" cy="60" r="42" class="dashboard-donut-segment seg-social"></circle>
+                </svg>
+                <div class="dashboard-donut-center">
+                  <strong id="trafficTotal">0</strong>
+                  <span>Visits</span>
+                </div>
+              </div>
+
+              <ul class="dashboard-source-list" id="trafficSourcesList">
+                <li><span class="dot direct"></span><label>Direct</label><strong>0%</strong></li>
+                <li><span class="dot organic"></span><label>Organic</label><strong>0%</strong></li>
+                <li><span class="dot referral"></span><label>Referral</label><strong>0%</strong></li>
+                <li><span class="dot social"></span><label>Social</label><strong>0%</strong></li>
+              </ul>
             </div>
-          </div>
-          <div id="dashboardSuppliers" class="admin-status-stack"></div>
-        </article>
-        <article class="card table-shell">
-          <div class="app-section-head">
-            <div>
-              <p class="eyebrow">Planejamento</p>
-              <h2>Projetos e materiais</h2>
+          </article>
+
+          <article class="dashboard-panel dashboard-goals-panel">
+            <div class="dashboard-panel-head">
+              <div>
+                <h2>Monthly Goals</h2>
+                <p>Track progress toward targets</p>
+              </div>
             </div>
-          </div>
-          <div id="dashboardProjects" class="admin-status-stack"></div>
-        </article>
+            <div class="dashboard-goals-list" id="dashboardProjects"></div>
+          </article>
+        </div>
       </section>
     </main>
   </div>

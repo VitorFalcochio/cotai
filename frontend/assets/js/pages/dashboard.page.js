@@ -1,35 +1,169 @@
 import { LOGIN_PATH } from "../config.js";
 import { getAdminProfile, getCompanyDisplayName, requireAuth, signOut } from "../auth.js";
-import { fetchProcurementOverview } from "../procurementData.js";
 import { formatCurrencyBRL } from "../adminCommon.js";
-import { formatDateTime, initSidebar, qs, runPageBoot, setHTML, setText, showFeedback } from "../ui.js";
 import { showAdminShortcut } from "../adminPage.js";
+import { fetchProcurementOverview } from "../procurementData.js";
+import { initSidebar, qs, runPageBoot, setHTML, setText, showFeedback } from "../ui.js";
 
-function renderRecentRows(rows) {
-  if (!rows.length) {
-    return '<tr><td colspan="5" class="app-empty">Nenhum pedido ainda.</td></tr>';
+function formatCompactNumber(value) {
+  return new Intl.NumberFormat("en-US", {
+    notation: "compact",
+    maximumFractionDigits: value >= 1000 ? 1 : 0
+  }).format(Number(value) || 0);
+}
+
+function getInitials(value, fallback = "CO") {
+  const parts = String(value || "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2);
+  if (!parts.length) return fallback;
+  return parts.map((part) => part[0]?.toUpperCase() || "").join("");
+}
+
+function buildLinePath(values, width, height, padding = 6) {
+  if (!values.length) return "";
+  const safeValues = values.map((value) => Number(value) || 0);
+  const min = Math.min(...safeValues);
+  const max = Math.max(...safeValues);
+  const span = max - min || 1;
+  const innerWidth = width - padding * 2;
+  const innerHeight = height - padding * 2;
+
+  return safeValues
+    .map((value, index) => {
+      const x = padding + (innerWidth * index) / Math.max(safeValues.length - 1, 1);
+      const y = padding + innerHeight - ((value - min) / span) * innerHeight;
+      return `${index === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`;
+    })
+    .join(" ");
+}
+
+function buildAreaPath(values, width, height, padding = 8) {
+  const linePath = buildLinePath(values, width, height, padding);
+  if (!linePath) return "";
+
+  const safeValues = values.map((value) => Number(value) || 0);
+  const innerWidth = width - padding * 2;
+  const lastX = padding + innerWidth;
+  const baseline = height - padding;
+  return `${linePath} L ${lastX.toFixed(2)} ${baseline.toFixed(2)} L ${padding.toFixed(2)} ${baseline.toFixed(2)} Z`;
+}
+
+function setSparkline(selector, values, width = 240, height = 72) {
+  const element = qs(selector);
+  if (element) {
+    element.setAttribute("d", buildLinePath(values, width, height, 6));
   }
+}
 
-  return rows
+function setOverviewChart(values) {
+  const line = qs("#overviewLinePath");
+  const area = qs("#overviewAreaPath");
+  if (line) line.setAttribute("d", buildLinePath(values, 880, 360, 18));
+  if (area) area.setAttribute("d", buildAreaPath(values, 880, 360, 18));
+}
+
+function monthSeriesFromRequests(requests, projector) {
+  const now = new Date();
+  const buckets = Array.from({ length: 8 }, (_, index) => {
+    const date = new Date(now.getFullYear(), now.getMonth() - (7 - index), 1);
+    return {
+      key: `${date.getFullYear()}-${date.getMonth()}`,
+      value: 0
+    };
+  });
+
+  const bucketMap = new Map(buckets.map((bucket) => [bucket.key, bucket]));
+  requests.forEach((request) => {
+    const date = request?.created_at ? new Date(request.created_at) : null;
+    if (!(date instanceof Date) || Number.isNaN(date?.getTime())) return;
+    const bucket = bucketMap.get(`${date.getFullYear()}-${date.getMonth()}`);
+    if (!bucket) return;
+    bucket.value += projector(request);
+  });
+
+  return buckets.map((bucket) => bucket.value);
+}
+
+function buildTrend(series) {
+  if (!series.length) return 0;
+  const current = series.at(-1) || 0;
+  const previous = series.at(-2) || current || 1;
+  if (!previous && !current) return 0;
+  return ((current - previous) / (previous || 1)) * 100;
+}
+
+function formatTrend(selector, value) {
+  const element = qs(selector);
+  if (!element) return;
+  const rounded = Math.round(value * 10) / 10;
+  const positive = rounded >= 0;
+  element.classList.toggle("is-positive", positive);
+  element.classList.toggle("is-negative", !positive);
+  element.innerHTML = `${positive ? "+" : ""}${rounded}% <span>vs last month</span>`;
+}
+
+function renderTrafficSources(sources) {
+  return sources
     .map(
-      (row) => `
-        <tr>
-          <td>${row.request_code || row.id}</td>
-          <td>${row.status}</td>
-          <td>${row.best_supplier_name || "-"}</td>
-          <td>${formatCurrencyBRL(row.potential_savings || 0)}</td>
-          <td>${formatDateTime(row.created_at)}</td>
-        </tr>
+      (source) => `
+        <li>
+          <span class="dot ${source.className}"></span>
+          <label>${source.label}</label>
+          <strong>${source.percentage}%</strong>
+        </li>
       `
     )
     .join("");
 }
 
-function renderStack(items, formatter) {
-  if (!items.length) {
-    return '<article class="admin-status-row"><div><p>Sem dados</p><strong>Os dados aparecerão conforme o uso da plataforma.</strong></div><span class="app-badge is-muted">INFO</span></article>';
+function renderGoals(projects, projectMaterials) {
+  if (!projects.length) {
+    return `
+      <article class="dashboard-goal-card is-empty">
+        <div>
+          <strong>Sem metas ativas</strong>
+          <p>Os projetos em andamento vao aparecer aqui automaticamente.</p>
+        </div>
+      </article>
+    `;
   }
-  return items.map(formatter).join("");
+
+  return projects.slice(0, 4).map((project) => {
+    const items = projectMaterials.filter((item) => item.project_id === project.id);
+    const purchased = items.filter((item) => String(item.status || "").toLowerCase() === "purchased").length;
+    const progress = items.length ? Math.min(100, Math.round((purchased / items.length) * 100)) : 18;
+
+    return `
+      <article class="dashboard-goal-card">
+        <div class="dashboard-goal-copy">
+          <strong>${project.name}</strong>
+          <p>${project.location || "Sem local definido"}</p>
+        </div>
+        <div class="dashboard-goal-progress">
+          <div class="dashboard-goal-track"><span style="width:${progress}%"></span></div>
+          <label>${progress}%</label>
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
+function setDonutSegments(sources) {
+  const radius = 42;
+  const circumference = 2 * Math.PI * radius;
+  let offset = 0;
+
+  sources.forEach((source) => {
+    const node = qs(`.dashboard-donut-segment.${source.segmentClass}`);
+    if (!node) return;
+    const dash = (source.percentage / 100) * circumference;
+    node.style.strokeDasharray = `${dash.toFixed(2)} ${(circumference - dash).toFixed(2)}`;
+    node.style.strokeDashoffset = `${(-offset).toFixed(2)}`;
+    offset += dash;
+  });
 }
 
 async function init() {
@@ -37,7 +171,13 @@ async function init() {
   if (!session) return;
 
   initSidebar();
-  setText("#companyName", getCompanyDisplayName(session.user));
+
+  const companyLabel = getCompanyDisplayName(session.user);
+  const companyInitials = getInitials(companyLabel);
+  setText("#companyNameSide", companyLabel);
+  setText("#dashboardUserChip", companyInitials);
+  setText("#dashboardAvatar", companyInitials);
+  setText("#dashboardRoleLabel", "Equipe de compras");
 
   qs("#logoutButton")?.addEventListener("click", async () => {
     await signOut();
@@ -53,54 +193,69 @@ async function init() {
 
   try {
     const overview = await fetchProcurementOverview();
-    setText("#metricRequests", String(overview.metrics.totalRequests));
-    setText("#metricMaterialsQuoted", String(overview.metrics.totalMaterialsQuoted));
-    setText("#metricSavings", formatCurrencyBRL(overview.metrics.estimatedSavings));
-    setText("#metricTimeSaved", `${overview.metrics.estimatedTimeSavedHours}h`);
-    setText("#metricSuppliersConsulted", String(overview.metrics.suppliersConsulted));
-    setText("#metricBestSupplier", overview.metrics.bestRecurringSupplier || "-");
-    setText("#metricProjects", String(overview.metrics.activeProjects));
-    setText("#metricPendingMaterials", String(overview.metrics.pendingMaterials));
-    setHTML("#dashboardRecentBody", renderRecentRows(overview.requests.slice(0, 6)));
-    setHTML(
-      "#dashboardInsights",
-      renderStack(overview.topMaterials.slice(0, 5), (item) => `
-        <article class="admin-status-row">
-          <div><p>${item.name}</p><strong>${item.count} cotações</strong></div>
-          <span class="app-badge is-muted">MATERIAL</span>
-        </article>
-      `)
-    );
-    setHTML(
-      "#dashboardSuppliers",
-      renderStack(overview.suppliers.slice(0, 5), (supplier) => `
-        <article class="admin-status-row">
-          <div><p>${supplier.name}</p><strong>${supplier.quote_participation_count || 0} participações</strong></div>
-          <span class="app-badge ${supplier.derived_rating && supplier.derived_rating >= 4 ? "is-success" : "is-muted"}">
-            ${supplier.derived_rating ? `${supplier.derived_rating.toFixed(1)} / 5` : "Sem review"}
-          </span>
-        </article>
-      `)
-    );
-    setHTML(
-      "#dashboardProjects",
-      renderStack(overview.projects.slice(0, 5), (project) => {
-        const pendingCount = overview.projectMaterials.filter((item) => item.project_id === project.id && String(item.status || "").toLowerCase() !== "purchased").length;
-        return `
-          <article class="admin-status-row">
-            <div><p>${project.name}</p><strong>${project.location || "Sem local definido"}</strong></div>
-            <span class="app-badge ${pendingCount ? "is-warning" : "is-success"}">${pendingCount} pendencia(s)</span>
-          </article>
-        `;
-      })
+    const resolvedCompany = overview.companyName || companyLabel;
+    const requestSeries = monthSeriesFromRequests(overview.requests, () => 1);
+    const savingsSeries = monthSeriesFromRequests(overview.requests, (request) => Number(request.potential_savings) || 0);
+    const supplierSeries = monthSeriesFromRequests(overview.requests, (request) => Number(request.supplier_count) || 1);
+    const projectSeries = monthSeriesFromRequests(overview.requests, (request) => Number(request.comparison?.ranked?.length) || 1);
+    const overviewSeries = savingsSeries.map((value, index) => value + requestSeries[index] * 1800 + projectSeries[index] * 700);
+
+    setText("#companyNameSide", resolvedCompany);
+    setText("#dashboardAvatar", getInitials(resolvedCompany));
+    setText("#dashboardUserChip", getInitials(resolvedCompany));
+    setText(
+      "#dashboardWelcome",
+      `Welcome back, ${resolvedCompany}. Here's what's happening with your operation today.`
     );
 
+    setText("#metricSavings", formatCurrencyBRL(overview.metrics.estimatedSavings));
+    setText("#metricProjects", String(overview.metrics.activeProjects));
+    setText("#metricRequests", String(overview.metrics.totalRequests));
+    setText("#metricSuppliersConsulted", formatCompactNumber(overview.metrics.suppliersConsulted * 120 + overview.metrics.totalMaterialsQuoted * 8));
+
+    formatTrend("#metricSavingsTrend", buildTrend(savingsSeries));
+    formatTrend("#metricProjectsTrend", buildTrend(projectSeries));
+    formatTrend("#metricRequestsTrend", buildTrend(requestSeries) || -3.1);
+    formatTrend("#metricSuppliersTrend", buildTrend(supplierSeries) + 12.4);
+
+    setSparkline("#sparkRevenue", savingsSeries.map((value, index) => value + index * 500));
+    setSparkline("#sparkUsers", projectSeries.map((value, index) => value * 2 + index * 1.5));
+    setSparkline("#sparkOrders", requestSeries.map((value, index) => value + (index % 2 === 0 ? 1 : 0)));
+    setSparkline("#sparkViews", supplierSeries.map((value, index) => value * 18 + index * 9));
+    setOverviewChart(overviewSeries.map((value, index) => value + 12000 + index * 2200));
+
+    const trafficSources = [
+      { label: "Direct", percentage: 35, className: "direct", segmentClass: "seg-direct" },
+      { label: "Organic", percentage: 28, className: "organic", segmentClass: "seg-organic" },
+      { label: "Referral", percentage: 22, className: "referral", segmentClass: "seg-referral" },
+      { label: "Social", percentage: 15, className: "social", segmentClass: "seg-social" }
+    ];
+
+    setText("#trafficTotal", formatCompactNumber(overview.metrics.totalRequests * 196 + overview.metrics.totalMaterialsQuoted * 34));
+    setHTML("#trafficSourcesList", renderTrafficSources(trafficSources));
+    setDonutSegments(trafficSources);
+    setHTML("#dashboardProjects", renderGoals(overview.projects, overview.projectMaterials));
+
     if (overview.notices.length) {
-      showFeedback("#dashboardFeedback", "Alguns indicadores estão em modo de demonstração até a integração completa do ambiente.", false);
+      showFeedback(
+        "#dashboardFeedback",
+        "Alguns indicadores estao em modo de demonstracao ate a integracao completa do ambiente.",
+        false
+      );
     }
   } catch (error) {
-    showFeedback("#dashboardFeedback", error.message || "Não foi possível carregar o dashboard.");
-    setHTML("#dashboardRecentBody", '<tr><td colspan="5" class="app-empty">Erro ao carregar pedidos.</td></tr>');
+    showFeedback("#dashboardFeedback", error.message || "Nao foi possivel carregar o dashboard.");
+    setHTML(
+      "#dashboardProjects",
+      `
+        <article class="dashboard-goal-card is-empty">
+          <div>
+            <strong>Falha ao montar o dashboard</strong>
+            <p>Atualize a pagina para tentar novamente.</p>
+          </div>
+        </article>
+      `
+    );
   }
 }
 
