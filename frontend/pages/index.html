@@ -221,6 +221,126 @@
         transform: translateX(3px);
       }
 
+      .hero-flow {
+        width: min(100%, 860px);
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 28px;
+        padding: 8px 0;
+      }
+
+      .hero-flow::before {
+        content: "";
+        position: absolute;
+        left: 8%;
+        right: 8%;
+        top: 50%;
+        height: 1px;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.04));
+        transform: translateY(-50%);
+        pointer-events: none;
+      }
+
+      .hero-flow::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 8%;
+        width: 22%;
+        height: 3px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, rgba(34, 197, 94, 0), rgba(34, 197, 94, 0.95), rgba(152, 255, 197, 0.8), rgba(34, 197, 94, 0));
+        transform: translateY(-50%);
+        filter: blur(0.2px);
+        box-shadow: 0 0 10px rgba(34, 197, 94, 0.22);
+        pointer-events: none;
+        animation: flowBeam 8.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+      }
+
+      .hero-flow-card {
+        position: relative;
+        z-index: 1;
+        min-height: 124px;
+        padding: 14px 15px;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 18px;
+        background:
+          linear-gradient(180deg, rgba(14, 19, 27, 0.92), rgba(11, 16, 23, 0.92));
+        text-align: left;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+        overflow: hidden;
+        animation: flowCardPulse 7.5s ease-in-out infinite;
+      }
+
+      .hero-flow-card::after {
+        content: "";
+        position: absolute;
+        inset: auto 15px 0 15px;
+        height: 2px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, rgba(34, 197, 94, 0), rgba(34, 197, 94, 0.9), rgba(34, 197, 94, 0));
+        opacity: 0;
+        transform: scaleX(0.4);
+        transform-origin: center;
+        animation: flowLinePulse 7.5s ease-in-out infinite;
+      }
+
+      .hero-flow-card:nth-child(2),
+      .hero-flow-card:nth-child(2)::after {
+        animation-delay: 1.4s;
+      }
+
+      .hero-flow-card:nth-child(3),
+      .hero-flow-card:nth-child(3)::after {
+        animation-delay: 2.8s;
+      }
+
+      .hero-flow-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        color: var(--green);
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+
+      .hero-flow-kicker i {
+        font-size: 1rem;
+      }
+
+      .hero-flow-card strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 0.98rem;
+        letter-spacing: -0.04em;
+        line-height: 1.35;
+      }
+
+      .hero-flow-card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.88rem;
+        line-height: 1.56;
+      }
+
+      .hero-flow-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 10px;
+        padding: 6px 10px;
+        border: 1px solid rgba(34, 197, 94, 0.14);
+        border-radius: 999px;
+        background: rgba(34, 197, 94, 0.08);
+        color: #d6f8e3;
+        font-size: 0.74rem;
+        font-weight: 700;
+      }
+
       .section {
         padding: 108px 0 0;
       }
@@ -253,6 +373,251 @@
 
       .preview {
         padding-top: 34px;
+      }
+
+      .signal-band {
+        width: 100%;
+        margin-top: 34px;
+        overflow: hidden;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .signal-band-track {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        width: max-content;
+        padding: 14px 0;
+        animation: bandScroll 28s linear infinite;
+      }
+
+      .signal-band-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: #c8d3de;
+        font-size: 0.94rem;
+        white-space: nowrap;
+      }
+
+      .signal-band-item i {
+        color: var(--green);
+        font-size: 1rem;
+      }
+
+      .ai-showcase {
+        padding-top: 56px;
+      }
+
+      .ai-showcase-shell {
+        display: grid;
+        grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+        gap: 22px;
+        align-items: center;
+      }
+
+      .ai-copy {
+        display: grid;
+        gap: 14px;
+        max-width: 520px;
+      }
+
+      .ai-copy h2 {
+        margin: 0;
+        font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+        line-height: 1.03;
+        letter-spacing: -0.06em;
+      }
+
+      .ai-copy p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 1.02rem;
+        line-height: 1.68;
+      }
+
+      .ai-points {
+        display: grid;
+        gap: 10px;
+        margin-top: 6px;
+      }
+
+      .ai-points span {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: #d4deea;
+      }
+
+      .ai-points i {
+        color: var(--green);
+      }
+
+      .ai-chat {
+        padding: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 28px;
+        background:
+          radial-gradient(circle at top right, rgba(34, 197, 94, 0.08), transparent 26%),
+          rgba(13, 17, 23, 0.92);
+        box-shadow: var(--shadow);
+      }
+
+      .ai-chat-shell {
+        display: grid;
+        gap: 14px;
+      }
+
+      .ai-chat-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .ai-chat-head strong {
+        font-size: 1.02rem;
+        letter-spacing: -0.04em;
+      }
+
+      .ai-chat-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border: 1px solid rgba(34, 197, 94, 0.14);
+        border-radius: 999px;
+        background: rgba(34, 197, 94, 0.08);
+        color: #d6f8e3;
+        font-size: 0.78rem;
+        font-weight: 700;
+      }
+
+      .ai-chat-status::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: var(--green);
+      }
+
+      .ai-chat-stream {
+        display: grid;
+        gap: 12px;
+      }
+
+      .ai-bubble {
+        max-width: 88%;
+        padding: 14px 16px;
+        border-radius: 20px;
+        line-height: 1.58;
+      }
+
+      .ai-bubble.user {
+        margin-left: auto;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .ai-bubble.bot {
+        border: 1px solid rgba(34, 197, 94, 0.14);
+        background: rgba(34, 197, 94, 0.08);
+      }
+
+      .ai-offers {
+        display: grid;
+        gap: 10px;
+      }
+
+      .ai-offer {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .ai-offer.is-best {
+        border-color: rgba(34, 197, 94, 0.18);
+        background: rgba(34, 197, 94, 0.08);
+      }
+
+      .ai-offer strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 0.95rem;
+        letter-spacing: -0.03em;
+      }
+
+      .ai-offer span {
+        color: var(--muted);
+        font-size: 0.84rem;
+      }
+
+      .ai-offer-price {
+        text-align: right;
+      }
+
+      .ai-offer-price strong {
+        margin: 0;
+        font-size: 1rem;
+      }
+
+      .audience {
+        padding-top: 26px;
+      }
+
+      .audience-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .audience-card {
+        padding: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 22px;
+        background: rgba(13, 17, 23, 0.82);
+        transition:
+          transform var(--transition-base),
+          border-color var(--transition-base),
+          box-shadow var(--transition-base);
+      }
+
+      .audience-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(34, 197, 94, 0.16);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.2);
+      }
+
+      .audience-card i {
+        display: inline-grid;
+        place-items: center;
+        width: 46px;
+        height: 46px;
+        margin-bottom: 18px;
+        border-radius: 14px;
+        background: rgba(34, 197, 94, 0.1);
+        color: var(--green);
+        font-size: 1.3rem;
+      }
+
+      .audience-card strong {
+        display: block;
+        margin-bottom: 10px;
+        font-size: 1.06rem;
+        letter-spacing: -0.04em;
+      }
+
+      .audience-card p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.64;
       }
 
       .preview-shell {
@@ -746,16 +1111,101 @@
 
       .footer {
         border-top: 1px solid rgba(255, 255, 255, 0.04);
-        padding: 24px 0 36px;
+        padding: 34px 0 40px;
       }
 
       .footer-shell {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) repeat(3, minmax(120px, 0.55fr));
+        gap: 24px;
+      }
+
+      .footer-brand {
+        display: grid;
+        gap: 12px;
+        max-width: 360px;
+      }
+
+      .footer-brand-mark {
+        width: 40px;
+        height: 40px;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        background: linear-gradient(180deg, var(--green-strong), var(--green));
+        color: #031109;
+        font-weight: 900;
+        font-size: 1rem;
+      }
+
+      .footer-brand strong {
+        display: block;
+        font-size: 1.08rem;
+        letter-spacing: -0.04em;
+      }
+
+      .footer-brand p,
+      .footer-meta {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.68;
+      }
+
+      .footer-column {
+        display: grid;
+        align-content: start;
+        gap: 10px;
+      }
+
+      .footer-column strong {
+        font-size: 0.92rem;
+        letter-spacing: -0.02em;
+      }
+
+      .footer-column a,
+      .footer-column span {
+        color: var(--muted);
+        text-decoration: none;
+        transition: color var(--transition-base);
+      }
+
+      .footer-column a:hover {
+        color: var(--text);
+      }
+
+      .footer-meta {
+        margin-top: 8px;
+        font-size: 0.92rem;
+      }
+
+      .footer-socials {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 16px;
+        gap: 10px;
+        margin-top: 4px;
+      }
+
+      .footer-socials a {
+        width: 38px;
+        height: 38px;
+        display: inline-grid;
+        place-items: center;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.02);
         color: var(--muted);
-        font-size: 0.95rem;
+        transition:
+          color var(--transition-base),
+          border-color var(--transition-base),
+          background-color var(--transition-base),
+          transform var(--transition-fast);
+      }
+
+      .footer-socials a:hover {
+        color: var(--text);
+        border-color: rgba(34, 197, 94, 0.18);
+        background: rgba(34, 197, 94, 0.08);
+        transform: translateY(-2px);
       }
 
       @keyframes heroFloat {
@@ -765,6 +1215,64 @@
         }
         50% {
           transform: translateY(-4px);
+        }
+      }
+
+      @keyframes flowCardPulse {
+        0%,
+        22%,
+        100% {
+          transform: translateY(0);
+          border-color: rgba(255, 255, 255, 0.08);
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+        }
+        10%,
+        16% {
+          transform: translateY(-4px);
+          border-color: rgba(34, 197, 94, 0.18);
+          box-shadow:
+            0 18px 44px rgba(0, 0, 0, 0.18),
+            inset 0 0 0 1px rgba(34, 197, 94, 0.1);
+        }
+      }
+
+      @keyframes flowLinePulse {
+        0%,
+        22%,
+        100% {
+          opacity: 0;
+          transform: scaleX(0.4);
+        }
+        10%,
+        16% {
+          opacity: 1;
+          transform: scaleX(1);
+        }
+      }
+
+      @keyframes flowBeam {
+        0%,
+        10% {
+          opacity: 0;
+          transform: translateY(-50%) translateX(-4%);
+        }
+        16%,
+        74% {
+          opacity: 1;
+        }
+        82%,
+        100% {
+          opacity: 0;
+          transform: translateY(-50%) translateX(300%);
+        }
+      }
+
+      @keyframes bandScroll {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
         }
       }
 
@@ -838,8 +1346,20 @@
         .solution-grid,
         .benefits-grid,
         .steps-row,
-        .proof-shell {
+        .proof-shell,
+        .hero-flow,
+        .audience-grid,
+        .ai-showcase-shell {
           grid-template-columns: 1fr;
+        }
+
+        .hero-flow::before,
+        .hero-flow::after {
+          display: none;
+        }
+
+        .signal-band-track {
+          animation-duration: 22s;
         }
 
         .section {
@@ -867,8 +1387,7 @@
         }
 
         .footer-shell {
-          flex-direction: column;
-          align-items: flex-start;
+          grid-template-columns: 1fr;
         }
       }
     </style>
@@ -906,6 +1425,27 @@
           <div class="hero-actions animate" data-animate>
             <a class="btn btn-primary" href="signup.html">Comece agora <i class="bx bx-right-arrow-alt"></i></a>
             <a class="btn btn-secondary" href="#problema">Saiba mais</a>
+          </div>
+
+          <div class="hero-flow animate" data-animate>
+            <article class="hero-flow-card">
+              <span class="hero-flow-kicker"><i class="bx bx-message-square-detail"></i>Pedido</span>
+              <strong>“Preciso de cimento, ferro 10mm e areia para entrega na obra.”</strong>
+              <p>A equipe descreve a necessidade em linguagem natural, sem montar uma planilha antes.</p>
+            </article>
+
+            <article class="hero-flow-card">
+              <span class="hero-flow-kicker"><i class="bx bx-bot"></i>Cotai IA</span>
+              <strong>Itens organizados. Busca iniciada.</strong>
+              <p>A Cotai interpreta o pedido, estrutura os materiais e compara opções da base e do mercado.</p>
+            </article>
+
+            <article class="hero-flow-card">
+              <span class="hero-flow-kicker"><i class="bx bx-badge-check"></i>Resultado</span>
+              <strong>Melhor opção destacada para a compra.</strong>
+              <p>Preço, prazo e fornecedor aparecem com clareza para a equipe decidir mais rápido.</p>
+              <span class="hero-flow-pill">Melhor oferta pronta</span>
+            </article>
           </div>
         </div>
       </section>
@@ -987,6 +1527,79 @@
                         <div><span class="preview-dot referral"></span><span>Referral</span><strong>22%</strong></div>
                       </div>
                     </article>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="signal-band" aria-label="Fluxo continuo do produto">
+        <div class="signal-band-track">
+          <span class="signal-band-item"><i class="bx bx-message-square-detail"></i>Pedido entra em linguagem natural</span>
+          <span class="signal-band-item"><i class="bx bx-bot"></i>Cotai interpreta os materiais</span>
+          <span class="signal-band-item"><i class="bx bx-git-compare"></i>Comparacao de fornecedores</span>
+          <span class="signal-band-item"><i class="bx bx-badge-check"></i>Melhor opcao destacada</span>
+          <span class="signal-band-item"><i class="bx bx-time-five"></i>Menos tempo para decidir</span>
+          <span class="signal-band-item"><i class="bx bx-message-square-detail"></i>Pedido entra em linguagem natural</span>
+          <span class="signal-band-item"><i class="bx bx-bot"></i>Cotai interpreta os materiais</span>
+          <span class="signal-band-item"><i class="bx bx-git-compare"></i>Comparacao de fornecedores</span>
+          <span class="signal-band-item"><i class="bx bx-badge-check"></i>Melhor opcao destacada</span>
+          <span class="signal-band-item"><i class="bx bx-time-five"></i>Menos tempo para decidir</span>
+        </div>
+      </section>
+
+      <section class="ai-showcase">
+        <div class="wrap ai-showcase-shell">
+          <div class="ai-copy animate" data-animate>
+            <div class="section-eyebrow">Cotacao por IA</div>
+            <h2>Peça como você fala. A Cotai organiza e encontra a melhor compra.</h2>
+            <p>O fluxo começa no chat, entende os materiais e devolve uma leitura pronta para a equipe comparar com clareza.</p>
+            <div class="ai-points">
+              <span><i class="bx bx-check-circle"></i>Pedido em linguagem natural</span>
+              <span><i class="bx bx-check-circle"></i>Comparativo pronto para decidir</span>
+              <span><i class="bx bx-check-circle"></i>Melhor oferta destacada na conversa</span>
+            </div>
+          </div>
+
+          <div class="ai-chat animate" data-animate>
+            <div class="ai-chat-shell">
+              <div class="ai-chat-head">
+                <strong>Nova cotacao</strong>
+                <span class="ai-chat-status">cotacao pronta</span>
+              </div>
+
+              <div class="ai-chat-stream">
+                <div class="ai-bubble user">
+                  Preciso de 15 sacos de cimento CP-II, ferro 10mm e areia media para entrega em Rio Preto.
+                </div>
+
+                <div class="ai-bubble bot">
+                  Encontrei 3 opcoes. A melhor combina menor valor total e entrega mais rapida para o pedido.
+                </div>
+              </div>
+
+              <div class="ai-offers">
+                <div class="ai-offer is-best">
+                  <div>
+                    <strong>Obra Forte Distribuicao</strong>
+                    <span>Melhor opcao geral · entrega em 48h</span>
+                  </div>
+                  <div class="ai-offer-price">
+                    <strong>R$ 2.340</strong>
+                    <span>Total estimado</span>
+                  </div>
+                </div>
+
+                <div class="ai-offer">
+                  <div>
+                    <strong>Deposito Horizonte</strong>
+                    <span>Prazo rapido · entrega em 24h</span>
+                  </div>
+                  <div class="ai-offer-price">
+                    <strong>R$ 2.420</strong>
+                    <span>Total estimado</span>
                   </div>
                 </div>
               </div>
@@ -1136,6 +1749,33 @@
         </div>
       </section>
 
+      <section class="audience">
+        <div class="wrap">
+          <div class="section-head animate" data-animate>
+            <div class="section-eyebrow">Para quem e</div>
+            <h2 class="section-title">Feito para operacoes que precisam <span>comprar com mais clareza.</span></h2>
+          </div>
+
+          <div class="audience-grid">
+            <article class="audience-card animate" data-animate>
+              <i class="bx bx-buildings"></i>
+              <strong>Construtoras</strong>
+              <p>Para centralizar pedidos, comparar fornecedores e dar mais controle para a operacao.</p>
+            </article>
+            <article class="audience-card animate" data-animate>
+              <i class="bx bx-briefcase-alt-2"></i>
+              <strong>Equipes de compras</strong>
+              <p>Para reduzir ruido, acelerar comparativos e tomar decisao com mais contexto.</p>
+            </article>
+            <article class="audience-card animate" data-animate>
+              <i class="bx bx-hard-hat"></i>
+              <strong>Obras recorrentes</strong>
+              <p>Para reaproveitar historico, padronizar demandas e ganhar velocidade a cada novo pedido.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <section class="section" id="como-funciona">
         <div class="wrap">
           <div class="section-head animate" data-animate>
@@ -1211,8 +1851,40 @@
 
     <footer class="footer">
       <div class="wrap footer-shell">
-        <span>Cotai</span>
-        <span>&copy; <span id="year"></span> Cotai. Todos os direitos reservados.</span>
+        <div class="footer-brand">
+          <span class="footer-brand-mark">C</span>
+          <div>
+            <strong>Cotai</strong>
+            <p>Inteligencia para cotacao e compras de materiais na construcao civil.</p>
+          </div>
+          <div class="footer-socials">
+            <a href="index.html" aria-label="Site Cotai"><i class="bx bx-globe"></i></a>
+            <a href="login.html" aria-label="Acessar plataforma"><i class="bx bx-grid-alt"></i></a>
+            <a href="signup.html" aria-label="Criar conta"><i class="bx bx-right-top-arrow-circle"></i></a>
+          </div>
+          <p class="footer-meta">&copy; <span id="year"></span> Cotai. Todos os direitos reservados.</p>
+        </div>
+
+        <div class="footer-column">
+          <strong>Produto</strong>
+          <a href="#solucao">Solucao</a>
+          <a href="#beneficios">Beneficios</a>
+          <a href="#como-funciona">Como funciona</a>
+        </div>
+
+        <div class="footer-column">
+          <strong>Acesso</strong>
+          <a href="signup.html">Criar conta</a>
+          <a href="login.html">Entrar</a>
+          <a href="#problema">Ver mais</a>
+        </div>
+
+        <div class="footer-column">
+          <strong>Contato</strong>
+          <span>Equipe Cotai</span>
+          <span>Operacao de compras</span>
+          <span>Brasil</span>
+        </div>
       </div>
     </footer>
 
