@@ -10,10 +10,15 @@ let themeMediaQuery = null;
 
 const SIDEBAR_ICON_MAP = {
   dashboard: "bx-grid-alt",
+  analytics: "bx-bar-chart-alt-2",
+  alerts: "bx-bell",
   new: "bx-message-square-detail",
   requests: "bx-receipt",
+  approvals: "bx-check-shield",
+  comparisons: "bx-git-compare",
   suppliers: "bx-store-alt",
   materials: "bx-cube-alt",
+  "price-book": "bx-line-chart",
   plans: "bx-layer",
   settings: "bx-cog",
   "admin-dashboard": "bx-home-circle",
@@ -55,9 +60,26 @@ function getClientSidebarMarkup() {
       <nav class="app-nav" id="appNav">
         <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
         <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard"><span class="left"><span class="nav-label">Dashboard</span></span></a>
+        <a class="side-link" data-nav="analytics" href="analytics.html" title="Analytics"><span class="left"><span class="nav-label">Analytics</span></span></a>
+        <a class="side-link" data-nav="alerts" href="alerts.html" title="Alertas"><span class="left"><span class="nav-label">Alertas</span></span></a>
+      </nav>
+    </div>
+
+    <div class="dashboard-nav-group">
+      <p class="dashboard-nav-title">Procurement</p>
+      <nav class="app-nav">
         <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span></a>
+        <a class="side-link" data-nav="approvals" href="approvals.html" title="Aprovacoes"><span class="left"><span class="nav-label">Aprovacoes</span></span></a>
+        <a class="side-link" data-nav="comparisons" href="comparisons.html" title="Comparativos"><span class="left"><span class="nav-label">Comparativos</span></span></a>
+      </nav>
+    </div>
+
+    <div class="dashboard-nav-group">
+      <p class="dashboard-nav-title">Base</p>
+      <nav class="app-nav">
         <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores"><span class="left"><span class="nav-label">Fornecedores</span></span></a>
         <a class="side-link" data-nav="materials" href="materials.html" title="Materiais"><span class="left"><span class="nav-label">Materiais</span></span></a>
+        <a class="side-link" data-nav="price-book" href="price-book.html" title="Tabela de precos"><span class="left"><span class="nav-label">Tabela de precos</span></span></a>
       </nav>
     </div>
 
@@ -162,6 +184,11 @@ function decorateSidebarNav(nav) {
     icon.setAttribute("aria-hidden", "true");
     left.prepend(icon);
   });
+}
+
+function decorateAllSidebarNavs(sidebar) {
+  if (!sidebar) return;
+  sidebar.querySelectorAll(".app-nav").forEach((nav) => decorateSidebarNav(nav));
 }
 
 function decorateActionButtons(root = document) {
@@ -482,12 +509,12 @@ export function initSidebar() {
   const collapseButton = qs("#sidebarCollapse");
   const overlay = qs("#appDrawerOverlay");
   if (!sidebar || !nav) return;
-  decorateSidebarNav(nav);
+  decorateAllSidebarNavs(sidebar);
   decorateActionButtons(document);
   normalizePageShell();
   document.body.classList.toggle("apex-shell", page !== "new-request");
 
-  const activeLink = nav.querySelector(`.side-link[data-nav="${current}"]`);
+  const activeLink = sidebar.querySelector(`.side-link[data-nav="${current}"]`);
   if (activeLink) activeLink.classList.add("active");
 
   const moveIndicator = () => {

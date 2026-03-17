@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cotai | Tabela de precos</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <link rel="stylesheet" href="../assets/css/apex.css" />
+</head>
+<body data-page="price-book">
+  <div class="app-shell app-layout dashboard-apex-layout">
+    <aside class="sidebar app-sidebar dashboard-apex-sidebar" id="appSidebar"></aside>
+    <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
+    <main class="app-main dashboard-apex-main">
+      <header class="app-topbar">
+        <div>
+          <p class="eyebrow">Base</p>
+          <h1>Tabela de precos</h1>
+          <p id="priceBookTitle">Historico de referencias por material.</p>
+        </div>
+        <div class="app-topbar-actions">
+          <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
+          <button class="btn btn-ghost" id="logoutButton" type="button">Sair</button>
+        </div>
+      </header>
+      <p class="app-feedback hidden" id="priceBookFeedback" role="alert"></p>
+      <section class="app-metrics">
+        <article class="card app-metric-card"><p>Registros exibidos</p><h3 id="priceBookCount">0</h3></article>
+      </section>
+      <section class="card table-shell">
+        <div class="filter-shell-head"><div><p class="eyebrow">Historico</p><h2>Ultimas referencias de preco</h2></div></div>
+        <div class="app-table-wrap">
+          <table class="app-table">
+            <thead><tr><th>Material</th><th>Fornecedor</th><th>Unitario</th><th>Total</th><th>Capturado</th></tr></thead>
+            <tbody id="priceBookTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="../assets/js/pages/price-book.page.js"></script>
+</body>
+</html>

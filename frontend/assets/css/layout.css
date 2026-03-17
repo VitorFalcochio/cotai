@@ -26,10 +26,13 @@ body.sidebar-collapsed .dashboard-apex-layout {
   background:
     radial-gradient(circle at top left, rgba(25, 210, 107, 0.08), transparent 18%),
     linear-gradient(180deg, #060a09 0%, #050908 100%);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   z-index: 20;
   transition: width var(--transition-base), padding var(--transition-base), gap var(--transition-base);
   isolation: isolate;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(25, 210, 107, 0.2) transparent;
 }
 
 .sidebar::after,
@@ -41,6 +44,31 @@ body.sidebar-collapsed .dashboard-apex-layout {
   width: 1px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
   pointer-events: none;
+}
+
+.sidebar::-webkit-scrollbar,
+.app-sidebar::-webkit-scrollbar,
+.dashboard-apex-sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-track,
+.app-sidebar::-webkit-scrollbar-track,
+.dashboard-apex-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb,
+.app-sidebar::-webkit-scrollbar-thumb,
+.dashboard-apex-sidebar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(25, 210, 107, 0.18), rgba(25, 210, 107, 0.08));
+  border-radius: 999px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover,
+.app-sidebar::-webkit-scrollbar-thumb:hover,
+.dashboard-apex-sidebar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(25, 210, 107, 0.28), rgba(25, 210, 107, 0.14));
 }
 
 .sidebar-section,

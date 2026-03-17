@@ -30,6 +30,11 @@
   --space-xl: 28px;
   --transition-fast: 160ms cubic-bezier(0.22, 1, 0.36, 1);
   --transition-base: 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  --scrollbar-size: 12px;
+  --scrollbar-track: rgba(255, 255, 255, 0.025);
+  --scrollbar-track-strong: rgba(9, 14, 13, 0.86);
+  --scrollbar-thumb: rgba(25, 210, 107, 0.32);
+  --scrollbar-thumb-hover: rgba(25, 210, 107, 0.48);
   --sidebar-width: 268px;
   --sidebar-collapsed-width: 88px;
   --topbar-height: 76px;
