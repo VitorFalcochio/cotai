@@ -2,9 +2,11 @@ import { LOGIN_PATH } from "../config.js";
 import { requireAuth, signOut } from "../auth.js";
 import {
   confirmChatThread,
+  estimateConstruction,
   getApiHealth,
   getChatThread,
   getRequestStatus,
+  quoteMaterials,
   sendChatMessage,
   updateChatDraft
 } from "../chatApi.js";
@@ -29,6 +31,8 @@ let quoteRenderContext = {
   requestCode: "",
   results: []
 };
+let latestDynamicPreview = null;
+let latestConstructionPreview = null;
 
 const STATUS_LABELS = {
   DRAFT: "Rascunho",
@@ -230,6 +234,7 @@ function buildStructuredQuoteData(requestId, parsed) {
       return Number(left.total_price || left.price || 999999) - Number(right.total_price || right.price || 999999);
     });
     const primary = sortedOffers[0] || {};
+    const offerUnitPrices = sortedOffers.map((offer) => Number(offer.unit_price ?? offer.price ?? 0));
     return {
       name: group.name,
       quantity: parsed?.items?.find((item) => item.name === group.name)?.quantity || "",
@@ -237,7 +242,7 @@ function buildStructuredQuoteData(requestId, parsed) {
       unitPrice: primary.unit_price || primary.price ? `R$ ${Number(primary.unit_price ?? primary.price).toFixed(2).replace(".", ",")}` : "-",
       total: primary.total_price ? `R$ ${Number(primary.total_price).toFixed(2).replace(".", ",")}` : "-",
       market: sortedOffers.length > 1
-        ? `de R$ ${Number(Math.min(...sortedOffers.map((offer) => Number(offer.unit_price ?? offer.price || 0)))).toFixed(2).replace(".", ",")} a R$ ${Number(Math.max(...sortedOffers.map((offer) => Number(offer.unit_price ?? offer.price || 0)))).toFixed(2).replace(".", ",")}`
+        ? `de R$ ${Number(Math.min(...offerUnitPrices)).toFixed(2).replace(".", ",")} a R$ ${Number(Math.max(...offerUnitPrices)).toFixed(2).replace(".", ",")}`
         : parsed?.items?.find((item) => item.name === group.name)?.market || "-",
       note: parsed?.items?.find((item) => item.name === group.name)?.note || "",
       offers: sortedOffers.slice(0, 3)
@@ -325,6 +330,95 @@ function renderQuoteResponseCard(row) {
         <a class="btn btn-primary" href="requests.html">Confirmar pedido</a>
         <button class="btn btn-secondary" type="button" data-quote-refine="true">Refinar cotacao</button>
       </div>
+    </div>
+  `;
+}
+
+function renderDynamicMarketPreview(payload) {
+  const offers = Array.isArray(payload?.offers) ? payload.offers : [];
+  if (!offers.length) return "";
+
+  const itemLabel = payload?.query?.item || "Material";
+  const brandLabel = payload?.query?.marca ? ` ${payload.query.marca}` : "";
+  const specificationLabel = payload?.query?.especificacao ? ` ${payload.query.especificacao}` : "";
+  const searchTerm = payload?.search_term || payload?.query?.raw || itemLabel;
+
+  return `
+    <div class="chat-quote-response">
+      <div class="chat-quote-summary">
+        <span class="app-badge is-info">Mercado</span>
+        <strong>Previa de mercado para ${escapeHtml(`${itemLabel}${brandLabel}${specificationLabel}`.trim())}</strong>
+        <span class="chat-quote-total-order">${payload.cache_hit ? "Resultado em cache" : "Busca ao vivo"}</span>
+      </div>
+      <div class="chat-quote-stack">
+        ${offers
+          .map(
+            (offer, index) => `
+              <section class="chat-quote-card">
+                <div class="chat-quote-card-head">
+                  <strong>${index === 0 ? "Melhor preco encontrado" : `Opcao ${index + 1}`}</strong>
+                  <span class="app-badge ${index === 0 ? "is-success" : "is-muted"}">${escapeHtml(offer.supplier || offer.source || "Fornecedor")}</span>
+                </div>
+                <div class="chat-quote-grid">
+                  <div class="chat-quote-metric">
+                    <span class="chat-quote-label"><i class="bx bx-package" aria-hidden="true"></i>Produto</span>
+                    <strong>${escapeHtml(offer.product_name || "-")}</strong>
+                  </div>
+                  <div class="chat-quote-metric">
+                    <span class="chat-quote-label"><i class="bx bx-purchase-tag-alt" aria-hidden="true"></i>Preco</span>
+                    <strong>${escapeHtml(offer.display_price || "-")}</strong>
+                  </div>
+                  <div class="chat-quote-metric">
+                    <span class="chat-quote-label"><i class="bx bx-check-shield" aria-hidden="true"></i>Match</span>
+                    <strong>${offer.match_score ? `${Math.round(Number(offer.match_score) * 100)}%` : "Validado"}</strong>
+                  </div>
+                  <div class="chat-quote-metric">
+                    <span class="chat-quote-label"><i class="bx bx-link-external" aria-hidden="true"></i>Oferta</span>
+                    <strong><a href="${escapeHtml(offer.offer_url || "#")}" target="_blank" rel="noreferrer">Abrir link</a></strong>
+                  </div>
+                </div>
+              </section>
+            `
+          )
+          .join("")}
+      </div>
+      <p class="chat-quote-note"><i class="bx bx-info-circle" aria-hidden="true"></i>Busca usada: ${escapeHtml(searchTerm)}. Esta previa ajuda a decidir mais rapido antes da cotacao consolidada.</p>
+    </div>
+  `;
+}
+
+function looksLikeConstructionEstimate(message) {
+  const text = String(message || "").toLowerCase();
+  return /(\d+(?:[.,]\d+)?)\s*m2\b/.test(text) && /(parede|piso|laje|revestimento|alvenaria)/.test(text);
+}
+
+function renderConstructionPreview(payload) {
+  const items = Array.isArray(payload?.items) ? payload.items : [];
+  if (!items.length) return "";
+
+  return `
+    <div class="chat-quote-response">
+      <div class="chat-quote-summary">
+        <span class="app-badge is-success">Construcao</span>
+        <strong>${escapeHtml(payload?.summary?.title || "Estimativa inicial")}</strong>
+        <span class="chat-quote-total-order">${escapeHtml(payload?.summary?.subtitle || "")}</span>
+      </div>
+      <div class="chat-quote-stack">
+        ${items
+          .map(
+            (item) => `
+              <section class="chat-quote-card">
+                <div class="chat-quote-card-head">
+                  <strong>${escapeHtml(item.material || "Material")}</strong>
+                  <span class="app-badge is-muted">${escapeHtml(item.display_quantity || "-")}</span>
+                </div>
+                <p class="chat-quote-note"><i class="bx bx-info-circle" aria-hidden="true"></i>${escapeHtml(item.notes || "Composicao inicial para estudo.")}</p>
+              </section>
+            `
+          )
+          .join("")}
+      </div>
+      <p class="chat-quote-note"><i class="bx bx-shield-quarter" aria-hidden="true"></i>${escapeHtml(payload?.summary?.disclaimer || "Valide a composicao antes da compra.")}</p>
     </div>
   `;
 }
@@ -609,9 +703,69 @@ function renderThread(payload) {
     list.scrollTop = list.scrollHeight;
   }
   setChatStage(Boolean(payload.messages.length));
+  if (payload?.request?.id || !Array.isArray(payload?.detected_items) || !payload.detected_items.length) {
+    latestDynamicPreview = null;
+  }
+  injectDynamicPreviewIntoLatestAssistant();
 
   updateSidebar(payload);
   managePolling();
+}
+
+function injectDynamicPreviewIntoLatestAssistant() {
+  if (!latestDynamicPreview && !latestConstructionPreview) return;
+  const list = qs("#chatMessages");
+  if (!list) return;
+  const target = list.querySelector(".chat-row.is-assistant:last-of-type .chat-bubble-body");
+  if (!target) return;
+  target.querySelectorAll('[data-market-preview="true"], [data-construction-preview="true"]').forEach((node) => node.remove());
+
+  if (latestConstructionPreview) {
+    const constructionCard = renderConstructionPreview(latestConstructionPreview);
+    if (constructionCard) {
+      const wrapper = document.createElement("section");
+      wrapper.dataset.constructionPreview = "true";
+      wrapper.innerHTML = constructionCard;
+      target.appendChild(wrapper);
+    }
+  }
+
+  if (latestDynamicPreview) {
+    const marketCard = renderDynamicMarketPreview(latestDynamicPreview);
+    if (marketCard) {
+      const wrapper = document.createElement("section");
+      wrapper.dataset.marketPreview = "true";
+      wrapper.innerHTML = marketCard;
+      target.appendChild(wrapper);
+    }
+  }
+  list.scrollTop = list.scrollHeight;
+}
+
+async function loadDynamicPreview(message, payload) {
+  if (!message?.trim()) return;
+  if (payload?.request?.id) return;
+  if (!Array.isArray(payload?.detected_items) || !payload.detected_items.length) return;
+
+  try {
+    latestDynamicPreview = await quoteMaterials(message);
+    injectDynamicPreviewIntoLatestAssistant();
+  } catch (_) {
+    // Dynamic preview is additive only; the main chat flow should not fail because of it.
+  }
+}
+
+async function loadConstructionPreview(message, payload) {
+  if (!message?.trim()) return;
+  if (payload?.request?.id) return;
+  if (!looksLikeConstructionEstimate(message)) return;
+
+  try {
+    latestConstructionPreview = await estimateConstruction({ query: message });
+    injectDynamicPreviewIntoLatestAssistant();
+  } catch (_) {
+    // Construction estimate is additive only; keep chat flow stable on failure.
+  }
 }
 
 async function loadThread(threadId) {
@@ -709,6 +863,8 @@ async function submitMessage({ input, submitButton }) {
   try {
     const payload = await sendChatMessage({ threadId: activeThreadId || null, message });
     renderThread(payload);
+    await loadConstructionPreview(message, payload);
+    await loadDynamicPreview(message, payload);
     if (input) {
       input.value = "";
       input.style.height = "auto";
@@ -810,18 +966,7 @@ function loadRequestPrefill() {
 }
 
 async function init() {
-  const session = await requireAuth(LOGIN_PATH);
-  if (!session) return;
-
   initSidebar();
-  await getApiHealth();
-  setChatAvailability(true);
-
-  qs("#logoutButton")?.addEventListener("click", async () => {
-    await signOut();
-    window.location.replace(LOGIN_PATH);
-  });
-
   const form = qs("#chatComposerForm");
   const input = qs("#chatComposerInput");
   const submitButton = qs("#chatComposerSubmit");
@@ -854,9 +999,38 @@ async function init() {
     setChatStage(false);
   }
 
+  input?.addEventListener("keydown", async (event) => {
+    if (event.key !== "Enter" || event.shiftKey) return;
+    event.preventDefault();
+    await submitMessage({ input, submitButton });
+  });
+
+  submitButton?.addEventListener("click", async (event) => {
+    event.preventDefault();
+    await submitMessage({ input, submitButton });
+  });
+
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
     await submitMessage({ input, submitButton });
+  });
+
+  window.__cotaiChatReady = true;
+
+  const session = await requireAuth(LOGIN_PATH);
+  if (!session) return;
+
+  try {
+    await getApiHealth();
+    setChatAvailability(true);
+  } catch (error) {
+    setChatAvailability(true);
+    showFeedback("#newRequestFeedback", error.message || "O motor de cotação parece instável, mas você ainda pode tentar enviar a mensagem.");
+  }
+
+  qs("#logoutButton")?.addEventListener("click", async () => {
+    await signOut();
+    window.location.replace(LOGIN_PATH);
   });
 
   qs("#chatSaveDraftButton")?.addEventListener("click", async () => {

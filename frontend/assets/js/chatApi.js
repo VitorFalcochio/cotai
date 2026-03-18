@@ -51,6 +51,20 @@ export function sendChatMessage({ threadId, message }) {
   });
 }
 
+export function quoteMaterials(query) {
+  return apiFetch("/cotar", {
+    method: "POST",
+    body: JSON.stringify({ query })
+  });
+}
+
+export function estimateConstruction(payload) {
+  return apiFetch("/modo-construcao/estimar", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
 export function confirmChatThread(threadId, draft = {}) {
   return apiFetch("/chat/confirm", {
     method: "POST",

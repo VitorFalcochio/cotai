@@ -61,26 +61,17 @@ function getClientSidebarMarkup() {
     </div>
 
     <div class="dashboard-nav-group">
-      <p class="dashboard-nav-title">Overview</p>
+      <p class="dashboard-nav-title">Nucleo</p>
       <nav class="app-nav" id="appNav">
         <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
         <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard"><span class="left"><span class="nav-label">Dashboard</span></span></a>
-        <a class="side-link" data-nav="analytics" href="analytics.html" title="Analytics"><span class="left"><span class="nav-label">Analytics</span></span></a>
-        <a class="side-link" data-nav="alerts" href="alerts.html" title="Alertas"><span class="left"><span class="nav-label">Alertas</span></span></a>
-      </nav>
-    </div>
-
-    <div class="dashboard-nav-group">
-      <p class="dashboard-nav-title">Procurement</p>
-      <nav class="app-nav">
+        <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotacao"><span class="left"><span class="nav-label">Nova cotacao</span></span><span class="mini-badge">IA</span></a>
         <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span></a>
-        <a class="side-link" data-nav="approvals" href="approvals.html" title="Aprovacoes"><span class="left"><span class="nav-label">Aprovacoes</span></span></a>
-        <a class="side-link" data-nav="comparisons" href="comparisons.html" title="Comparativos"><span class="left"><span class="nav-label">Comparativos</span></span></a>
       </nav>
     </div>
 
     <div class="dashboard-nav-group">
-      <p class="dashboard-nav-title">Base</p>
+      <p class="dashboard-nav-title">Decisao</p>
       <nav class="app-nav">
         <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores"><span class="left"><span class="nav-label">Fornecedores</span></span></a>
         <a class="side-link" data-nav="materials" href="materials.html" title="Materiais"><span class="left"><span class="nav-label">Materiais</span></span></a>
@@ -89,9 +80,12 @@ function getClientSidebarMarkup() {
     </div>
 
     <div class="dashboard-nav-group">
-      <p class="dashboard-nav-title">Commerce</p>
-      <nav class="app-nav dashboard-subnav">
-        <a class="side-link" data-nav="new" href="new-request.html" title="Cota"><span class="left"><span class="nav-label">Cota</span></span><span class="mini-badge">IA</span></a>
+      <p class="dashboard-nav-title">Depois</p>
+      <nav class="app-nav">
+        <a class="side-link" data-nav="analytics" href="analytics.html" title="Analytics"><span class="left"><span class="nav-label">Analytics</span></span></a>
+        <a class="side-link" data-nav="alerts" href="alerts.html" title="Alertas"><span class="left"><span class="nav-label">Alertas</span></span></a>
+        <a class="side-link" data-nav="approvals" href="approvals.html" title="Aprovacoes"><span class="left"><span class="nav-label">Aprovacoes</span></span></a>
+        <a class="side-link" data-nav="comparisons" href="comparisons.html" title="Comparativos"><span class="left"><span class="nav-label">Comparativos</span></span></a>
         <a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span></a>
         <a class="side-link" data-nav="settings" href="settings.html" title="Configuracoes"><span class="left"><span class="nav-label">Configuracoes</span></span></a>
       </nav>
@@ -126,10 +120,18 @@ function getAdminSidebarMarkup() {
     </div>
 
     <div class="dashboard-nav-group">
-      <p class="dashboard-nav-title">Platform</p>
+      <p class="dashboard-nav-title">Core</p>
       <nav class="app-nav" id="appNav">
         <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
         <a class="side-link" data-nav="admin-dashboard" href="admin-dashboard.html" title="Visao geral"><span class="left"><span class="nav-label">Visao geral</span></span></a>
+        <a class="side-link" data-nav="admin-requests" href="admin-requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span></a>
+        <a class="side-link" data-nav="admin-worker" href="admin-worker.html" title="Worker"><span class="left"><span class="nav-label">Worker</span></span></a>
+      </nav>
+    </div>
+
+    <div class="dashboard-nav-group">
+      <p class="dashboard-nav-title">Plataforma</p>
+      <nav class="app-nav dashboard-subnav">
         <a class="side-link" data-nav="admin-companies" href="admin-companies.html" title="Empresas"><span class="left"><span class="nav-label">Empresas</span></span></a>
         <a class="side-link" data-nav="admin-users" href="admin-users.html" title="Usuarios"><span class="left"><span class="nav-label">Usuarios</span></span></a>
         <a class="side-link" data-nav="admin-billing" href="admin-billing.html" title="Receita"><span class="left"><span class="nav-label">Receita</span></span></a>
@@ -137,10 +139,8 @@ function getAdminSidebarMarkup() {
     </div>
 
     <div class="dashboard-nav-group">
-      <p class="dashboard-nav-title">Operations</p>
+      <p class="dashboard-nav-title">Depois</p>
       <nav class="app-nav dashboard-subnav">
-        <a class="side-link" data-nav="admin-requests" href="admin-requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span></a>
-        <a class="side-link" data-nav="admin-worker" href="admin-worker.html" title="Worker"><span class="left"><span class="nav-label">Worker</span></span></a>
         <a class="side-link" data-nav="admin-snapshots" href="admin-snapshots.html" title="Snapshots"><span class="left"><span class="nav-label">Snapshots</span></span></a>
         <a class="side-link" data-nav="admin-logs" href="admin-logs.html" title="Logs"><span class="left"><span class="nav-label">Logs</span></span></a>
       </nav>

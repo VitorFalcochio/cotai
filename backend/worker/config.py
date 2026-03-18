@@ -61,6 +61,10 @@ class Settings:
     catalog_json: Path
     catalog_csv: Path
     price_sources_json: Path
+    search_cache_ttl_seconds: int
+    scraping_headless: bool
+    scraping_timeout_ms: int
+    scraping_max_offers_per_store: int
 
 
 def load_settings() -> Settings:
@@ -94,6 +98,10 @@ def load_settings() -> Settings:
         catalog_json=DATA_DIR / "catalog.json",
         catalog_csv=DATA_DIR / "catalog.csv",
         price_sources_json=DATA_DIR / "price_sources.json",
+        search_cache_ttl_seconds=max(60, _env_int("SEARCH_CACHE_TTL_SECONDS", 86400)),
+        scraping_headless=_env_bool("SCRAPING_HEADLESS", True),
+        scraping_timeout_ms=max(2000, _env_int("SCRAPING_TIMEOUT_MS", 20000)),
+        scraping_max_offers_per_store=max(1, _env_int("SCRAPING_MAX_OFFERS_PER_STORE", 6)),
     )
 
 

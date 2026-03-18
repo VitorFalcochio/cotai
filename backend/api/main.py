@@ -11,6 +11,7 @@ from ..worker.config import load_settings
 from ..worker.utils.logger import log_event
 from .routes.chat import router as chat_router
 from .routes.ops import router as ops_router
+from .routes.quote_engine import router as quote_router
 from .routes.requests import router as requests_router
 
 app = FastAPI(title="Cotai API", version="0.1.0")
@@ -66,4 +67,5 @@ def health() -> dict[str, str]:
 
 app.include_router(chat_router)
 app.include_router(ops_router)
+app.include_router(quote_router)
 app.include_router(requests_router)

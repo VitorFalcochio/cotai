@@ -3,38 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cotai Admin | Visão geral</title>
+  <title>Cotai Admin | Visao geral</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
   <link rel="stylesheet" href="../assets/css/apex.css" />
 </head>
 <body data-page="admin-dashboard">
   <div class="app-shell app-layout dashboard-apex-layout">
-    <aside class="sidebar app-sidebar app-sidebar-admin dashboard-apex-sidebar" id="appSidebar">
-      <div class="side-shell-head">
-        <a class="brand" href="admin-dashboard.html">
-          <span class="brand-mark">C</span>
-          <span class="brand-name">Cotai Admin</span>
-        </a>
-        <button class="btn btn-ghost side-collapse-btn" type="button" id="sidebarCollapse" aria-label="Colapsar menu" aria-expanded="true">
-          <span class="collapse-arrow" aria-hidden="true"><</span>
-        </button>
-      </div>
-      <nav class="app-nav" id="appNav">
-        <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
-        <a class="side-link" data-nav="admin-dashboard" href="admin-dashboard.html" title="Visão geral"><span class="left"><span class="nav-label">Visão geral</span></span><span class="mini-badge">Core</span></a>
-        <a class="side-link" data-nav="admin-companies" href="admin-companies.html" title="Empresas"><span class="left"><span class="nav-label">Empresas</span></span><span class="mini-badge">SaaS</span></a>
-        <a class="side-link" data-nav="admin-users" href="admin-users.html" title="Usuários"><span class="left"><span class="nav-label">Usuários</span></span><span class="mini-badge">Auth</span></a>
-        <a class="side-link" data-nav="admin-requests" href="admin-requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span><span class="mini-badge">Ops</span></a>
-        <a class="side-link" data-nav="admin-worker" href="admin-worker.html" title="Worker"><span class="left"><span class="nav-label">Worker</span></span><span class="mini-badge">Bot</span></a>
-        <a class="side-link" data-nav="admin-snapshots" href="admin-snapshots.html" title="Snapshots"><span class="left"><span class="nav-label">Snapshots</span></span><span class="mini-badge">Preço</span></a>
-        <a class="side-link" data-nav="admin-billing" href="admin-billing.html" title="Billing"><span class="left"><span class="nav-label">Receita</span></span><span class="mini-badge">MRR</span></a>
-        <a class="side-link" data-nav="admin-logs" href="admin-logs.html" title="Logs"><span class="left"><span class="nav-label">Logs</span></span><span class="mini-badge">Audit</span></a>
-      </nav>
-      <div class="app-sidebar-foot">
-        <a class="btn btn-ghost w-full" href="dashboard.html">Voltar ao cliente</a>
-      </div>
-    </aside>
-
+    <aside class="sidebar app-sidebar app-sidebar-admin dashboard-apex-sidebar" id="appSidebar"></aside>
     <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
 
     <main class="app-main dashboard-apex-main">
@@ -42,7 +17,7 @@
         <div>
           <p class="eyebrow">Controle da plataforma</p>
           <h1>Painel administrativo</h1>
-          <p>Leia a saúde do SaaS, a fila operacional, as aprovações, a receita e os riscos do worker em uma única visão.</p>
+          <p>Comece pela fila, pelo worker e pelos erros recentes. O resto vem depois.</p>
         </div>
         <div class="app-topbar-actions">
           <div class="admin-topbar-identity"><strong id="adminIdentity">Admin</strong><span class="app-badge is-success" id="adminRole">ADMIN</span></div>
@@ -52,100 +27,37 @@
         </div>
       </header>
 
-      <section class="admin-hero-card">
-        <div class="hero-split">
-          <div class="hero-copy-stack">
-            <span class="badge">Visão executiva da plataforma</span>
-            <h2>Primeiro veja receita, fila e risco. Depois aprofunde a leitura.</h2>
-            <p class="muted">O objetivo deste painel é reduzir o tempo entre sinal operacional e decisão. Não é listar tudo ao mesmo tempo.</p>
-            <div class="metric-band">
-              <article class="summary-chip"><span>Crítico agora</span><strong>fila, SLA e erros</strong></article>
-              <article class="summary-chip"><span>Saúde do negócio</span><strong>receita, planos e base ativa</strong></article>
-              <article class="summary-chip"><span>Ritmo de execução</span><strong>worker, quotes e aprovação</strong></article>
-            </div>
-          </div>
-
-          <aside class="hero-info-card">
-            <p class="eyebrow">Leitura preferencial</p>
-            <ul class="hero-key-points">
-              <li>Verifique sinais de backlog antes de analisar volume.</li>
-              <li>Priorize contas com risco e operação degradada.</li>
-              <li>Use pedidos recentes e erros para decidir a ação seguinte.</li>
-            </ul>
-          </aside>
-        </div>
-      </section>
-
       <p class="app-feedback hidden" id="adminDashboardFeedback" role="alert"></p>
 
-      <section class="admin-grid admin-grid-metrics admin-grid-executive">
-        <article class="card admin-metric-card"><p>Empresas ativas</p><h3 id="metricCompanies">0</h3></article>
-        <article class="card admin-metric-card"><p>Usuários totais</p><h3 id="metricUsers">0</h3></article>
-        <article class="card admin-metric-card"><p>Pedidos hoje</p><h3 id="metricRequestsToday">0</h3></article>
-        <article class="card admin-metric-card"><p>Pedidos no mês</p><h3 id="metricRequestsMonth">0</h3></article>
-        <article class="card admin-metric-card"><p>Cotações concluídas</p><h3 id="metricQuotesDone">0</h3></article>
-        <article class="card admin-metric-card"><p>Cotações com erro</p><h3 id="metricQuotesError">0</h3></article>
-        <article class="card admin-metric-card"><p>Status do worker</p><h3 id="metricWorkerStatus">-</h3></article>
-        <article class="card admin-metric-card"><p>Fila pendente</p><h3 id="metricRequestsQueued">0</h3></article>
-        <article class="card admin-metric-card"><p>Em processamento</p><h3 id="metricRequestsProcessing">0</h3></article>
-        <article class="card admin-metric-card"><p>Aguardando aprovação</p><h3 id="metricApprovalPending">0</h3></article>
-        <article class="card admin-metric-card"><p>SLA vencido</p><h3 id="metricOverdueSla">0</h3></article>
-        <article class="card admin-metric-card"><p>Taxa de sucesso</p><h3 id="metricSuccessRate">Não integrado</h3></article>
+      <section class="admin-grid admin-grid-metrics">
+        <article class="card admin-metric-card"><p>Pedidos hoje</p><h3 id="metricRequestsToday">0</h3><span id="metricRequestsTodayMeta">Volume recente</span></article>
+        <article class="card admin-metric-card"><p>Fila pendente</p><h3 id="metricRequestsQueued">0</h3><span id="metricRequestsQueuedMeta">Aguardando worker</span></article>
+        <article class="card admin-metric-card"><p>Em processamento</p><h3 id="metricRequestsProcessing">0</h3><span id="metricRequestsProcessingMeta">Execucao ativa</span></article>
+        <article class="card admin-metric-card"><p>Worker</p><h3 id="metricWorkerStatus">-</h3><span id="metricWorkerStatusMeta">Heartbeat operacional</span></article>
+        <article class="card admin-metric-card"><p>Erros recentes</p><h3 id="metricQuotesError">0</h3><span id="metricQuotesErrorMeta">Falhas que pedem acao</span></article>
+        <article class="card admin-metric-card"><p>Taxa de sucesso</p><h3 id="metricSuccessRate">-</h3><span id="metricSuccessRateMeta">Concluidas sem erro</span></article>
       </section>
 
       <section class="admin-dual-panel">
         <article class="card table-shell">
           <div class="filter-shell-head">
             <div>
-              <p class="eyebrow">Busca global</p>
-              <h2>Pedidos, empresas e usuários</h2>
+              <p class="eyebrow">Risco operacional</p>
+              <h2>Alertas uteis</h2>
             </div>
           </div>
-          <div class="form-row">
-            <label for="adminGlobalSearch" class="sr-only">Busca global</label>
-            <input id="adminGlobalSearch" type="search" placeholder="Buscar pedido, empresa ou usuário" />
-          </div>
-          <div id="adminGlobalSearchResults" class="admin-status-stack"></div>
+          <div id="adminAlerts" class="admin-status-stack"></div>
         </article>
 
         <article class="card table-shell">
           <div class="filter-shell-head">
             <div>
-              <p class="eyebrow">Fila crítica</p>
-              <h2>Alertas úteis</h2>
+              <p class="eyebrow">Saude do sistema</p>
+              <h2>Sinais do ambiente</h2>
             </div>
-          </div>
-          <div id="adminAlerts" class="admin-status-stack"></div>
-        </article>
-      </section>
-
-      <section class="admin-overview-grid">
-        <article class="admin-panel admin-panel-stack">
-          <div class="form-section-head">
-            <div>
-              <p class="eyebrow">Distribuição de planos</p>
-              <h2>Composição da base</h2>
-            </div>
-          </div>
-          <div class="admin-inline-stats">
-            <article class="admin-mini-card"><span>Prata</span><strong id="metricPlanSilver">0</strong></article>
-            <article class="admin-mini-card"><span>Ouro</span><strong id="metricPlanGold">0</strong></article>
-            <article class="admin-mini-card"><span>Diamante</span><strong id="metricPlanDiamond">0</strong></article>
-            <article class="admin-mini-card"><span>Receita mensal</span><strong id="metricRevenue">Não integrado</strong></article>
-          </div>
-        </article>
-
-        <aside class="admin-side-panel admin-panel-stack">
-          <div>
-            <p class="eyebrow">Saúde geral</p>
-            <h2>Sinais do sistema</h2>
           </div>
           <div id="adminSystemStatus" class="admin-status-stack"></div>
-          <div class="admin-note">
-            <strong>Observações do ambiente</strong>
-            <ul class="admin-notice-list" id="adminOverviewNotices"></ul>
-          </div>
-        </aside>
+        </article>
       </section>
 
       <section class="admin-dual-panel">
@@ -184,30 +96,30 @@
         <article class="card table-shell">
           <div class="filter-shell-head">
             <div>
-              <p class="eyebrow">Base de fornecedores</p>
-              <h2>Mapa de relacionamento</h2>
+              <p class="eyebrow">Base ativa</p>
+              <h2>Empresas e usuarios</h2>
             </div>
           </div>
           <div class="admin-inline-stats">
-            <article class="admin-mini-card"><span>Fornecedores mapeados</span><strong id="metricMappedSuppliers">0</strong></article>
-            <article class="admin-mini-card"><span>Empresa com maior volume</span><strong id="metricTopCompanyVolume">-</strong></article>
-            <article class="admin-mini-card"><span>Principal fornecedor</span><strong id="metricTopSupplier">-</strong></article>
-            <article class="admin-mini-card"><span>Tempo médio</span><strong id="metricResponseTime">Não integrado</strong></article>
+            <article class="admin-mini-card"><span>Empresas ativas</span><strong id="metricCompanies">0</strong></article>
+            <article class="admin-mini-card"><span>Usuarios totais</span><strong id="metricUsers">0</strong></article>
+            <article class="admin-mini-card"><span>Aguardando aprovacao</span><strong id="metricApprovalPending">0</strong></article>
+            <article class="admin-mini-card"><span>SLA vencido</span><strong id="metricOverdueSla">0</strong></article>
           </div>
         </article>
 
         <article class="card table-shell">
           <div class="filter-shell-head">
             <div>
-              <p class="eyebrow">Execução fina</p>
-              <h2>Indicadores complementares</h2>
+              <p class="eyebrow">Negocio</p>
+              <h2>Resumo da base</h2>
             </div>
           </div>
           <div class="admin-inline-stats">
-            <article class="admin-mini-card"><span>Duplicidades</span><strong id="metricDuplicates">0</strong></article>
-            <article class="admin-mini-card"><span>Receita mensal</span><strong id="metricRevenueMirror">Não integrado</strong></article>
-            <article class="admin-mini-card"><span>Cotações concluídas</span><strong id="metricQuotesDoneMirror">0</strong></article>
-            <article class="admin-mini-card"><span>Backlog crítico</span><strong id="metricOverdueSlaMirror">0</strong></article>
+            <article class="admin-mini-card"><span>Pedidos no mes</span><strong id="metricRequestsMonth">0</strong></article>
+            <article class="admin-mini-card"><span>Cotacoes concluidas</span><strong id="metricQuotesDone">0</strong></article>
+            <article class="admin-mini-card"><span>Receita estimada</span><strong id="metricRevenue">Nao integrado</strong></article>
+            <article class="admin-mini-card"><span>Observacoes</span><strong id="metricSummaryNotice">Sem alertas extras</strong></article>
           </div>
         </article>
       </section>

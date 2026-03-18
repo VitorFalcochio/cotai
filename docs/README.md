@@ -21,6 +21,25 @@ Hub inteligente de compras para construcao civil, evoluido sobre a base original
 6. O coletor abastece `supplier_price_snapshots` com capturas automatizadas e o worker busca requests pendentes, cota os itens, enriquece `quote_results`, atualiza fornecedores, registra `price_history` e persiste `request_quotes`.
 7. O resultado final volta para o proprio chat e tambem aparece no historico/admin, com comparador inteligente, economia potencial e exportacao.
 
+## Prioridade de produto agora
+
+O Cotai entrou em modo de consolidacao.
+
+O objetivo principal e fazer muito bem a tarefa central:
+
+- cotar materiais com clareza
+- comparar fornecedores com rapidez
+- registrar historico util para decisao
+
+Por isso, o foco principal agora esta nas telas:
+
+- `frontend/pages/dashboard.html`
+- `frontend/pages/new-request.html`
+- `frontend/pages/requests.html`
+- `frontend/pages/admin-dashboard.html`
+- `frontend/pages/admin-requests.html`
+- `frontend/pages/admin-worker.html`
+
 ## Capacidades adicionadas
 
 - Comparador inteligente por cotacao com melhor preco, prazo e melhor opcao geral.
@@ -141,3 +160,14 @@ python -m unittest backend.tests.test_worker backend.tests.test_api
 - O painel admin e o historico continuam baseados nas mesmas tabelas principais, agora enriquecidas com inteligencia operacional.
 - O PDF atual usa layout de impressao do navegador; a base ficou pronta para evoluir depois para geracao server-side.
 - As tabelas novas sao opcionais em desenvolvimento local, mas devem existir para liberar a experiencia completa.
+
+## Despriorizado temporariamente
+
+As areas abaixo continuam disponiveis, mas nao devem disputar foco com o nucleo do produto nesta fase:
+
+- `alerts`
+- `analytics`
+- `approvals`
+- `comparisons`
+- `price-book`
+- widgets e paines secundarios fora do fluxo principal

@@ -8,8 +8,13 @@ from fastapi import Depends, Header, HTTPException
 from ..worker.config import Settings, load_settings
 from ..worker.services.ai_service import AIService
 from .services.chat_service import ChatService
+from .services.dynamic_quote_service import DynamicQuoteService
+from .services.dynamic_search_engine import SearchEngine
+from .services.material_extraction_service import MaterialExtractionService
+from .services.parametric_budget_service import ParametricBudgetService
 from .services.quote_service import QuoteService
 from .services.request_parser import RequestParserService
+from .services.search_cache_service import SearchCacheService
 from .services.supabase_service import SupabaseService
 
 
@@ -26,8 +31,38 @@ def get_ai_service(settings: Settings = Depends(get_settings)) -> AIService:
     return AIService(settings)
 
 
+@lru_cache(maxsize=1)
+def get_search_cache() -> SearchCacheService:
+    return SearchCacheService()
+
+
 def get_request_parser(ai_service: AIService = Depends(get_ai_service)) -> RequestParserService:
     return RequestParserService(ai_service)
+
+
+def get_material_extractor(
+    settings: Settings = Depends(get_settings),
+    ai_service: AIService = Depends(get_ai_service),
+) -> MaterialExtractionService:
+    return MaterialExtractionService(settings, ai_service)
+
+
+def get_search_engine(settings: Settings = Depends(get_settings)) -> SearchEngine:
+    return SearchEngine(settings)
+
+
+def get_parametric_budget_service() -> ParametricBudgetService:
+    return ParametricBudgetService()
+
+
+def get_dynamic_quote_service(
+    settings: Settings = Depends(get_settings),
+    extractor: MaterialExtractionService = Depends(get_material_extractor),
+    search_engine: SearchEngine = Depends(get_search_engine),
+    cache: SearchCacheService = Depends(get_search_cache),
+    budget_service: ParametricBudgetService = Depends(get_parametric_budget_service),
+) -> DynamicQuoteService:
+    return DynamicQuoteService(settings, extractor, search_engine, cache, budget_service)
 
 
 def get_chat_service(

@@ -41,11 +41,38 @@ function normalize(value) {
     .trim();
 }
 
-function renderInsightList(items, formatter) {
+function escapeHtml(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function getRequestItems(requestId) {
+  return overview.requestItems.filter((item) => item.request_id === requestId);
+}
+
+function getRequestResults(requestId) {
+  return overview.quoteResults.filter((row) => row.request_id === requestId);
+}
+
+function renderInsightList(items, formatter, emptyTitle, emptyCopy) {
   if (!items?.length) {
-    return '<article class="entity-list-item"><div class="entity-list-copy"><p>Sem dados</p><strong>Os dados aparecem conforme o uso da plataforma.</strong></div><span class="app-badge is-muted">INFO</span></article>';
+    return `<article class="entity-list-item"><div class="entity-list-copy"><p>${emptyTitle}</p><strong>${emptyCopy}</strong></div><span class="app-badge is-muted">INFO</span></article>`;
   }
   return items.map(formatter).join("");
+}
+
+function statusRank(status) {
+  const normalized = String(status || "").toUpperCase();
+  if (normalized === "DONE") return 0;
+  if (normalized === "PROCESSING") return 1;
+  if (normalized === "PENDING_QUOTE") return 2;
+  if (normalized === "AWAITING_APPROVAL") return 3;
+  if (normalized === "ERROR") return 4;
+  return 5;
 }
 
 function renderRows(rows) {
@@ -54,23 +81,71 @@ function renderRows(rows) {
   }
 
   return rows
-    .map(
-      (row) => `
+    .map((row) => {
+      const estimatedTotal = row.comparison?.bestSupplier?.totalPrice ?? 0;
+      return `
         <tr>
-          <td><div class="table-entity"><strong>${row.request_code || row.requestCode || row.id}</strong><small>${row.customer_name || row.customerName || "-"}${row.previous_request_code ? ` • parecido com ${row.previous_request_code}` : ""}</small></div></td>
-          <td><div class="table-entity"><span class="app-badge ${badgeClass(row.status)}">${formatStatus(row.status)}</span><small>${row.priority || "MEDIUM"}</small></div></td>
-          <td><div class="table-entity"><strong>${row.best_supplier_name || "-"}</strong><small>Economia ${formatCurrencyBRL(row.potential_savings || 0)}</small></div></td>
-          <td><div class="table-entity"><strong>${row.delivery_location || "-"}</strong><small>${row.approval_status || "NOT_REQUIRED"}</small></div></td>
-          <td>${formatDateTime(row.created_at || row.createdAt)}</td>
+          <td>
+            <div class="table-entity-meta">
+              <strong>${row.request_code || row.requestCode || row.id}</strong>
+              <small>${row.customer_name || row.customerName || "Sem cliente"}${row.previous_request_code ? ` - recota semelhante a ${row.previous_request_code}` : ""}</small>
+            </div>
+          </td>
+          <td>
+            <div class="table-entity-meta">
+              <strong><span class="app-badge ${badgeClass(row.status)}">${formatStatus(row.status)}</span></strong>
+              <small>${row.priority || "MEDIUM"}</small>
+            </div>
+          </td>
+          <td>
+            <div class="table-entity-meta">
+              <strong>${row.best_supplier_name || "-"}</strong>
+              <small>${estimatedTotal ? `Total estimado ${formatCurrencyBRL(estimatedTotal)}` : "Sem total consolidado"}</small>
+            </div>
+          </td>
+          <td>
+            <div class="table-entity-meta">
+              <strong>${row.delivery_location || "-"}</strong>
+              <small>${row.approval_status || "NOT_REQUIRED"}</small>
+            </div>
+          </td>
+          <td>${formatDateTime(row.updated_at || row.created_at)}</td>
           <td class="app-actions">
             <button class="btn btn-ghost" data-action="details" data-id="${row.id}">Detalhes</button>
-            <button class="btn btn-ghost" data-action="duplicate" data-id="${row.id}">Duplicar</button>
+            <button class="btn btn-ghost" data-action="duplicate" data-id="${row.id}">Recotar</button>
             <button class="btn btn-ghost" data-action="pdf" data-id="${row.id}">PDF</button>
             <button class="btn btn-ghost" data-action="csv" data-id="${row.id}">CSV</button>
           </td>
         </tr>
-      `
-    )
+      `;
+    })
+    .join("");
+}
+
+function getDecisionSummary(request) {
+  const ranked = request?.comparison?.ranked || [];
+  const bestPrice = ranked[0] || null;
+  const bestDelivery = [...ranked]
+    .filter((supplier) => supplier.averageDeliveryDays !== null && supplier.averageDeliveryDays !== undefined)
+    .sort((left, right) => left.averageDeliveryDays - right.averageDeliveryDays)[0] || null;
+  const bestOverall = [...ranked].sort((left, right) => {
+    if ((right.bestOverallCount || 0) !== (left.bestOverallCount || 0)) {
+      return (right.bestOverallCount || 0) - (left.bestOverallCount || 0);
+    }
+    return (left.totalPrice || 0) - (right.totalPrice || 0);
+  })[0] || null;
+
+  return [
+    { label: "Melhor preco", value: bestPrice ? `${bestPrice.supplier} - ${formatCurrencyBRL(bestPrice.totalPrice || 0)}` : "-" },
+    { label: "Melhor prazo", value: bestDelivery ? `${bestDelivery.supplier} - ${Math.round(bestDelivery.averageDeliveryDays)} dia(s)` : "-" },
+    { label: "Melhor opcao geral", value: bestOverall ? bestOverall.supplier : request?.best_supplier_name || "-" },
+    { label: "Total estimado", value: bestPrice ? formatCurrencyBRL(bestPrice.totalPrice || 0) : "-" }
+  ];
+}
+
+function renderDecisionSummary(request) {
+  return getDecisionSummary(request)
+    .map((item) => `<article class="comparison-summary-card"><span>${item.label}</span><strong>${escapeHtml(item.value)}</strong></article>`)
     .join("");
 }
 
@@ -79,39 +154,61 @@ function renderComparison(request) {
     return '<article class="entity-list-item"><div class="entity-list-copy"><p>Comparador</p><strong>Selecione um pedido com resultados consolidados.</strong></div><span class="app-badge is-muted">INFO</span></article>';
   }
 
-  return request.comparison.ranked
-    .map(
-      (supplier) => `
-        <article class="entity-list-item">
-          <div class="entity-list-copy">
-            <p>${supplier.supplier}</p>
-            <strong>${formatCurrencyBRL(supplier.totalPrice)}</strong>
-          </div>
-          <span class="app-badge ${supplier.supplier === request.best_supplier_name ? "is-success" : "is-muted"}">
-            ${supplier.averageDeliveryDays ? `${Math.round(supplier.averageDeliveryDays)}d` : "Prazo -"}
-          </span>
-        </article>
-      `
-    )
-    .join("");
+  const items = getRequestItems(request.id)
+    .map((item) => item.item_name || item.description || "Material")
+    .slice(0, 8);
+
+  return `
+    <div class="comparison-offer-list">
+      ${request.comparison.ranked
+        .map(
+          (supplier) => `
+            <article class="comparison-offer-card">
+              <header>
+                <strong>${escapeHtml(supplier.supplier)}</strong>
+                <span class="app-badge ${supplier.supplier === request.best_supplier_name ? "is-success" : "is-muted"}">
+                  ${supplier.supplier === request.best_supplier_name ? "Melhor opcao" : `${supplier.items} item(ns)`}
+                </span>
+              </header>
+              <div class="comparison-offer-meta">
+                <span>Total ${formatCurrencyBRL(supplier.totalPrice || 0)}</span>
+                <span>${supplier.averageDeliveryDays ? `${Math.round(supplier.averageDeliveryDays)} dia(s)` : "Prazo -"} </span>
+                <span>${supplier.bestOverallCount || 0} destaque(s)</span>
+              </div>
+              <p>${supplier.supplier === request.best_supplier_name ? "Fornecedor lider da comparacao atual." : "Alternativa util para negociar preco ou prazo."}</p>
+            </article>
+          `
+        )
+        .join("")}
+      <article class="comparison-offer-card">
+        <header>
+          <strong>Itens do pedido</strong>
+          <span class="app-badge is-muted">${items.length}</span>
+        </header>
+        <div class="comparison-item-list">
+          ${items.length ? items.map((item) => `<span class="comparison-item-pill">${escapeHtml(item)}</span>`).join("") : '<span class="app-badge is-muted">Sem itens</span>'}
+        </div>
+        <p>Economia potencial estimada: ${formatCurrencyBRL(request.potential_savings || 0)}</p>
+      </article>
+    </div>
+  `;
 }
 
 function selectRequest(requestId) {
   selectedRequest = overview.requests.find((request) => request.id === requestId) || null;
   setText("#requestDetailTitle", selectedRequest?.request_code || selectedRequest?.requestCode || "Selecione um pedido");
+  setHTML("#requestDecisionSummary", renderDecisionSummary(selectedRequest));
   setHTML("#requestComparisonPanel", renderComparison(selectedRequest));
 }
 
 function buildDuplicatePayload(request) {
-  const items = overview.requestItems
-    .filter((item) => item.request_id === request.id)
-    .map((item) => ({
-      name: item.item_name || item.description || "Material",
-      normalized_name: item.item_name || item.description || "Material",
-      quantity: Number(item.quantity || item.estimated_qty || 0) || null,
-      unit: item.unit || "un",
-      raw: item.raw || item.item_name || item.description || "Material"
-    }));
+  const items = getRequestItems(request.id).map((item) => ({
+    name: item.item_name || item.description || "Material",
+    normalized_name: item.item_name || item.description || "Material",
+    quantity: Number(item.quantity || item.estimated_qty || 0) || null,
+    unit: item.unit || "un",
+    raw: item.raw || item.item_name || item.description || "Material"
+  }));
 
   return {
     source_request_id: request.id,
@@ -155,6 +252,26 @@ function exportCurrentRows() {
   URL.revokeObjectURL(url);
 }
 
+function renderPipeline(rows) {
+  const buckets = [
+    { label: "Em andamento", value: rows.filter((row) => String(row.status || "").toUpperCase() === "PROCESSING").length, tone: "is-warning" },
+    { label: "Pendente de cotacao", value: rows.filter((row) => String(row.status || "").toUpperCase() === "PENDING_QUOTE").length, tone: "is-warning" },
+    { label: "Aguardando aprovacao", value: rows.filter((row) => String(row.status || "").toUpperCase() === "AWAITING_APPROVAL").length, tone: "is-warning" },
+    { label: "Com erro", value: rows.filter((row) => String(row.status || "").toUpperCase() === "ERROR").length, tone: "is-danger" }
+  ];
+
+  return buckets
+    .map(
+      (item) => `
+        <article class="entity-list-item">
+          <div class="entity-list-copy"><p>${item.label}</p><strong>${item.value} pedido(s)</strong></div>
+          <span class="app-badge ${item.tone}">${item.value}</span>
+        </article>
+      `
+    )
+    .join("");
+}
+
 function applyFilters() {
   const searchValue = normalize(qs("#requestsSearch")?.value);
   const statusValue = String(qs("#requestsStatusFilter")?.value || "").toUpperCase();
@@ -173,16 +290,21 @@ function applyFilters() {
 
   if (sortValue === "savings") {
     filteredRequests.sort((a, b) => (b.potential_savings || 0) - (a.potential_savings || 0));
-  } else if (sortValue === "supplier") {
-    filteredRequests.sort((a, b) => String(a.best_supplier_name || "").localeCompare(String(b.best_supplier_name || ""), "pt-BR"));
+  } else if (sortValue === "status") {
+    filteredRequests.sort((a, b) => statusRank(a.status) - statusRank(b.status));
   } else {
-    filteredRequests.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    filteredRequests.sort((a, b) => new Date(b.updated_at || b.created_at || 0) - new Date(a.updated_at || a.created_at || 0));
   }
 
-  setText("#requestsCount", `${filteredRequests.length} pedidos`);
+  setText("#requestsCount", `${filteredRequests.length} pedido(s) monitorados`);
   setHTML("#requestsTableBody", renderRows(filteredRequests));
   if ((!selectedRequest || !filteredRequests.some((item) => item.id === selectedRequest.id)) && filteredRequests.length) {
     selectRequest(filteredRequests[0].id);
+  }
+  if (!filteredRequests.length) {
+    setText("#requestDetailTitle", "Nenhum pedido com os filtros atuais");
+    setHTML("#requestDecisionSummary", renderDecisionSummary(null));
+    setHTML("#requestComparisonPanel", renderComparison(null));
   }
 }
 
@@ -191,7 +313,7 @@ async function init() {
   if (!session) return;
 
   initSidebar();
-  setTableSkeleton("#requestsTableBody", 6, 5);
+  setTableSkeleton("#requestsTableBody", 6, 6);
 
   qs("#logoutButton")?.addEventListener("click", async () => {
     await signOut();
@@ -200,28 +322,36 @@ async function init() {
 
   try {
     overview = await fetchProcurementOverview();
+    const doneCount = overview.requests.filter((row) => String(row.status || "").toUpperCase() === "DONE").length;
+    const processingCount = overview.requests.filter((row) =>
+      ["PROCESSING", "PENDING_QUOTE", "AWAITING_CONFIRMATION", "AWAITING_APPROVAL"].includes(String(row.status || "").toUpperCase())
+    ).length;
+
     setText("#requestsMetricTotal", String(overview.metrics.totalRequests));
-    setText("#requestsMetricTopMaterial", overview.topMaterials[0]?.name || "-");
-    setText("#requestsMetricTopSupplier", overview.metrics.bestRecurringSupplier || "-");
+    setText("#requestsMetricProcessing", String(processingCount));
+    setText("#requestsMetricDone", String(doneCount));
     setText("#requestsMetricSavings", formatCurrencyBRL(overview.metrics.estimatedSavings));
+    setText("#requestsMetricTotalMeta", `${overview.topMaterials[0]?.name || "Sem lideranca"} lidera a demanda`);
+    setText("#requestsMetricProcessingMeta", `${overview.requests.filter((row) => String(row.status || "").toUpperCase() === "ERROR").length} com erro`);
+    setText("#requestsMetricDoneMeta", `${overview.metrics.bestRecurringSupplier || "-"} recorrente`);
+    setText("#requestsMetricSavingsMeta", `${overview.metrics.suppliersConsulted || 0} fornecedores comparados`);
+
     setHTML(
       "#requestsTopMaterials",
-      renderInsightList(overview.topMaterials, (item) => `
-        <article class="entity-list-item">
-          <div class="entity-list-copy"><p>${item.name}</p><strong>${item.count} cotacoes</strong></div>
-          <span class="app-badge is-muted">MATERIAL</span>
-        </article>
-      `)
+      renderInsightList(
+        overview.topMaterials,
+        (item) => `
+          <article class="entity-list-item">
+            <div class="entity-list-copy"><p>${item.name}</p><strong>${item.count} cotacao(oes)</strong></div>
+            <span class="app-badge is-muted">MATERIAL</span>
+          </article>
+        `,
+        "Sem materiais",
+        "Os materiais mais cotados aparecem conforme o uso da plataforma."
+      )
     );
-    setHTML(
-      "#requestsPriceTrend",
-      renderInsightList(overview.priceTrendByItem, (item) => `
-        <article class="entity-list-item">
-          <div class="entity-list-copy"><p>${item.item_name}</p><strong>${item.delta === null ? "Sem delta" : `${item.delta > 0 ? "+" : ""}${item.delta.toFixed(2)}`}</strong></div>
-          <span class="app-badge ${item.delta !== null && item.delta <= 0 ? "is-success" : "is-muted"}">${item.last === null ? "-" : item.last.toFixed(2)}</span>
-        </article>
-      `)
-    );
+    setHTML("#requestsPipeline", renderPipeline(overview.requests));
+
     if (overview.notices.length) {
       showFeedback("#requestsFeedback", overview.notices.join(" "));
     }
@@ -261,13 +391,13 @@ async function init() {
         companyName: overview.companyName,
         request,
         comparison: request.comparison,
-        results: overview.quoteResults.filter((row) => row.request_id === request.id)
+        results: getRequestResults(request.id)
       });
     }
     if (button.dataset.action === "csv") {
       return exportQuoteCsv({
         request,
-        results: overview.quoteResults.filter((row) => row.request_id === request.id)
+        results: getRequestResults(request.id)
       });
     }
   });

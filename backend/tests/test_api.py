@@ -8,6 +8,8 @@ from fastapi.testclient import TestClient
 from backend.api import deps
 from backend.api.main import app
 from backend.api.services.chat_service import ChatService
+from backend.api.services.dynamic_quote_service import DynamicQuoteService
+from backend.api.services.parametric_budget_service import ParametricBudgetService
 from backend.api.services.quote_service import QuoteService
 from backend.api.services.request_parser import RequestParserService
 from backend.worker.testing import InMemoryAIService, InMemorySupabase
@@ -32,12 +34,51 @@ class ApiTests(unittest.TestCase):
         def override_quote_service():
             return QuoteService(self.supabase)
 
+        class FakeDynamicQuoteService:
+            def __init__(self) -> None:
+                self.budget_service = ParametricBudgetService()
+
+            async def quote_materials(self, free_text: str) -> dict[str, object]:
+                return {
+                    "query": {
+                        "item": "Cimento",
+                        "marca": "Votoran",
+                        "especificacao": "CP II",
+                        "quantidade": 30,
+                        "unidade": "saco",
+                        "raw": free_text,
+                    },
+                    "search_term": "cimento votoran cp ii 50kg",
+                    "providers": {
+                        "extraction": "fake",
+                        "validation": "fuzzy_matching",
+                        "search": "playwright_parallel",
+                    },
+                    "cache_hit": False,
+                    "offers": [
+                        {
+                            "supplier": "Obramax",
+                            "product_name": "Cimento Votoran CP II 50kg",
+                            "price": 37.5,
+                            "display_price": "R$ 37,50",
+                            "offer_url": "https://example.com/oferta",
+                            "source": "Obramax",
+                        }
+                    ],
+                    "meta": {
+                        "total_scraped": 4,
+                        "total_validated": 1,
+                        "future_budgeting_ready": True,
+                    },
+                }
+
         def override_supabase():
             return self.supabase
 
         app.dependency_overrides[deps.get_current_actor] = override_actor
         app.dependency_overrides[deps.get_chat_service] = override_chat_service
         app.dependency_overrides[deps.get_quote_service] = override_quote_service
+        app.dependency_overrides[deps.get_dynamic_quote_service] = lambda: FakeDynamicQuoteService()
         app.dependency_overrides[deps.get_supabase] = override_supabase
         self.client = TestClient(app)
 
@@ -252,6 +293,25 @@ class ApiTests(unittest.TestCase):
         payload = response.json()
         self.assertEqual(payload["api"]["status"], "online")
         self.assertIn("queue", payload)
+
+    def test_quote_search_endpoint_returns_structured_top_offers(self) -> None:
+        response = self.client.post("/cotar", json={"query": "30 sacos de cimento votoran"})
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(payload["query"]["item"], "Cimento")
+        self.assertEqual(payload["offers"][0]["supplier"], "Obramax")
+        self.assertTrue(payload["meta"]["future_budgeting_ready"])
+
+    def test_construction_estimate_endpoint_returns_initial_budget(self) -> None:
+        response = self.client.post("/modo-construcao/estimar", json={"query": "Preciso estimar materiais para 120 m2 de piso padrao medio"})
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(payload["mode"], "construction")
+        self.assertEqual(payload["input"]["system_type"], "floor")
+        self.assertEqual(payload["input"]["building_standard"], "medio")
+        self.assertEqual(payload["input"]["area_m2"], 120.0)
+        self.assertTrue(payload["items"])
+        self.assertTrue(payload["future_ready"]["sinapi_composition_ready"])
 
     def test_admin_can_reprocess_request_with_reason_and_audit_log(self) -> None:
         thread = self.supabase.create_chat_thread(user_id="user-1", company_id="company-1", title="Teste")

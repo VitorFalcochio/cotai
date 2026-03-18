@@ -45,19 +45,19 @@ def _offer_line(offer: dict[str, Any], unit: str, quantity: Any = None, include_
 
 def _build_observation(entry: dict[str, Any], offers: list[dict[str, Any]]) -> str | None:
     if not offers:
-        return "Nao encontrei referencias suficientes para este item no momento."
+        return "Nao encontrei referencias suficientes para fechar este item agora."
 
     if len(offers) == 1:
-        return "Preco baseado nos dados disponiveis no momento."
+        return "Use esta referencia como ponto de partida para negociar."
 
     market = entry.get("market_context") or {}
     spread_pct = market.get("price_spread_pct")
     if isinstance(spread_pct, (int, float)) and spread_pct >= 18:
-        return "Os valores variaram bastante entre as referencias. Vale confirmar com o fornecedor antes de fechar."
+        return "Os valores variaram bastante. Vale confirmar disponibilidade antes de fechar."
 
     low_confidence = float(entry.get("analysis_confidence") or 0) < 0.68
     if low_confidence:
-        return "Encontrei poucas referencias consistentes para este item. Vale validar antes de fechar a compra."
+        return "Encontrei poucas referencias consistentes. Vale validar antes de comprar."
 
     return None
 
@@ -119,7 +119,7 @@ def build_user_quote_response(request_code: str, results: list[dict[str, Any]]) 
                 has_total = True
         else:
             lines.append("Melhores opcoes")
-            for offer_index, offer in enumerate(offers[:3], start=1):
+            for offer_index, offer in enumerate(offers[:2], start=1):
                 lines.extend(_offer_line(offer, unit, entry.get("quantity"), include_index=offer_index))
                 estimated_total = offer.get("estimated_total")
                 if estimated_total is None and isinstance(offer.get("unit_price") if offer.get("unit_price") is not None else offer.get("price"), (int, float)) and entry.get("quantity") is not None:
@@ -127,7 +127,7 @@ def build_user_quote_response(request_code: str, results: list[dict[str, Any]]) 
                 if offer_index == 1 and isinstance(estimated_total, (int, float)):
                     total_order_value += float(estimated_total)
                     has_total = True
-                if offer_index < min(len(offers), 3):
+                if offer_index < min(len(offers), 2):
                     lines.append("")
 
         market_lines = _format_market_block(entry, unit)
