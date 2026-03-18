@@ -11,7 +11,7 @@ export function getDemoBillingPayload() {
       company: "Construtora Horizonte",
       plan: "Diamante",
       status: "active",
-      amount: 250,
+      amount: 499,
       updatedAt: isoOffset(6)
     },
     {
@@ -19,7 +19,7 @@ export function getDemoBillingPayload() {
       company: "Atlas Engenharia",
       plan: "Ouro",
       status: "active",
-      amount: 100,
+      amount: 189,
       updatedAt: isoOffset(28)
     },
     {
@@ -27,7 +27,7 @@ export function getDemoBillingPayload() {
       company: "Modulo Obras",
       plan: "Prata",
       status: "trial",
-      amount: 50,
+      amount: 89,
       updatedAt: isoOffset(54)
     }
   ];

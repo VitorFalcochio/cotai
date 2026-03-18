@@ -1,3 +1,4 @@
+import { getPlanPrice, formatPlanLabel as formatCatalogPlanLabel } from "./planCatalog.js";
 import { assertSupabaseConfigured, supabase } from "./supabaseClient.js";
 
 const MISSING_RESOURCE_PATTERNS = [
@@ -156,12 +157,13 @@ export function formatCurrencyBRL(value) {
 }
 
 export function formatPlanLabel(value) {
-  const plan = String(value || "").toLowerCase();
+  const plan = String(value || "").trim();
   if (!plan) return "Sem plano";
-  if (plan === "silver" || plan === "prata") return "Prata";
-  if (plan === "gold" || plan === "ouro") return "Ouro";
-  if (plan === "diamond" || plan === "diamante") return "Diamante";
-  return String(value);
+  return formatCatalogPlanLabel(plan);
+}
+
+export function getPlanMonthlyAmount(value) {
+  return getPlanPrice(value);
 }
 
 export function normalizeStatus(value, fallback = "unknown") {

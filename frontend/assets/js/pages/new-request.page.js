@@ -24,6 +24,11 @@ let currentDraft = {
   notes: "",
   priority: "MEDIUM"
 };
+let quoteRenderContext = {
+  requestId: "",
+  requestCode: "",
+  results: []
+};
 
 const STATUS_LABELS = {
   DRAFT: "Rascunho",
@@ -118,12 +123,222 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
+function parseCurrencyLine(value) {
+  const match = String(value || "").match(/R\$\s*[\d.,]+/);
+  return match ? match[0] : String(value || "").trim();
+}
+
+function parseQuoteResponse(content) {
+  const text = String(content || "").trim();
+  if (!text.startsWith("Cotacao encontrada")) return null;
+
+  const totalMatch = text.match(/Total estimado do pedido:\s*(R\$\s*[\d.,]+)/i);
+  const totalOrder = totalMatch ? totalMatch[1] : "";
+  const body = text
+    .replace(/^Cotacao encontrada\s*/i, "")
+    .replace(/\n*Total estimado do pedido:\s*R\$\s*[\d.,]+\s*$/i, "")
+    .trim();
+
+  const sections = body
+    .split(/\n\s*---\s*\n/g)
+    .map((chunk) => chunk.trim())
+    .filter(Boolean);
+
+  const items = sections
+    .map((section) => {
+      const lines = section.split(/\n+/).map((line) => line.trim()).filter(Boolean);
+      if (!lines.length) return null;
+
+      const item = {
+        name: lines[0] || "Item",
+        quantity: "",
+        supplier: "",
+        unitPrice: "",
+        total: "",
+        market: "",
+        note: ""
+      };
+
+      for (let index = 1; index < lines.length; index += 1) {
+        const line = lines[index];
+        const next = lines[index + 1] || "";
+
+        if (/^Quantidade:/i.test(line)) {
+          item.quantity = line.replace(/^Quantidade:\s*/i, "").trim();
+          continue;
+        }
+        if (line === "Mercado") {
+          item.market = next.replace(/^Media:\s*/i, "").trim();
+          index += 1;
+          continue;
+        }
+        if (line === "Observacao") {
+          item.note = next.trim();
+          index += 1;
+          continue;
+        }
+        if (!item.supplier && !/^R\$/i.test(line) && !/^Total estimado:/i.test(line)) {
+          item.supplier = line;
+          continue;
+        }
+        if (!item.unitPrice && /^R\$/i.test(line)) {
+          item.unitPrice = parseCurrencyLine(line);
+          continue;
+        }
+        if (/^Total estimado:/i.test(line)) {
+          item.total = parseCurrencyLine(line);
+        }
+      }
+
+      return item;
+    })
+    .filter(Boolean);
+
+  if (!items.length) return null;
+  return { title: "Cotacao encontrada", items, totalOrder };
+}
+
+function groupResultsByItem(results = []) {
+  const groups = new Map();
+  results.forEach((row) => {
+    const itemName = String(row.item_name || row.title || "Item").trim();
+    if (!itemName) return;
+    const bucket = groups.get(itemName) || [];
+    bucket.push(row);
+    groups.set(itemName, bucket);
+  });
+  return Array.from(groups.entries()).map(([name, offers]) => ({ name, offers }));
+}
+
+function renderOfferBadges(offer) {
+  const badges = [];
+  if (offer.is_best_overall) badges.push('<span class="app-badge is-success">Melhor oferta</span>');
+  if (offer.is_best_price) badges.push('<span class="app-badge is-info">Melhor preco</span>');
+  if (offer.is_best_delivery) badges.push('<span class="app-badge is-warning">Melhor prazo</span>');
+  return badges.join("");
+}
+
+function buildStructuredQuoteData(requestId, parsed) {
+  if (!requestId || requestId !== quoteRenderContext.requestId || !quoteRenderContext.results.length) {
+    return parsed;
+  }
+
+  const items = groupResultsByItem(quoteRenderContext.results).map((group) => {
+    const sortedOffers = [...group.offers].sort((left, right) => {
+      if (left.is_best_overall && !right.is_best_overall) return -1;
+      if (!left.is_best_overall && right.is_best_overall) return 1;
+      return Number(left.total_price || left.price || 999999) - Number(right.total_price || right.price || 999999);
+    });
+    const primary = sortedOffers[0] || {};
+    return {
+      name: group.name,
+      quantity: parsed?.items?.find((item) => item.name === group.name)?.quantity || "",
+      supplier: String(primary.supplier_name || primary.supplier || "-"),
+      unitPrice: primary.unit_price || primary.price ? `R$ ${Number(primary.unit_price ?? primary.price).toFixed(2).replace(".", ",")}` : "-",
+      total: primary.total_price ? `R$ ${Number(primary.total_price).toFixed(2).replace(".", ",")}` : "-",
+      market: sortedOffers.length > 1
+        ? `de R$ ${Number(Math.min(...sortedOffers.map((offer) => Number(offer.unit_price ?? offer.price || 0)))).toFixed(2).replace(".", ",")} a R$ ${Number(Math.max(...sortedOffers.map((offer) => Number(offer.unit_price ?? offer.price || 0)))).toFixed(2).replace(".", ",")}`
+        : parsed?.items?.find((item) => item.name === group.name)?.market || "-",
+      note: parsed?.items?.find((item) => item.name === group.name)?.note || "",
+      offers: sortedOffers.slice(0, 3)
+    };
+  });
+
+  return {
+    title: parsed?.title || "Cotacao encontrada",
+    totalOrder: parsed?.totalOrder || "",
+    items
+  };
+}
+
+function renderQuoteResponseCard(row) {
+  const content = String(row?.content || "");
+  const parsed = parseQuoteResponse(content);
+  if (!parsed) return "";
+  const requestId = String(row?.metadata?.request_id || "");
+  const structured = buildStructuredQuoteData(requestId, parsed);
+
+  const cards = structured.items
+    .map(
+      (item) => `
+        <section class="chat-quote-card">
+          <div class="chat-quote-card-head">
+            <strong>${escapeHtml(item.name)}</strong>
+            ${item.quantity ? `<span class="app-badge is-muted">${escapeHtml(item.quantity)}</span>` : ""}
+          </div>
+          ${item.offers?.length ? `<div class="chat-quote-badges">${renderOfferBadges(item.offers[0])}</div>` : ""}
+          <div class="chat-quote-grid">
+            <div class="chat-quote-metric">
+              <span class="chat-quote-label"><i class="bx bx-store-alt" aria-hidden="true"></i>Fornecedor</span>
+              <strong>${escapeHtml(item.supplier || "-")}</strong>
+            </div>
+            <div class="chat-quote-metric">
+              <span class="chat-quote-label"><i class="bx bx-purchase-tag-alt" aria-hidden="true"></i>Unitario</span>
+              <strong>${escapeHtml(item.unitPrice || "-")}</strong>
+            </div>
+            <div class="chat-quote-metric">
+              <span class="chat-quote-label"><i class="bx bx-package" aria-hidden="true"></i>Total</span>
+              <strong>${escapeHtml(item.total || "-")}</strong>
+            </div>
+            <div class="chat-quote-metric">
+              <span class="chat-quote-label"><i class="bx bx-line-chart" aria-hidden="true"></i>Mercado</span>
+              <strong>${escapeHtml(item.market || "-")}</strong>
+            </div>
+          </div>
+          ${
+            item.offers?.length > 1
+              ? `<div class="chat-quote-offers">
+                  ${item.offers
+                    .slice(0, 3)
+                    .map(
+                      (offer) => `
+                        <div class="chat-quote-offer-chip">
+                          <span>${escapeHtml(offer.supplier_name || offer.supplier || "Fornecedor")}</span>
+                          <strong>R$ ${Number(offer.unit_price ?? offer.price ?? 0).toFixed(2).replace(".", ",")}</strong>
+                          <div class="chat-quote-offer-badges">${renderOfferBadges(offer)}</div>
+                        </div>
+                      `
+                    )
+                    .join("")}
+                </div>`
+              : ""
+          }
+          ${
+            item.note
+              ? `<p class="chat-quote-note"><i class="bx bx-info-circle" aria-hidden="true"></i>${escapeHtml(item.note)}</p>`
+              : ""
+          }
+        </section>
+      `
+    )
+    .join("");
+
+  return `
+    <div class="chat-quote-response">
+      <div class="chat-quote-summary">
+        <span class="app-badge is-success">Cota</span>
+        <strong>${structured.title}</strong>
+        ${structured.totalOrder ? `<span class="chat-quote-total-order">Total do pedido: ${escapeHtml(structured.totalOrder)}</span>` : ""}
+      </div>
+      <div class="chat-quote-stack">${cards}</div>
+      <div class="chat-quote-actions">
+        <a class="btn btn-primary" href="requests.html">Confirmar pedido</a>
+        <button class="btn btn-secondary" type="button" data-quote-refine="true">Refinar cotacao</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderMessageBody(row) {
+  return escapeHtml(String(row.content || "")).replace(/\n/g, "<br>");
+}
+
 function renderMessage(row) {
   const tone = row.role === "user" ? "is-user" : row.role === "assistant" ? "is-assistant" : "is-system";
   return `
     <article class="chat-row ${tone}">
       <div class="chat-bubble ${tone}">
-        <div class="chat-bubble-body">${escapeHtml(row.content || "").replace(/\n/g, "<br>")}</div>
+        <div class="chat-bubble-body">${renderMessageBody(row)}</div>
       </div>
     </article>
   `;
@@ -309,7 +524,7 @@ function updateSidebar(payload) {
   };
   syncDraftInputs();
 
-  setText("#chatThreadTitle", payload.thread?.title || "Nova cotação");
+  setText("#chatThreadTitle", payload.thread?.title || "Fale com a Cota");
   setText("#chatRequestCode", request?.request_code || "Aguardando");
   setText("#chatRequestStatus", formatStatus(status));
   setText("#chatRequestPriority", request?.priority || currentDraft.priority || "MEDIUM");
@@ -381,7 +596,6 @@ function renderThread(payload) {
   sessionStorage.setItem(THREAD_STORAGE_KEY, activeThreadId);
   activeRequestId = payload.request?.id || "";
   lastKnownRequestStatus = String(payload.request?.status || payload.thread?.status || "").toUpperCase();
-
   const list = qs("#chatMessages");
   if (list) {
     list.innerHTML = payload.messages.length

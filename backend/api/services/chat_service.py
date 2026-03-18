@@ -199,6 +199,7 @@ class ChatService:
         messages = self.supabase.list_chat_messages(thread_id)
         metadata = thread.get("metadata") or {}
         request_payload = None
+        plan_usage = self.supabase.get_company_plan_context(actor["profile"]["company_id"], profile=actor["profile"])
         if thread.get("request_id"):
             request_payload = self.supabase.get_request_status_payload(thread["request_id"])
         return {
@@ -222,6 +223,7 @@ class ChatService:
             "timeline": metadata.get("timeline") or [],
             "notifications": self._build_notifications(metadata, request_payload["request"] if request_payload else None),
             "duplicate_candidate": metadata.get("duplicate_candidate"),
+            "plan_usage": plan_usage,
         }
 
     def _build_notifications(self, metadata: dict[str, Any], request_row: dict[str, Any] | None) -> list[dict[str, str]]:

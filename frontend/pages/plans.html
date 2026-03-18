@@ -17,70 +17,72 @@
         <div>
           <p class="eyebrow">Modelo comercial</p>
           <h1>Planos</h1>
-          <p>Escolha o plano ideal para o ritmo da sua operacao.</p>
+          <p>Escolha o plano ideal para o ritmo da sua equipe e do volume de compras.</p>
         </div>
         <div class="app-topbar-actions">
           <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
         </div>
       </header>
+      <p class="app-feedback hidden" id="plansFeedback" role="alert"></p>
 
       <section class="app-plans-grid pricing-grid-enhanced plans-compact-grid">
-        <article class="card app-plan-card pricing-card-stack plans-compact-card">
+        <article class="card app-plan-card pricing-card-stack plans-compact-card" data-plan-card="silver">
           <p class="app-plan-name">Plano Prata</p>
-          <div class="pricing-price-line"><h2>R$ 50 <small>/ mes</small></h2></div>
-          <p class="muted">Essencial para comecar.</p>
+          <div class="pricing-price-line"><h2>R$ 89 <small>/ mes</small></h2></div>
+          <p class="muted">Entrada enxuta para comecar com mais controle.</p>
           <div class="pricing-meta">
-            <span class="app-badge is-muted">Piloto</span>
-            <span class="app-badge is-info">Baixo volume</span>
+            <span class="app-badge is-muted">Entrada</span>
+            <span class="app-badge is-info">Operacao pequena</span>
           </div>
           <ul class="app-plan-list feature-list">
-            <li>50 pedidos por mes</li>
-            <li>1 usuario</li>
-            <li>Ate 10 fornecedores</li>
-            <li>Historico de 30 dias</li>
+            <li>80 pedidos por mes</li>
+            <li>Ate 2 usuarios ativos</li>
+            <li>Ate 20 fornecedores</li>
+            <li>Historico de 90 dias</li>
             <li>Suporte padrao</li>
           </ul>
-          <button class="btn btn-ghost w-full" type="button">Escolher Prata</button>
+          <button class="btn btn-ghost w-full" type="button" data-plan-select="silver">Escolher Prata</button>
         </article>
 
-        <article class="card app-plan-card app-plan-highlight pricing-card-stack plans-compact-card">
+        <article class="card app-plan-card app-plan-highlight pricing-card-stack plans-compact-card" data-plan-card="gold">
           <p class="app-plan-name">Plano Ouro</p>
-          <div class="pricing-price-line"><h2>R$ 100 <small>/ mes</small></h2></div>
-          <p class="muted">Mais equilibrio para crescer.</p>
+          <div class="pricing-price-line"><h2>R$ 189 <small>/ mes</small></h2></div>
+          <p class="muted">Plano principal para times que compram com recorrencia.</p>
           <div class="pricing-meta">
             <span class="app-badge is-success">Mais escolhido</span>
             <span class="app-badge is-muted">Equipe em crescimento</span>
           </div>
           <ul class="app-plan-list feature-list">
-            <li>200 pedidos por mes</li>
-            <li>Ate 3 usuarios</li>
-            <li>Ate 50 fornecedores</li>
-            <li>Historico completo</li>
-            <li>1 importacao CSV por mes</li>
+            <li>300 pedidos por mes</li>
+            <li>Ate 5 usuarios ativos</li>
+            <li>Ate 80 fornecedores</li>
+            <li>Historico de 12 meses</li>
+            <li>12 importacoes por mes</li>
           </ul>
-          <button class="btn btn-primary w-full" type="button">Escolher Ouro</button>
+          <button class="btn btn-primary w-full" type="button" data-plan-select="gold">Escolher Ouro</button>
         </article>
 
-        <article class="card app-plan-card pricing-card-stack plans-compact-card">
+        <article class="card app-plan-card pricing-card-stack plans-compact-card" data-plan-card="diamond">
           <p class="app-plan-name">Plano Diamante</p>
-          <div class="pricing-price-line"><h2>R$ 250 <small>/ mes</small></h2></div>
-          <p class="muted">Estrutura completa para escala.</p>
+          <div class="pricing-price-line"><h2>R$ 499 <small>/ mes</small></h2></div>
+          <p class="muted">Escala operacional com mais governanca e capacidade.</p>
           <div class="pricing-meta">
             <span class="app-badge is-info">Alta escala</span>
-            <span class="app-badge is-muted">Sem limites praticos</span>
+            <span class="app-badge is-muted">Operacao madura</span>
           </div>
           <ul class="app-plan-list feature-list">
-            <li>Pedidos ilimitados</li>
-            <li>Usuarios ilimitados</li>
-            <li>Fornecedores ilimitados</li>
-            <li>Importacoes CSV ilimitadas</li>
-            <li>Exportacao e suporte premium</li>
+            <li>2.000 pedidos por mes</li>
+            <li>Ate 15 usuarios ativos</li>
+            <li>Ate 400 fornecedores</li>
+            <li>Importacoes ilimitadas</li>
+            <li>Suporte premium e historico completo</li>
           </ul>
-          <button class="btn btn-ghost w-full" type="button">Escolher Diamante</button>
+          <button class="btn btn-ghost w-full" type="button" data-plan-select="diamond">Escolher Diamante</button>
         </article>
       </section>
     </main>
   </div>
-  <script src="../assets/js/app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="../assets/js/pages/plans.page.js"></script>
 </body>
 </html>

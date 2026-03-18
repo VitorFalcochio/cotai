@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 from typing import Any
-from urllib.parse import quote
-
 import requests
+from ...api.services.plan_limits import get_plan_definition, normalize_plan_key
 from ..config import Settings
 from ..utils.retry import retry_call
 
@@ -258,6 +257,112 @@ class SupabaseService:
 
     def get_profile(self, user_id: str) -> dict[str, Any] | None:
         return self._maybe_single("profiles", {"select": "*", "id": f"eq.{user_id}"})
+
+    def get_company(self, company_id: str) -> dict[str, Any] | None:
+        if not company_id or not self.table_exists("companies"):
+            return None
+        return self._maybe_single("companies", {"select": "*", "id": f"eq.{company_id}"})
+
+    def get_company_active_subscription(self, company_id: str) -> dict[str, Any] | None:
+        if not company_id or not self.table_exists("billing_subscriptions"):
+            return None
+        rows = self._list(
+            "billing_subscriptions",
+            {
+                "select": "*",
+                "company_id": f"eq.{company_id}",
+                "order": "updated_at.desc,created_at.desc",
+                "limit": 10,
+            },
+        )
+        if not rows:
+            return None
+        preferred_statuses = {"active", "trial", "trialing", "paid", "past_due", "upgrade_pending"}
+        for row in rows:
+            status = str(row.get("status") or "").strip().casefold()
+            if status in preferred_statuses:
+                return row
+        return rows[0]
+
+    def list_company_profiles(self, company_id: str) -> list[dict[str, Any]]:
+        if not company_id:
+            return []
+        return self._list("profiles", {"select": "*", "company_id": f"eq.{company_id}", "limit": 500})
+
+    def count_company_active_profiles(self, company_id: str) -> int:
+        inactive_statuses = {"inactive", "disabled", "blocked"}
+        profiles = self.list_company_profiles(company_id)
+        return sum(1 for profile in profiles if str(profile.get("status") or "active").strip().casefold() not in inactive_statuses)
+
+    def count_company_requests_in_current_month(self, company_id: str) -> int:
+        if not company_id:
+            return 0
+        month_start = datetime.now(UTC).replace(day=1, hour=0, minute=0, second=0, microsecond=0).isoformat()
+        return self._count("requests", {"company_id": f"eq.{company_id}", "created_at": f"gte.{month_start}"})
+
+    def get_company_plan_context(self, company_id: str, profile: dict[str, Any] | None = None) -> dict[str, Any]:
+        company = self.get_company(company_id)
+        subscription = self.get_company_active_subscription(company_id)
+        raw_plan = company.get("plan") if company else None
+        source = "company"
+        if not raw_plan and subscription:
+            raw_plan = subscription.get("plan")
+            source = "billing_subscription"
+        if not raw_plan and profile:
+            raw_plan = profile.get("plan")
+            source = "profile"
+        if not raw_plan:
+            raw_plan = "silver"
+            source = "default"
+
+        plan_key = normalize_plan_key(raw_plan)
+        definition = get_plan_definition(plan_key)
+        requests_used = self.count_company_requests_in_current_month(company_id)
+        active_users = self.count_company_active_profiles(company_id)
+        company_status = str((company or {}).get("status") or "active").strip().casefold()
+
+        return {
+            "plan_key": plan_key,
+            "plan_label": definition["label"],
+            "plan_tagline": definition.get("tagline"),
+            "monthly_price": definition.get("monthly_price"),
+            "request_limit": definition["request_limit"],
+            "user_limit": definition["user_limit"],
+            "supplier_limit": definition.get("supplier_limit"),
+            "history_days": definition.get("history_days"),
+            "csv_imports_per_month": definition.get("csv_imports_per_month"),
+            "support_level": definition.get("support_level"),
+            "recommended": bool(definition.get("recommended")),
+            "requests_used": requests_used,
+            "active_users": active_users,
+            "company_status": company_status,
+            "source": source,
+            "company": company,
+            "subscription": subscription,
+        }
+
+    def assert_company_can_create_request(self, company_id: str, profile: dict[str, Any] | None = None) -> dict[str, Any]:
+        context = self.get_company_plan_context(company_id, profile=profile)
+        plan_label = context["plan_label"]
+        request_limit = context["request_limit"]
+        user_limit = context["user_limit"]
+
+        if context["company_status"] in {"inactive", "disabled", "blocked"}:
+            raise RuntimeError("Sua empresa esta bloqueada para novas cotacoes no momento. Verifique o status do plano.")
+
+        if user_limit is not None and context["active_users"] > user_limit:
+            raise RuntimeError(
+                f"O plano {plan_label} permite ate {user_limit} usuario(s) ativo(s). "
+                "Reduza a equipe ativa ou faca upgrade para continuar criando pedidos."
+            )
+
+        if request_limit is not None and context["requests_used"] >= request_limit:
+            raise RuntimeError(
+                f"O plano {plan_label} atingiu o limite de {request_limit} pedido(s) neste mes. "
+                "Faca upgrade para continuar usando a Cotai sem bloqueio."
+            )
+
+        return context
 
     def get_request_by_id(self, request_id: Any) -> dict[str, Any] | None:
         return self._maybe_single("requests", {"select": "*", "id": f"eq.{request_id}"})
@@ -705,6 +810,7 @@ class SupabaseService:
         duplicate_of_request_id: str | None = None,
         duplicate_score: float | None = None,
     ) -> dict[str, Any]:
+        self.assert_company_can_create_request(company_id)
         request_code = f"CT-{datetime.now(UTC).strftime('%y%m%d%H%M%S')}"
         project_row = self.create_project(
             company_id=company_id,

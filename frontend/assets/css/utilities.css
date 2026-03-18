@@ -252,4 +252,13 @@
   .chat-row {
     max-width: 100%;
   }
+
+  .chat-quote-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .chat-quote-total-order {
+    width: 100%;
+    margin-left: 0;
+  }
 }

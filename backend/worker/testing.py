@@ -4,6 +4,8 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
+from ..api.services.plan_limits import get_plan_definition, normalize_plan_key
+
 
 @dataclass
 class InMemorySupabase:
@@ -23,10 +25,20 @@ class InMemorySupabase:
             "full_name": "User Test",
             "company_name": "Cotai Teste",
             "company_id": "company-1",
+            "plan": "silver",
             "role": "owner",
             "status": "active",
         }
     })
+    companies: dict[str, dict[str, Any]] = field(default_factory=lambda: {
+        "company-1": {
+            "id": "company-1",
+            "name": "Cotai Teste",
+            "plan": "silver",
+            "status": "active",
+        }
+    })
+    billing_subscriptions: list[dict[str, Any]] = field(default_factory=list)
     admin_audit_logs: list[dict[str, Any]] = field(default_factory=list)
     suppliers: dict[str, dict[str, Any]] = field(default_factory=dict)
     supplier_reviews: list[dict[str, Any]] = field(default_factory=list)
@@ -49,6 +61,98 @@ class InMemorySupabase:
 
     def get_profile(self, user_id: str) -> dict[str, Any] | None:
         return self.profiles.get(user_id)
+
+    def get_company(self, company_id: str) -> dict[str, Any] | None:
+        return self.companies.get(company_id)
+
+    def get_company_active_subscription(self, company_id: str) -> dict[str, Any] | None:
+        matches = [row for row in self.billing_subscriptions if row.get("company_id") == company_id]
+        if not matches:
+            return None
+        preferred_statuses = {"active", "trial", "trialing", "paid", "past_due", "upgrade_pending"}
+        for row in reversed(matches):
+            status = str(row.get("status") or "").strip().casefold()
+            if status in preferred_statuses:
+                return row
+        return matches[-1]
+
+    def list_company_profiles(self, company_id: str) -> list[dict[str, Any]]:
+        return [profile for profile in self.profiles.values() if profile.get("company_id") == company_id]
+
+    def count_company_active_profiles(self, company_id: str) -> int:
+        inactive_statuses = {"inactive", "disabled", "blocked"}
+        return sum(1 for profile in self.list_company_profiles(company_id) if str(profile.get("status") or "active").casefold() not in inactive_statuses)
+
+    def count_company_requests_in_current_month(self, company_id: str) -> int:
+        month_start = datetime.now(UTC).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        total = 0
+        for row in self.requests_by_id.values():
+            if row.get("company_id") != company_id:
+                continue
+            created_at = row.get("created_at")
+            if not created_at:
+                total += 1
+                continue
+            try:
+                created_at_value = datetime.fromisoformat(str(created_at).replace("Z", "+00:00"))
+            except ValueError:
+                total += 1
+                continue
+            if created_at_value >= month_start:
+                total += 1
+        return total
+
+    def get_company_plan_context(self, company_id: str, profile: dict[str, Any] | None = None) -> dict[str, Any]:
+        company = self.get_company(company_id)
+        subscription = self.get_company_active_subscription(company_id)
+        raw_plan = company.get("plan") if company else None
+        source = "company"
+        if not raw_plan and subscription:
+            raw_plan = subscription.get("plan")
+            source = "billing_subscription"
+        if not raw_plan and profile:
+            raw_plan = profile.get("plan")
+            source = "profile"
+        if not raw_plan:
+          raw_plan = "silver"
+          source = "default"
+        plan_key = normalize_plan_key(raw_plan)
+        definition = get_plan_definition(plan_key)
+        return {
+            "plan_key": plan_key,
+            "plan_label": definition["label"],
+            "plan_tagline": definition.get("tagline"),
+            "monthly_price": definition.get("monthly_price"),
+            "request_limit": definition["request_limit"],
+            "user_limit": definition["user_limit"],
+            "supplier_limit": definition.get("supplier_limit"),
+            "history_days": definition.get("history_days"),
+            "csv_imports_per_month": definition.get("csv_imports_per_month"),
+            "support_level": definition.get("support_level"),
+            "recommended": bool(definition.get("recommended")),
+            "requests_used": self.count_company_requests_in_current_month(company_id),
+            "active_users": self.count_company_active_profiles(company_id),
+            "company_status": str((company or {}).get("status") or "active").casefold(),
+            "source": source,
+            "company": company,
+            "subscription": subscription,
+        }
+
+    def assert_company_can_create_request(self, company_id: str, profile: dict[str, Any] | None = None) -> dict[str, Any]:
+        context = self.get_company_plan_context(company_id, profile=profile)
+        if context["company_status"] in {"inactive", "disabled", "blocked"}:
+            raise RuntimeError("Sua empresa esta bloqueada para novas cotacoes no momento. Verifique o status do plano.")
+        if context["user_limit"] is not None and context["active_users"] > context["user_limit"]:
+            raise RuntimeError(
+                f"O plano {context['plan_label']} permite ate {context['user_limit']} usuario(s) ativo(s). "
+                "Reduza a equipe ativa ou faca upgrade para continuar criando pedidos."
+            )
+        if context["request_limit"] is not None and context["requests_used"] >= context["request_limit"]:
+            raise RuntimeError(
+                f"O plano {context['plan_label']} atingiu o limite de {context['request_limit']} pedido(s) neste mes. "
+                "Faca upgrade para continuar usando a Cotai sem bloqueio."
+            )
+        return context
 
     def get_request_by_id(self, request_id: Any) -> dict[str, Any] | None:
         return self.requests_by_id.get(str(request_id))
@@ -76,9 +180,12 @@ class InMemorySupabase:
         duplicate_of_request_id: str | None = None,
         duplicate_score: float | None = None,
     ) -> dict[str, Any]:
+        profile = self.get_profile(user_id)
+        self.assert_company_can_create_request(company_id, profile=profile)
         self._request_counter += 1
         request_id = f"req-{self._request_counter}"
         request_code = f"CT-{1000 + self._request_counter}"
+        created_at = datetime.now(UTC).isoformat()
         project = self.create_project(
             company_id=company_id,
             created_by_user_id=user_id,
@@ -105,6 +212,7 @@ class InMemorySupabase:
             "approval_status": approval_status or "NOT_REQUIRED",
             "duplicate_of_request_id": duplicate_of_request_id,
             "duplicate_score": duplicate_score,
+            "created_at": created_at,
         }
         self.requests[request_code] = row
         self.requests_by_id[request_id] = row

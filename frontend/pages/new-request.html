@@ -3,13 +3,75 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cotai | Nova cotacao</title>
+  <title>Cotai | Falar com a Cota</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" />
   <link rel="stylesheet" href="../assets/css/apex.css" />
 </head>
 <body data-page="new-request">
   <div class="app-shell app-layout dashboard-apex-layout">
-    <aside class="sidebar app-sidebar dashboard-apex-sidebar" id="appSidebar"></aside>
+    <aside class="sidebar app-sidebar dashboard-apex-sidebar" id="appSidebar">
+      <div class="side-shell-head dashboard-brand-head">
+        <a class="brand dashboard-brand" href="dashboard.html">
+          <span class="brand-mark"><i class="bx bx-bolt-circle" aria-hidden="true"></i></span>
+          <span class="brand-copy">
+            <span class="brand-name">Cotai</span>
+            <span class="brand-meta">Dashboard</span>
+          </span>
+        </a>
+        <button class="btn btn-ghost side-collapse-btn" type="button" id="sidebarCollapse" aria-label="Colapsar menu" aria-expanded="true" data-icon-only="true">
+          <span class="collapse-arrow" aria-hidden="true"></span>
+        </button>
+      </div>
+
+      <div class="dashboard-nav-group">
+        <p class="dashboard-nav-title">Overview</p>
+        <nav class="app-nav" id="appNav">
+          <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
+          <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard"><span class="left"><i class="bx bx-grid-alt side-link-icon" aria-hidden="true"></i><span class="nav-label">Dashboard</span></span></a>
+          <a class="side-link" data-nav="analytics" href="analytics.html" title="Analytics"><span class="left"><i class="bx bx-bar-chart-alt-2 side-link-icon" aria-hidden="true"></i><span class="nav-label">Analytics</span></span></a>
+          <a class="side-link" data-nav="alerts" href="alerts.html" title="Alertas"><span class="left"><i class="bx bx-bell side-link-icon" aria-hidden="true"></i><span class="nav-label">Alertas</span></span></a>
+        </nav>
+      </div>
+
+      <div class="dashboard-nav-group">
+        <p class="dashboard-nav-title">Procurement</p>
+        <nav class="app-nav">
+          <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><i class="bx bx-receipt side-link-icon" aria-hidden="true"></i><span class="nav-label">Pedidos</span></span></a>
+          <a class="side-link" data-nav="approvals" href="approvals.html" title="Aprovacoes"><span class="left"><i class="bx bx-check-shield side-link-icon" aria-hidden="true"></i><span class="nav-label">Aprovacoes</span></span></a>
+          <a class="side-link" data-nav="comparisons" href="comparisons.html" title="Comparativos"><span class="left"><i class="bx bx-git-compare side-link-icon" aria-hidden="true"></i><span class="nav-label">Comparativos</span></span></a>
+        </nav>
+      </div>
+
+      <div class="dashboard-nav-group">
+        <p class="dashboard-nav-title">Base</p>
+        <nav class="app-nav">
+          <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores"><span class="left"><i class="bx bx-store-alt side-link-icon" aria-hidden="true"></i><span class="nav-label">Fornecedores</span></span></a>
+          <a class="side-link" data-nav="materials" href="materials.html" title="Materiais"><span class="left"><i class="bx bx-cube-alt side-link-icon" aria-hidden="true"></i><span class="nav-label">Materiais</span></span></a>
+          <a class="side-link" data-nav="price-book" href="price-book.html" title="Tabela de precos"><span class="left"><i class="bx bx-line-chart side-link-icon" aria-hidden="true"></i><span class="nav-label">Tabela de precos</span></span></a>
+        </nav>
+      </div>
+
+      <div class="dashboard-nav-group">
+        <p class="dashboard-nav-title">Commerce</p>
+        <nav class="app-nav dashboard-subnav">
+          <a class="side-link active" data-nav="new" href="new-request.html" title="Cota"><span class="left"><i class="bx bx-bot side-link-icon" aria-hidden="true"></i><span class="nav-label">Cota</span></span><span class="mini-badge">IA</span></a>
+          <a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><i class="bx bx-layer side-link-icon" aria-hidden="true"></i><span class="nav-label">Planos</span></span></a>
+          <a class="side-link" data-nav="settings" href="settings.html" title="Configuracoes"><span class="left"><i class="bx bx-cog side-link-icon" aria-hidden="true"></i><span class="nav-label">Configuracoes</span></span></a>
+        </nav>
+      </div>
+
+      <div class="dashboard-sidebar-divider"></div>
+
+      <div class="dashboard-sidebar-profile">
+        <div class="dashboard-avatar" id="dashboardAvatar">CO</div>
+        <div>
+          <strong id="companyNameSide">Cotai</strong>
+          <span id="dashboardRoleLabel">Equipe de compras</span>
+        </div>
+        <a class="dashboard-profile-link" href="settings.html" aria-label="Abrir perfil"><i class="bx bx-log-in-circle" aria-hidden="true"></i></a>
+      </div>
+    </aside>
     <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
 
     <main class="app-main dashboard-apex-main quote-chat-page quote-chat-page-bare">
@@ -27,7 +89,15 @@
                 <span class="quote-chat-home-icon" aria-hidden="true">
                   <i class="bx bx-bot"></i>
                 </span>
-                <h1 id="chatThreadTitle">Como posso ajudar com sua cotacao?</h1>
+                <h1 id="chatThreadTitle">Como a Cota pode ajudar na sua cotacao?</h1>
+                <p class="quote-chat-home-subtitle">
+                  Descreva o pedido em linguagem natural e a Cota organiza a solicitacao para comparar os melhores valores.
+                </p>
+                <div class="quote-chat-suggestions" aria-label="Exemplos de pedido">
+                  <button class="quote-chat-suggestion" type="button" data-suggestion="Quero cotar 12 sacos de cimento cp-ii 50kg para entrega amanha em Rio Preto.">12 sacos de cimento</button>
+                  <button class="quote-chat-suggestion" type="button" data-suggestion="Preciso de 3 m3 de areia media e 2 m3 de brita para esta semana.">Areia e brita</button>
+                  <button class="quote-chat-suggestion" type="button" data-suggestion="Quero comparar 40 blocos estruturais com entrega em obra.">40 blocos estruturais</button>
+                </div>
               </div>
             </section>
 
@@ -36,7 +106,7 @@
             <form class="quote-chat-composer quote-chat-composer-bare" id="chatComposerForm">
               <label class="sr-only" for="chatComposerInput">Mensagem</label>
               <div class="quote-chat-composer-shell quote-chat-composer-shell-bare">
-                <textarea id="chatComposerInput" rows="1" placeholder="Digite o pedido, materiais, quantidades, prazo e local de entrega"></textarea>
+                <textarea id="chatComposerInput" rows="1" placeholder="Peça para a Cota cotar materiais, quantidades, prazo e local de entrega"></textarea>
                 <div class="quote-chat-actions quote-chat-actions-bare">
                   <button class="btn btn-secondary hidden" id="chatConfirmButton" type="button">Confirmar</button>
                   <button class="btn btn-primary" id="chatComposerSubmit" type="submit">Enviar</button>

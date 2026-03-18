@@ -91,7 +91,7 @@ function getClientSidebarMarkup() {
     <div class="dashboard-nav-group">
       <p class="dashboard-nav-title">Commerce</p>
       <nav class="app-nav dashboard-subnav">
-        <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotacao"><span class="left"><span class="nav-label">Nova cotacao</span></span><span class="mini-badge">Novo</span></a>
+        <a class="side-link" data-nav="new" href="new-request.html" title="Cota"><span class="left"><span class="nav-label">Cota</span></span><span class="mini-badge">IA</span></a>
         <a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span></a>
         <a class="side-link" data-nav="settings" href="settings.html" title="Configuracoes"><span class="left"><span class="nav-label">Configuracoes</span></span></a>
       </nav>

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from datetime import UTC, datetime
 
 from fastapi.testclient import TestClient
 
@@ -67,6 +68,80 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(payload["thread"]["status"], "PROCESSING")
         self.assertIsNotNone(payload["request"])
         self.assertEqual(payload["request"]["status"], "PENDING_QUOTE")
+
+    def test_chat_thread_payload_includes_plan_usage(self) -> None:
+        first = self.client.post(
+            "/chat/message",
+            json={"message": "Preciso de 10 sacos de cimento"},
+        ).json()
+
+        response = self.client.get(f"/chat/thread/{first['thread']['id']}")
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertIn("plan_usage", payload)
+        self.assertEqual(payload["plan_usage"]["plan_key"], "silver")
+        self.assertEqual(payload["plan_usage"]["request_limit"], 80)
+        self.assertEqual(payload["plan_usage"]["user_limit"], 2)
+        self.assertEqual(payload["plan_usage"]["monthly_price"], 89)
+
+    def test_chat_confirm_blocks_when_company_reaches_request_limit(self) -> None:
+        company = self.supabase.companies["company-1"]
+        company["plan"] = "silver"
+        month_start = datetime.now(UTC).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+        for index in range(80):
+            request_id = f"limit-req-{index}"
+            request_code = f"CT-LIMIT-{index}"
+            self.supabase.requests_by_id[request_id] = {
+                "id": request_id,
+                "request_code": request_code,
+                "company_id": "company-1",
+                "requested_by_user_id": "user-1",
+                "status": "DONE",
+                "created_at": month_start.isoformat(),
+            }
+            self.supabase.requests[request_code] = self.supabase.requests_by_id[request_id]
+
+        first = self.client.post(
+            "/chat/message",
+            json={"message": "Preciso de 10 sacos de cimento"},
+        ).json()
+        response = self.client.post("/chat/confirm", json={"thread_id": first["thread"]["id"]})
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("atingiu o limite", response.json()["detail"])
+
+    def test_chat_confirm_blocks_when_company_exceeds_user_limit(self) -> None:
+        self.supabase.companies["company-1"]["plan"] = "silver"
+        self.supabase.profiles["user-2"] = {
+            "id": "user-2",
+            "email": "second@example.com",
+            "full_name": "Second User",
+            "company_name": "Cotai Teste",
+            "company_id": "company-1",
+            "plan": "silver",
+            "role": "buyer",
+            "status": "active",
+        }
+        self.supabase.profiles["user-3"] = {
+            "id": "user-3",
+            "email": "third@example.com",
+            "full_name": "Third User",
+            "company_name": "Cotai Teste",
+            "company_id": "company-1",
+            "plan": "silver",
+            "role": "buyer",
+            "status": "active",
+        }
+
+        first = self.client.post(
+            "/chat/message",
+            json={"message": "Preciso de 10 sacos de cimento"},
+        ).json()
+        response = self.client.post("/chat/confirm", json={"thread_id": first["thread"]["id"]})
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("permite ate 2 usuario", response.json()["detail"])
 
     def test_chat_draft_can_be_updated_before_confirmation(self) -> None:
         first = self.client.post(

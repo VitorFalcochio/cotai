@@ -117,3 +117,4 @@ export function printQuoteReport(payload) {
   popup.focus();
   popup.print();
 }
+

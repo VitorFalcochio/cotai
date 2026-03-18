@@ -1,4 +1,4 @@
-import { collectNotice, deriveCompanies, formatPlanLabel, safeQuery } from "./adminCommon.js";
+import { collectNotice, deriveCompanies, formatPlanLabel, getPlanMonthlyAmount, safeQuery } from "./adminCommon.js";
 import { getDemoBillingPayload } from "./demoData.js";
 
 export async function fetchAdminBilling() {
@@ -65,10 +65,10 @@ export async function fetchAdminBilling() {
         company: company.name,
         plan: formatPlanLabel(company.plan),
         status: company.status || "active",
-        amount: 0,
+        amount: getPlanMonthlyAmount(company.plan),
         updatedAt: company.created_at || null
       })),
-      notices: ["Billing em modo simplificado. Conecte billing_subscriptions para MRR e movimentacoes reais."]
+      notices: ["Billing em modo simplificado. MRR estimado com base no plano atual de cada empresa."]
     };
   }
 

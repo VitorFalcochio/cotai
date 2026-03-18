@@ -51,7 +51,7 @@ function buildNotifications(overview) {
       tone: "is-success",
       icon: "bx-loader-circle",
       title: `${processingRequests.length} cotacao(oes) em andamento`,
-      description: "O motor da Cotai esta comparando preco, prazo e melhor fornecedor.",
+      description: "A Cota esta comparando preco, prazo e melhor fornecedor.",
       meta: relativeTimeFromNow(processingRequests[0]?.updated_at || processingRequests[0]?.created_at),
       href: "requests.html"
     });
@@ -269,7 +269,7 @@ function buildSearchIndex(overview) {
     { label: "Comparativos", subtitle: "Melhor opcao por pedido", href: "comparisons.html", group: "Paginas", icon: "bx-git-compare", tag: "Pagina" },
     { label: "Fornecedores", subtitle: "Base e performance", href: "suppliers.html", group: "Paginas", icon: "bx-store-alt", tag: "Pagina" },
     { label: "Materiais", subtitle: "Catalogo e recorrencia", href: "materials.html", group: "Paginas", icon: "bx-cube-alt", tag: "Pagina" },
-    { label: "Nova cotacao", subtitle: "IA de compras", href: "new-request.html", group: "Paginas", icon: "bx-bot", tag: "Acao" },
+    { label: "Cota", subtitle: "Assistente de compras", href: "new-request.html", group: "Paginas", icon: "bx-bot", tag: "IA" },
     { label: "Configuracoes", subtitle: "Conta e preferencias", href: "settings.html", group: "Paginas", icon: "bx-cog", tag: "Pagina" }
   ];
 
