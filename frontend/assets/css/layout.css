@@ -550,16 +550,16 @@ body.sidebar-collapsed .dashboard-apex-layout {
 :root[data-theme="light"] .sidebar,
 :root[data-theme="light"] .app-sidebar,
 :root[data-theme="light"] .dashboard-apex-sidebar {
-  border-right-color: rgba(8, 18, 13, 0.08);
+  border-right-color: rgba(255, 255, 255, 0.06);
   background:
     radial-gradient(circle at top left, rgba(25, 210, 107, 0.08), transparent 18%),
-    linear-gradient(180deg, #f9fcfa 0%, #eef4f0 100%);
+    linear-gradient(180deg, #060a09 0%, #050908 100%);
 }
 
 :root[data-theme="light"] .sidebar::after,
 :root[data-theme="light"] .app-sidebar::after,
 :root[data-theme="light"] .dashboard-apex-sidebar::after {
-  background: linear-gradient(180deg, rgba(8, 18, 13, 0.08), rgba(8, 18, 13, 0.03));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
 }
 
 :root[data-theme="light"] .sidebar-title,
@@ -569,32 +569,58 @@ body.sidebar-collapsed .dashboard-apex-layout {
 :root[data-theme="light"] .side-link-icon,
 :root[data-theme="light"] .dashboard-sidebar-profile span,
 :root[data-theme="light"] .dashboard-profile-link {
-  color: #5f7183;
+  color: #5b6672;
 }
 
 :root[data-theme="light"] .dashboard-sidebar-profile strong,
 :root[data-theme="light"] .brand-name {
-  color: #0a1610;
+  color: #eef3f8;
 }
 
 :root[data-theme="light"] .side-link:hover {
-  background: rgba(8, 18, 13, 0.04);
-  border-color: rgba(8, 18, 13, 0.06);
+  background: rgba(255, 255, 255, 0.026);
+  border-color: rgba(255, 255, 255, 0.04);
   color: var(--text-primary);
 }
 
 :root[data-theme="light"] .side-link.active {
-  background: linear-gradient(180deg, rgba(229, 250, 238, 0.96), rgba(220, 245, 231, 0.96));
-  border-color: rgba(25, 210, 107, 0.16);
-  box-shadow: inset 0 0 0 1px rgba(25, 210, 107, 0.12);
+  background: linear-gradient(180deg, rgba(10, 27, 19, 0.96), rgba(8, 21, 15, 0.96));
+  border-color: rgba(25, 210, 107, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(25, 210, 107, 0.08);
 }
 
-:root[data-theme="light"] .side-collapse-btn,
-:root[data-theme="light"] .btn-ghost,
-:root[data-theme="light"] .btn-secondary,
-:root[data-theme="light"] .icon-btn {
-  border-color: rgba(8, 18, 13, 0.08);
-  background: rgba(255, 255, 255, 0.7);
+:root[data-theme="light"] .sidebar .side-collapse-btn,
+:root[data-theme="light"] .app-sidebar .side-collapse-btn,
+:root[data-theme="light"] .dashboard-apex-sidebar .side-collapse-btn,
+:root[data-theme="light"] .sidebar .btn-ghost,
+:root[data-theme="light"] .app-sidebar .btn-ghost,
+:root[data-theme="light"] .dashboard-apex-sidebar .btn-ghost,
+:root[data-theme="light"] .sidebar .btn-secondary,
+:root[data-theme="light"] .app-sidebar .btn-secondary,
+:root[data-theme="light"] .dashboard-apex-sidebar .btn-secondary,
+:root[data-theme="light"] .sidebar .icon-btn,
+:root[data-theme="light"] .app-sidebar .icon-btn,
+:root[data-theme="light"] .dashboard-apex-sidebar .icon-btn {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+  color: #eef3f8;
+}
+
+:root[data-theme="light"] .sidebar .side-collapse-btn:hover,
+:root[data-theme="light"] .app-sidebar .side-collapse-btn:hover,
+:root[data-theme="light"] .dashboard-apex-sidebar .side-collapse-btn:hover,
+:root[data-theme="light"] .sidebar .btn-ghost:hover,
+:root[data-theme="light"] .app-sidebar .btn-ghost:hover,
+:root[data-theme="light"] .dashboard-apex-sidebar .btn-ghost:hover,
+:root[data-theme="light"] .sidebar .btn-secondary:hover,
+:root[data-theme="light"] .app-sidebar .btn-secondary:hover,
+:root[data-theme="light"] .dashboard-apex-sidebar .btn-secondary:hover,
+:root[data-theme="light"] .sidebar .icon-btn:hover,
+:root[data-theme="light"] .app-sidebar .icon-btn:hover,
+:root[data-theme="light"] .dashboard-apex-sidebar .icon-btn:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: #eef3f8;
 }
 
 body.sidebar-collapsed .sidebar,
@@ -640,14 +666,20 @@ body.sidebar-collapsed .side-link {
   width: 44px;
   min-width: 44px;
   min-height: 44px;
+  gap: 0;
   padding-inline: 0;
   border-radius: 12px;
 }
 
 body.sidebar-collapsed .side-link .left {
-  width: 100%;
+  width: auto;
+  flex: 0 0 auto;
   justify-content: center;
   gap: 0;
+}
+
+body.sidebar-collapsed .side-link .mini-badge {
+  display: none;
 }
 
 body.sidebar-collapsed .side-link::after {

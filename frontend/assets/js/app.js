@@ -371,7 +371,10 @@
       document.body.classList.toggle("sidebar-collapsed", isCollapsed);
       sidebar.classList.toggle("is-collapsed", isCollapsed);
       localStorage.setItem(collapseStorageKey, isCollapsed ? "1" : "0");
-      if (collapseBtn) collapseBtn.textContent = isCollapsed ? "Expand" : "Collapse";
+      if (collapseBtn) {
+        collapseBtn.setAttribute("aria-expanded", isCollapsed ? "false" : "true");
+        collapseBtn.setAttribute("aria-label", isCollapsed ? "Expandir menu" : "Colapsar menu");
+      }
       requestAnimationFrame(moveIndicator);
     };
 
@@ -405,7 +408,10 @@
       if (mobileBreakpoint.matches) {
         document.body.classList.remove("sidebar-collapsed");
         sidebar.classList.remove("is-collapsed");
-        if (collapseBtn) collapseBtn.textContent = "Collapse";
+        if (collapseBtn) {
+          collapseBtn.setAttribute("aria-expanded", "true");
+          collapseBtn.setAttribute("aria-label", "Colapsar menu");
+        }
       } else {
         setDrawerState(false);
         setCollapsedState(localStorage.getItem(collapseStorageKey) === "1");
