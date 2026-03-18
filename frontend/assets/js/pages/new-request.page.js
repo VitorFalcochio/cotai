@@ -330,7 +330,7 @@ function renderQuoteResponseCard(row) {
 }
 
 function renderMessageBody(row) {
-  return escapeHtml(String(row.content || "")).replace(/\n/g, "<br>");
+  return renderQuoteResponseCard(row) || escapeHtml(String(row.content || "")).replace(/\n/g, "<br>");
 }
 
 function renderMessage(row) {
@@ -596,6 +596,11 @@ function renderThread(payload) {
   sessionStorage.setItem(THREAD_STORAGE_KEY, activeThreadId);
   activeRequestId = payload.request?.id || "";
   lastKnownRequestStatus = String(payload.request?.status || payload.thread?.status || "").toUpperCase();
+  quoteRenderContext = {
+    requestId: String(payload.request?.id || payload.latest_quote?.request_id || ""),
+    requestCode: String(payload.request?.request_code || ""),
+    results: Array.isArray(payload.results) ? payload.results : []
+  };
   const list = qs("#chatMessages");
   if (list) {
     list.innerHTML = payload.messages.length
@@ -679,8 +684,27 @@ async function submitMessage({ input, submitButton }) {
   const message = String(input?.value || "").trim();
   if (!message) return;
 
+  const list = qs("#chatMessages");
+  const previousMarkup = list?.innerHTML || "";
+  const hadVisibleThread = !qs("#chatHomeState")?.classList.contains("hidden");
   showFeedback("#newRequestFeedback", "", true);
   setLoading(submitButton, true, "Enviar", "Enviando...");
+
+  if (list) {
+    const optimisticRows = [
+      renderMessage({ role: "user", content: message }),
+      `
+        <article class="chat-row is-assistant is-pending">
+          <div class="chat-bubble is-assistant">
+            <div class="chat-bubble-body">A Cota está analisando sua solicitação...</div>
+          </div>
+        </article>
+      `
+    ].join("");
+    list.innerHTML = previousMarkup ? `${previousMarkup}${optimisticRows}` : optimisticRows;
+    setChatStage(true);
+    list.scrollTop = list.scrollHeight;
+  }
 
   try {
     const payload = await sendChatMessage({ threadId: activeThreadId || null, message });
@@ -691,6 +715,10 @@ async function submitMessage({ input, submitButton }) {
       input.focus();
     }
   } catch (error) {
+    if (list) {
+      list.innerHTML = previousMarkup;
+      setChatStage(hadVisibleThread);
+    }
     showFeedback("#newRequestFeedback", error.message || "Não foi possível enviar a mensagem.");
   } finally {
     setLoading(submitButton, false, "Enviar");
