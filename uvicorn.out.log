@@ -1,0 +1,36 @@
+{"timestamp": "2026-03-19T15:43:27.257532+00:00", "level": "INFO", "message": "HTTP request completed", "request_id": "03f611c9-64f4-4bb5-9914-225a77bde2eb", "method": "GET", "path": "/health", "status_code": 200, "duration_ms": 5.28}
+INFO:     127.0.0.1:53034 - "GET /health HTTP/1.1" 200 OK
+{"timestamp": "2026-03-19T15:45:01.711738+00:00", "level": "INFO", "message": "HTTP request completed", "request_id": "16cb9aa4-b441-4b4c-8302-c6df65c35048", "method": "GET", "path": "/health", "status_code": 200, "duration_ms": 3.15}
+INFO:     127.0.0.1:53065 - "GET /health HTTP/1.1" 200 OK
+{"timestamp": "2026-03-19T15:45:08.464538+00:00", "level": "INFO", "message": "HTTP request completed", "request_id": "bc7f15ef-928e-4dff-9edb-2467f15e99fa", "method": "OPTIONS", "path": "/chat/message", "status_code": 200, "duration_ms": 0.3}
+INFO:     127.0.0.1:53066 - "OPTIONS /chat/message HTTP/1.1" 200 OK
+{"timestamp": "2026-03-19T15:45:13.005276+00:00", "level": "INFO", "message": "HTTP request completed", "request_id": "ddffd381-a43c-4fc5-90ee-63050d415834", "method": "POST", "path": "/chat/message", "status_code": 200, "duration_ms": 4522.08}
+INFO:     127.0.0.1:53066 - "POST /chat/message HTTP/1.1" 200 OK
+{"timestamp": "2026-03-19T15:45:13.075277+00:00", "level": "INFO", "message": "HTTP request completed", "request_id": "669151e0-d6d2-49d4-998f-9cc341a580ef", "method": "OPTIONS", "path": "/cotar", "status_code": 200, "duration_ms": 0.5}
+INFO:     127.0.0.1:53066 - "OPTIONS /cotar HTTP/1.1" 200 OK
+{"timestamp": "2026-03-19T15:45:15.161920+00:00", "level": "INFO", "message": "HTTP request completed", "request_id": "33922dc9-d566-40c7-a448-74997f430b96", "method": "OPTIONS", "path": "/chat/confirm", "status_code": 200, "duration_ms": 1.6}
+INFO:     127.0.0.1:53066 - "OPTIONS /chat/confirm HTTP/1.1" 200 OK
+{"timestamp": "2026-03-19T15:45:18.849119+00:00", "level": "INFO", "message": "HTTP request completed", "request_id": "0e7e4065-1fca-4cc8-9ce3-e50b1e7625d3", "method": "POST", "path": "/chat/confirm", "status_code": 200, "duration_ms": 3310.01}
+INFO:     127.0.0.1:53066 - "POST /chat/confirm HTTP/1.1" 200 OK
+{"timestamp": "2026-03-19T15:45:20.713114+00:00", "level": "INFO", "message": "HTTP request completed", "request_id": "fb2d37f7-b766-40c4-9955-f8ca2d607f8b", "method": "POST", "path": "/cotar", "status_code": 200, "duration_ms": 7607.71}
+INFO:     127.0.0.1:53067 - "POST /cotar HTTP/1.1" 200 OK
+{"timestamp": "2026-03-19T15:45:22.906481+00:00", "level": "INFO", "message": "HTTP request completed", "request_id": "c0845980-2022-41d2-a469-e649382d4e5e", "method": "OPTIONS", "path": "/requests/309afae5-5c5a-40be-8250-080378288f3c/status", "status_code": 200, "duration_ms": 0.55}
+INFO:     127.0.0.1:53067 - "OPTIONS /requests/309afae5-5c5a-40be-8250-080378288f3c/status HTTP/1.1" 200 OK
+{"timestamp": "2026-03-19T15:45:23.940699+00:00", "level": "INFO", "message": "HTTP request completed", "request_id": "2841a8a2-5bc6-4b0d-94e8-398ffccb6db9", "method": "GET", "path": "/requests/309afae5-5c5a-40be-8250-080378288f3c/status", "status_code": 200, "duration_ms": 1006.46}
+INFO:     127.0.0.1:53067 - "GET /requests/309afae5-5c5a-40be-8250-080378288f3c/status HTTP/1.1" 200 OK
+{"timestamp": "2026-03-19T15:45:28.115843+00:00", "level": "INFO", "message": "HTTP request completed", "request_id": "b685bed9-a799-41b8-9596-f2972a5bfd66", "method": "GET", "path": "/requests/309afae5-5c5a-40be-8250-080378288f3c/status", "status_code": 200, "duration_ms": 1216.22}
+INFO:     127.0.0.1:53067 - "GET /requests/309afae5-5c5a-40be-8250-080378288f3c/status HTTP/1.1" 200 OK
+{"timestamp": "2026-03-19T15:45:31.908749+00:00", "level": "INFO", "message": "HTTP request completed", "request_id": "bf491120-4401-465b-905f-a23170f9cac6", "method": "GET", "path": "/requests/309afae5-5c5a-40be-8250-080378288f3c/status", "status_code": 200, "duration_ms": 1001.54}
+INFO:     127.0.0.1:53067 - "GET /requests/309afae5-5c5a-40be-8250-080378288f3c/status HTTP/1.1" 200 OK
+{"timestamp": "2026-03-19T15:45:35.875744+00:00", "level": "INFO", "message": "HTTP request completed", "request_id": "2bc8c9ab-38ba-4012-a63f-2fd5fc24d068", "method": "GET", "path": "/requests/309afae5-5c5a-40be-8250-080378288f3c/status", "status_code": 200, "duration_ms": 965.93}
+INFO:     127.0.0.1:53067 - "GET /requests/309afae5-5c5a-40be-8250-080378288f3c/status HTTP/1.1" 200 OK
+{"timestamp": "2026-03-19T15:45:40.039513+00:00", "level": "INFO", "message": "HTTP request completed", "request_id": "2845d22a-1c3a-4e9d-9072-18a37a0c60ab", "method": "GET", "path": "/requests/309afae5-5c5a-40be-8250-080378288f3c/status", "status_code": 200, "duration_ms": 1129.68}
+INFO:     127.0.0.1:53067 - "GET /requests/309afae5-5c5a-40be-8250-080378288f3c/status HTTP/1.1" 200 OK
+{"timestamp": "2026-03-19T15:45:40.099513+00:00", "level": "INFO", "message": "HTTP request completed", "request_id": "ee8b59da-b301-49ba-8f87-2c9463600e5c", "method": "OPTIONS", "path": "/chat/thread/3a40ebfd-ac42-4bd4-a81c-cd7afdb16bbd", "status_code": 200, "duration_ms": 0.65}
+INFO:     127.0.0.1:53067 - "OPTIONS /chat/thread/3a40ebfd-ac42-4bd4-a81c-cd7afdb16bbd HTTP/1.1" 200 OK
+{"timestamp": "2026-03-19T15:45:41.469275+00:00", "level": "INFO", "message": "HTTP request completed", "request_id": "4005c7a4-c246-4fb8-9efb-9ffc63bdcbb9", "method": "GET", "path": "/chat/thread/3a40ebfd-ac42-4bd4-a81c-cd7afdb16bbd", "status_code": 200, "duration_ms": 1346.99}
+INFO:     127.0.0.1:53067 - "GET /chat/thread/3a40ebfd-ac42-4bd4-a81c-cd7afdb16bbd HTTP/1.1" 200 OK
+{"timestamp": "2026-03-19T15:47:30.602431+00:00", "level": "INFO", "message": "HTTP request completed", "request_id": "7b3bd592-f384-4fc3-ab11-f7fac2810041", "method": "GET", "path": "/chat/thread/3a40ebfd-ac42-4bd4-a81c-cd7afdb16bbd", "status_code": 200, "duration_ms": 2724.06}
+INFO:     127.0.0.1:53141 - "GET /chat/thread/3a40ebfd-ac42-4bd4-a81c-cd7afdb16bbd HTTP/1.1" 200 OK
+{"timestamp": "2026-03-19T15:47:30.655863+00:00", "level": "INFO", "message": "HTTP request completed", "request_id": "38faf64c-ea80-40a8-8aa5-b5e4bd0708b0", "method": "GET", "path": "/health", "status_code": 200, "duration_ms": 1.77}
+INFO:     127.0.0.1:53141 - "GET /health HTTP/1.1" 200 OK

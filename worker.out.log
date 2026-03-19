@@ -1,0 +1,9 @@
+{"timestamp": "2026-03-19T15:43:10.625590+00:00", "level": "INFO", "message": "Worker started", "supabase_url": "https://hppeuzpgmywjniidqatw.supabase.co", "legacy_google_sheets_enabled": false}
+{"timestamp": "2026-03-19T15:43:12.301519+00:00", "level": "INFO", "message": "Worker heartbeat", "status": "online", "poll_seconds": 5, "requests_per_cycle": 10}
+{"timestamp": "2026-03-19T15:44:13.784379+00:00", "level": "INFO", "message": "Worker heartbeat", "status": "online", "poll_seconds": 5, "requests_per_cycle": 10}
+{"timestamp": "2026-03-19T15:45:15.851030+00:00", "level": "INFO", "message": "Worker heartbeat", "status": "online", "poll_seconds": 5, "requests_per_cycle": 10}
+{"timestamp": "2026-03-19T15:45:40.139498+00:00", "level": "INFO", "message": "Quote response published to internal chat", "request_id": "CT-260319154517", "request_quote_id": "e226bce1-7004-4704-bfa2-e424c779b10a", "thread_id": "3a40ebfd-ac42-4bd4-a81c-cd7afdb16bbd"}
+{"timestamp": "2026-03-19T15:45:40.140507+00:00", "level": "INFO", "message": "Request quoted successfully", "request_id": "CT-260319154517", "request_quote_id": "e226bce1-7004-4704-bfa2-e424c779b10a", "item_count": 1, "ai_provider": "template"}
+{"timestamp": "2026-03-19T15:46:20.743433+00:00", "level": "INFO", "message": "Worker heartbeat", "status": "online", "poll_seconds": 5, "requests_per_cycle": 10}
+{"timestamp": "2026-03-19T15:47:21.657747+00:00", "level": "INFO", "message": "Worker heartbeat", "status": "online", "poll_seconds": 5, "requests_per_cycle": 10}
+{"timestamp": "2026-03-19T15:48:22.455689+00:00", "level": "INFO", "message": "Worker heartbeat", "status": "online", "poll_seconds": 5, "requests_per_cycle": 10}
