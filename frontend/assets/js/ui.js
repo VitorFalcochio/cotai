@@ -65,7 +65,7 @@ function getClientSidebarMarkup() {
       <nav class="app-nav" id="appNav">
         <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
         <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard"><span class="left"><span class="nav-label">Dashboard</span></span></a>
-        <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotacao"><span class="left"><span class="nav-label">Nova cotacao</span></span><span class="mini-badge">IA</span></a>
+        <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotacao"><span class="left"><span class="nav-label">Cota</span></span><span class="mini-badge">IA</span></a>
         <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span></a>
       </nav>
     </div>
