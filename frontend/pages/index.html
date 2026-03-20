@@ -160,7 +160,7 @@
       .hero-copy {
         max-width: 980px;
         margin-top: 30px;
-        animation: heroFloat 8s ease-in-out infinite;
+        animation: none;
       }
 
       .hero-copy h1,
@@ -256,7 +256,7 @@
         filter: blur(0.2px);
         box-shadow: 0 0 10px rgba(34, 197, 94, 0.22);
         pointer-events: none;
-        animation: flowBeam 8.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+        animation: flowBeam 14s cubic-bezier(0.22, 1, 0.36, 1) infinite;
       }
 
       .hero-flow-card {
@@ -271,7 +271,7 @@
         text-align: left;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
         overflow: hidden;
-        animation: flowCardPulse 7.5s ease-in-out infinite;
+        animation: none;
       }
 
       .hero-flow-card::after {
@@ -284,7 +284,7 @@
         opacity: 0;
         transform: scaleX(0.4);
         transform-origin: center;
-        animation: flowLinePulse 7.5s ease-in-out infinite;
+        animation: none;
       }
 
       .hero-flow-card:nth-child(2),
@@ -343,6 +343,48 @@
 
       .section {
         padding: 108px 0 0;
+      }
+
+      .trust-strip {
+        width: min(100%, 980px);
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 28px;
+      }
+
+      .trust-stat {
+        padding: 16px 18px;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 18px;
+        background: linear-gradient(180deg, rgba(13, 18, 24, 0.92), rgba(10, 15, 20, 0.92));
+        text-align: left;
+      }
+
+      .trust-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        color: var(--green);
+        font-size: 0.74rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .trust-stat strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 1.08rem;
+        letter-spacing: -0.03em;
+      }
+
+      .trust-stat span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.88rem;
+        line-height: 1.55;
       }
 
       .section + .section {
@@ -686,7 +728,7 @@
         border: 1px solid rgba(255, 255, 255, 0.06);
         border-radius: 22px;
         background: #060a09;
-        transform: perspective(1400px) rotateX(var(--rotate-x)) rotateY(var(--rotate-y)) scale(1.05);
+        transform: perspective(1400px) rotateX(calc(var(--rotate-x) * 0.18)) rotateY(calc(var(--rotate-y) * 0.18)) scale(1.01);
         transform-origin: center center;
         transform-style: preserve-3d;
         transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -695,7 +737,7 @@
       .preview-shell:hover {
         border-color: rgba(34, 197, 94, 0.18);
         box-shadow:
-          0 30px 70px rgba(0, 0, 0, 0.42),
+          0 24px 48px rgba(0, 0, 0, 0.34),
           0 0 0 1px rgba(34, 197, 94, 0.06);
       }
 
@@ -1073,7 +1115,7 @@
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 20px;
         background: rgba(13, 17, 23, 0.82);
-        text-align: center;
+        text-align: left;
         transition:
           transform var(--transition-base),
           border-color var(--transition-base),
@@ -1337,7 +1379,8 @@
         .problem-grid,
         .benefits-grid,
         .steps-row,
-        .proof-shell {
+        .proof-shell,
+        .trust-strip {
           grid-template-columns: 1fr 1fr;
         }
 
@@ -1385,6 +1428,7 @@
         .benefits-grid,
         .steps-row,
         .proof-shell,
+        .trust-strip,
         .hero-flow,
         .audience-grid,
         .ai-showcase-shell {
@@ -1485,6 +1529,29 @@
               <span class="hero-flow-pill">Melhor oferta pronta</span>
             </article>
           </div>
+
+          <div class="trust-strip animate" data-animate>
+            <article class="trust-stat">
+              <div class="trust-kicker"><i class="bx bx-shield-quarter"></i>Confianca operacional</div>
+              <strong>Base estruturada de decisao</strong>
+              <span>Pedidos, materiais, fornecedores e historico em um unico fluxo operacional.</span>
+            </article>
+            <article class="trust-stat">
+              <div class="trust-kicker"><i class="bx bx-search-alt"></i>Rastreabilidade</div>
+              <strong>Origem e leitura do mercado</strong>
+              <span>Comparativos, referencias e contexto para sustentar a compra sem achismo.</span>
+            </article>
+            <article class="trust-stat">
+              <div class="trust-kicker"><i class="bx bx-line-chart"></i>Controle</div>
+              <strong>Visao executiva da operacao</strong>
+              <span>Fila, economia potencial, materiais criticos e pendencias em uma tela.</span>
+            </article>
+            <article class="trust-stat">
+              <div class="trust-kicker"><i class="bx bx-time-five"></i>Velocidade</div>
+              <strong>Menos ruido, mais decisao</strong>
+              <span>Menos planilha, menos retrabalho e menos tempo perdido entre pedido e fechamento.</span>
+            </article>
+          </div>
         </div>
       </section>
 
@@ -1510,40 +1577,40 @@
                 <div class="preview-topbar">
                   <div class="preview-search">
                     <i class="bx bx-search"></i>
-                    <span>Search anything...</span>
+                    <span>Buscar pedido, material ou fornecedor</span>
                   </div>
-                  <a class="btn btn-primary" href="signup.html">New Order</a>
+                  <a class="btn btn-primary" href="signup.html">Nova cotacao</a>
                 </div>
 
                 <div class="preview-body">
                   <div class="preview-copy">
-                    <h3>Dashboard</h3>
-                    <p>Welcome back. Here's what's happening with your operation today.</p>
+                    <h3>Painel operacional</h3>
+                    <p>Leitura executiva da operacao: fila atual, economia potencial e materiais que pedem decisao.</p>
                   </div>
 
                   <div class="preview-metrics">
                     <article class="preview-metric">
-                      <span>Total Revenue</span>
-                      <strong>R$ 1.495</strong>
+                      <span>Pedidos ativos</span>
+                      <strong>18</strong>
                     </article>
                     <article class="preview-metric">
-                      <span>Active Users</span>
-                      <strong>12</strong>
+                      <span>Materiais em cotacao</span>
+                      <strong>126</strong>
                     </article>
                     <article class="preview-metric">
-                      <span>Total Orders</span>
-                      <strong>14</strong>
+                      <span>Economia potencial</span>
+                      <strong>R$ 48 mil</strong>
                     </article>
                     <article class="preview-metric">
-                      <span>Page Views</span>
-                      <strong>1K</strong>
+                      <span>Alertas operacionais</span>
+                      <strong>03</strong>
                     </article>
                   </div>
 
                   <div class="preview-grid">
                     <article class="preview-panel">
-                      <h4>Overview</h4>
-                      <p>Monthly performance for the current year</p>
+                      <h4>Fila de cotacao</h4>
+                      <p>Volume de pedidos analisados e pronto para decisao</p>
                       <div class="preview-chart">
                         <span></span>
                         <span></span>
@@ -1557,12 +1624,12 @@
                     </article>
 
                     <article class="preview-panel">
-                      <h4>Traffic Sources</h4>
-                      <p>Where your visitors come from</p>
+                      <h4>Prioridades da obra</h4>
+                      <p>Itens que mais pressionam prazo, custo e compra</p>
                       <div class="preview-list">
-                        <div><span class="preview-dot direct"></span><span>Direct</span><strong>35%</strong></div>
-                        <div><span class="preview-dot organic"></span><span>Organic</span><strong>28%</strong></div>
-                        <div><span class="preview-dot referral"></span><span>Referral</span><strong>22%</strong></div>
+                        <div><span class="preview-dot direct"></span><span>Cimento CP-II</span><strong>Urgente</strong></div>
+                        <div><span class="preview-dot organic"></span><span>Bloco estrutural</span><strong>72h</strong></div>
+                        <div><span class="preview-dot referral"></span><span>Aco 10 mm</span><strong>Comparar</strong></div>
                       </div>
                     </article>
                   </div>
@@ -1570,21 +1637,6 @@
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      <section class="signal-band" aria-label="Fluxo continuo do produto">
-        <div class="signal-band-track">
-          <span class="signal-band-item"><i class="bx bx-message-square-detail"></i>Pedido entra em linguagem natural</span>
-          <span class="signal-band-item"><i class="bx bx-bot"></i>Cota interpreta os materiais</span>
-          <span class="signal-band-item"><i class="bx bx-git-compare"></i>Comparacao de fornecedores</span>
-          <span class="signal-band-item"><i class="bx bx-badge-check"></i>Melhor opcao destacada</span>
-          <span class="signal-band-item"><i class="bx bx-time-five"></i>Menos tempo para decidir</span>
-          <span class="signal-band-item"><i class="bx bx-message-square-detail"></i>Pedido entra em linguagem natural</span>
-          <span class="signal-band-item"><i class="bx bx-bot"></i>Cota interpreta os materiais</span>
-          <span class="signal-band-item"><i class="bx bx-git-compare"></i>Comparacao de fornecedores</span>
-          <span class="signal-band-item"><i class="bx bx-badge-check"></i>Melhor opcao destacada</span>
-          <span class="signal-band-item"><i class="bx bx-time-five"></i>Menos tempo para decidir</span>
         </div>
       </section>
 
@@ -1906,7 +1958,6 @@
         <div class="footer-column">
           <strong>Produto</strong>
           <a href="#solucao">Solucao</a>
-          <a href="#beneficios">Beneficios</a>
           <a href="#como-funciona">Como funciona</a>
         </div>
 

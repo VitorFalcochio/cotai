@@ -24,72 +24,11 @@
         </div>
         <div class="dashboard-topbar-actions">
           <a class="btn btn-primary" href="new-request.html"><i class="bx bx-plus" aria-hidden="true"></i><span>Nova cotacao</span></a>
-          <button class="icon-btn dashboard-customize-trigger" id="dashboardCustomizeToggle" type="button" aria-label="Personalizar dashboard" aria-expanded="false" aria-haspopup="dialog"><i class="bx bx-palette" aria-hidden="true"></i></button>
           <a class="btn btn-ghost hidden" id="adminShortcut" href="admin-dashboard.html">Admin</a>
           <button class="icon-btn dashboard-bell" id="dashboardNotificationsToggle" type="button" aria-label="Notificacoes" aria-expanded="false" aria-haspopup="dialog"><i class="bx bx-bell" aria-hidden="true"></i><span class="dashboard-bell-dot" id="dashboardBellDot"></span></button>
           <button class="dashboard-user-chip" id="dashboardLogoutButton" type="button" aria-label="Sair"><span id="dashboardUserChip"></span></button>
         </div>
       </header>
-
-      <div class="dashboard-customize-panel hidden" id="dashboardCustomizePanel" role="dialog" aria-label="Personalizar dashboard">
-        <div class="dashboard-customize-head">
-          <div>
-            <strong>Customize</strong>
-            <span>Personalize your dashboard experience.</span>
-          </div>
-          <button class="icon-btn dashboard-customize-close" id="dashboardCustomizeClose" type="button" aria-label="Fechar personalizacao">
-            <i class="bx bx-x" aria-hidden="true"></i>
-          </button>
-        </div>
-
-        <div class="dashboard-customize-section">
-          <h3>Theme</h3>
-          <div class="dashboard-customize-grid theme-grid">
-            <button class="dashboard-customize-option" type="button" data-theme-choice="light">
-              <i class="bx bx-sun" aria-hidden="true"></i>
-              <span>Light</span>
-            </button>
-            <button class="dashboard-customize-option" type="button" data-theme-choice="dark">
-              <i class="bx bx-moon" aria-hidden="true"></i>
-              <span>Dark</span>
-            </button>
-            <button class="dashboard-customize-option" type="button" data-theme-choice="system">
-              <i class="bx bx-desktop" aria-hidden="true"></i>
-              <span>System</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="dashboard-customize-section">
-          <h3>Color</h3>
-          <div class="dashboard-customize-grid color-grid">
-            <button class="dashboard-customize-option" type="button" data-accent-choice="emerald" data-swatch="#19d26b"><span class="swatch"></span><span>Emerald</span></button>
-            <button class="dashboard-customize-option" type="button" data-accent-choice="blue" data-swatch="#2f8cff"><span class="swatch"></span><span>Blue</span></button>
-            <button class="dashboard-customize-option" type="button" data-accent-choice="violet" data-swatch="#7c5cff"><span class="swatch"></span><span>Violet</span></button>
-            <button class="dashboard-customize-option" type="button" data-accent-choice="rose" data-swatch="#e14f9f"><span class="swatch"></span><span>Rose</span></button>
-            <button class="dashboard-customize-option" type="button" data-accent-choice="orange" data-swatch="#f97316"><span class="swatch"></span><span>Orange</span></button>
-            <button class="dashboard-customize-option" type="button" data-accent-choice="slate" data-swatch="#94a3b8"><span class="swatch"></span><span>Slate</span></button>
-          </div>
-        </div>
-
-        <div class="dashboard-customize-section">
-          <h3>Density</h3>
-          <div class="dashboard-customize-grid density-grid">
-            <button class="dashboard-customize-option" type="button" data-density-choice="compact">
-              <i class="bx bx-grid-small" aria-hidden="true"></i>
-              <span>Compact</span>
-            </button>
-            <button class="dashboard-customize-option" type="button" data-density-choice="comfortable">
-              <i class="bx bx-grid-alt" aria-hidden="true"></i>
-              <span>Comfortable</span>
-            </button>
-            <button class="dashboard-customize-option" type="button" data-density-choice="spacious">
-              <i class="bx bx-layout" aria-hidden="true"></i>
-              <span>Spacious</span>
-            </button>
-          </div>
-        </div>
-      </div>
 
       <div class="dashboard-notifications hidden" id="dashboardNotifications" role="dialog" aria-label="Notificacoes">
         <div class="dashboard-notifications-head">
@@ -106,8 +45,8 @@
 
       <section class="dashboard-heading">
         <div>
-          <h1>Dashboard</h1>
-          <p id="dashboardWelcome">Leia o que precisa de decisao agora: pedidos, materiais e economia.</p>
+          <h1>Painel operacional</h1>
+          <p id="dashboardWelcome">Leitura executiva da operacao de compras: fila, economia potencial, materiais criticos e decisoes pendentes.</p>
         </div>
       </section>
 
@@ -162,11 +101,11 @@
       <section class="dashboard-core-grid">
         <article class="dashboard-panel">
           <div class="dashboard-panel-head">
-            <div>
-              <h2>Pedidos recentes</h2>
-              <p>Os pedidos mais novos para revisar ou acompanhar.</p>
-            </div>
-            <a class="btn btn-ghost" href="requests.html">Abrir historico</a>
+              <div>
+                <h2>Pedidos recentes</h2>
+                <p>Pedidos que acabaram de entrar e precisam de revisao, aprovacao ou fechamento.</p>
+              </div>
+            <a class="btn btn-ghost" href="requests.html">Ver fila completa</a>
           </div>
           <div class="app-table-wrap">
             <table class="app-table">
@@ -182,8 +121,8 @@
           <article class="dashboard-panel">
             <div class="dashboard-panel-head">
               <div>
-                <h2>Status da cotacao</h2>
-                <p>Fila resumida para saber o que precisa de atencao.</p>
+                <h2>Status da operacao</h2>
+                <p>Resumo rapido do que esta bloqueando, aguardando aprovacao ou em andamento.</p>
               </div>
             </div>
             <div class="dashboard-status-list" id="dashboardStatusList"></div>
@@ -193,7 +132,7 @@
             <div class="dashboard-panel-head">
               <div>
                 <h2>Materiais em foco</h2>
-                <p>Itens que mais apareceram nos pedidos recentes.</p>
+                <p>Itens com maior recorrencia recente e maior impacto na tomada de decisao.</p>
               </div>
             </div>
             <div class="entity-list" id="dashboardTopMaterials"></div>
@@ -204,21 +143,21 @@
       <section class="dashboard-core-grid dashboard-core-grid-bottom">
         <article class="dashboard-panel">
           <div class="dashboard-panel-head">
-            <div>
-              <h2>Atividade recente</h2>
-              <p>Leitura cronologica do que entrou, concluiu ou travou.</p>
+              <div>
+                <h2>Linha do tempo</h2>
+                <p>Leitura cronologica da operacao para entender entradas, conclusoes e falhas.</p>
+              </div>
             </div>
-          </div>
           <div class="dashboard-status-list" id="dashboardActivityList"></div>
         </article>
 
         <article class="dashboard-panel">
           <div class="dashboard-panel-head">
-            <div>
-              <h2>Resumo util</h2>
-              <p>Poucos sinais para decidir o proximo movimento.</p>
+              <div>
+                <h2>Resumo executivo</h2>
+                <p>Sinais consolidados para orientar a proxima decisao de compra.</p>
+              </div>
             </div>
-          </div>
           <div class="dashboard-status-list" id="dashboardSummaryList"></div>
         </article>
       </section>
