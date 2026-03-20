@@ -26,8 +26,10 @@ class ChatService:
         parsed = self.parser.parse_user_message(message)
         if not parsed["items"]:
             assistant_text = (
+                "Aqui e a Cota, falando como mestre de obra da compra. "
                 "Nao consegui identificar os materiais com seguranca. "
-                "Descreva os itens em linguagem direta, por exemplo: 50 sacos de cimento, 20 barras de ferro 10mm e 5 m3 de areia media."
+                "Me passe os itens de forma direta, com quantidade e especificacao quando tiver. "
+                "Exemplo: 50 sacos de cimento CP II, 20 barras de ferro 10 mm e 5 m3 de areia media."
             )
             updated_metadata = {
                 **metadata,
@@ -142,11 +144,11 @@ class ChatService:
 
         if request_defaults["approval_required"]:
             assistant_text = (
-                f"Pedido {request_row['request_code']} registrado com prioridade {request_defaults['priority']}. "
-                "Ele entrou em fila de aprovacao antes da cotacao."
+                f"Aqui e a Cota. Pedido {request_row['request_code']} registrado com prioridade {request_defaults['priority']}. "
+                "Antes de eu tocar a cotacao, ele entrou em fila de aprovacao."
             )
         else:
-            assistant_text = f"Pedido {request_row['request_code']} confirmado. Vou iniciar a cotacao agora."
+            assistant_text = f"Aqui e a Cota. Pedido {request_row['request_code']} confirmado. Vou puxar a cotacao agora."
 
         if duplicate_candidate:
             assistant_text += (

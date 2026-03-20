@@ -65,6 +65,13 @@ export function estimateConstruction(payload) {
   });
 }
 
+export function analyzeConstruction(payload) {
+  return apiFetch("/modo-construcao/analisar", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
 export function confirmChatThread(threadId, draft = {}) {
   return apiFetch("/chat/confirm", {
     method: "POST",

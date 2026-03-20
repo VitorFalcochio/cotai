@@ -7,7 +7,9 @@ from fastapi import Depends, Header, HTTPException
 
 from ..worker.config import Settings, load_settings
 from ..worker.services.ai_service import AIService
+from ..worker.services.search_service import SearchService
 from .services.chat_service import ChatService
+from .services.construction_mode_service import ConstructionModeService
 from .services.dynamic_quote_service import DynamicQuoteService
 from .services.dynamic_search_engine import SearchEngine
 from .services.material_extraction_service import MaterialExtractionService
@@ -51,18 +53,30 @@ def get_search_engine(settings: Settings = Depends(get_settings)) -> SearchEngin
     return SearchEngine(settings)
 
 
+def get_historical_search_service(settings: Settings = Depends(get_settings)) -> SearchService:
+    return SearchService(settings)
+
+
 def get_parametric_budget_service() -> ParametricBudgetService:
     return ParametricBudgetService()
+
+
+def get_construction_mode_service(
+    settings: Settings = Depends(get_settings),
+    fallback_search: SearchService = Depends(get_historical_search_service),
+) -> ConstructionModeService:
+    return ConstructionModeService(settings, fallback_search)
 
 
 def get_dynamic_quote_service(
     settings: Settings = Depends(get_settings),
     extractor: MaterialExtractionService = Depends(get_material_extractor),
     search_engine: SearchEngine = Depends(get_search_engine),
+    fallback_search: SearchService = Depends(get_historical_search_service),
     cache: SearchCacheService = Depends(get_search_cache),
     budget_service: ParametricBudgetService = Depends(get_parametric_budget_service),
 ) -> DynamicQuoteService:
-    return DynamicQuoteService(settings, extractor, search_engine, cache, budget_service)
+    return DynamicQuoteService(settings, extractor, search_engine, cache, budget_service, fallback_search)
 
 
 def get_chat_service(

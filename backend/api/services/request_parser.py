@@ -25,8 +25,9 @@ class RequestParserService:
 
     def build_confirmation(self, items: list[dict[str, Any]]) -> dict[str, Any]:
         message, provider = self.ai_service.build_confirmation_message(items)
+        cautions = self._build_item_cautions(items)
         return {
-            "message": message,
+            "message": "\n".join([message, *cautions]).strip(),
             "provider": provider,
             "preview": [format_item_label(item) for item in items],
         }
@@ -52,3 +53,16 @@ class RequestParserService:
             "unit": str(item.get("unit") or "un").strip(),
             "raw": str(item.get("raw") or name).strip(),
         }
+
+    def _build_item_cautions(self, items: list[dict[str, Any]]) -> list[str]:
+        cautions: list[str] = []
+        raw_text = " ".join(str(item.get("raw") or item.get("name") or "") for item in items).lower()
+
+        if any(token in raw_text for token in ("cimento", "argamassa", "rejunte")) and "kg" not in raw_text:
+            cautions.append("Antes de confirmar: se tiver o peso da embalagem, me passe para eu evitar compra errada.")
+        if any(token in raw_text for token in ("ferro", "aco", "vergalhao", "barra")) and "mm" not in raw_text:
+            cautions.append("Atencao na ferragem: confirme a bitola em mm para eu nao misturar material estrutural.")
+        if any(token in raw_text for token in ("piso", "porcelanato", "revestimento")) and "m2" not in raw_text:
+            cautions.append("Se for revestimento, confirme a area em m2 ou a medida da peca para eu montar melhor a compra.")
+
+        return cautions[:2]

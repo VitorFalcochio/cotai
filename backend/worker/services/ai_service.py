@@ -20,10 +20,9 @@ class AIService:
     def close(self) -> None:
         self.session.close()
 
-    def _chat_completion(self, system_prompt: str, user_payload: Any, temperature: float = 0) -> str:
+    def _chat_completion_groq(self, system_prompt: str, user_payload: Any, temperature: float = 0) -> str:
         if not self.settings.groq_api_key:
             raise RuntimeError("GROQ_API_KEY is not configured")
-
         payload = {
             "model": self.settings.groq_model,
             "temperature": temperature,
@@ -54,6 +53,74 @@ class AIService:
             max_backoff_seconds=max(self.settings.retry_backoff_seconds, self.settings.request_timeout_seconds),
         )
 
+    def _chat_completion_gemini(self, system_prompt: str, user_payload: Any, temperature: float = 0) -> str:
+        if not self.settings.gemini_api_key:
+            raise RuntimeError("GEMINI_API_KEY is not configured")
+
+        payload = {
+            "system_instruction": {
+                "parts": [{"text": system_prompt}],
+            },
+            "contents": [
+                {
+                    "role": "user",
+                    "parts": [{"text": json.dumps(user_payload, ensure_ascii=False)}],
+                }
+            ],
+            "generationConfig": {
+                "temperature": temperature,
+                "responseMimeType": "application/json",
+            },
+        }
+        headers = {
+            "Content-Type": "application/json",
+            "x-goog-api-key": self.settings.gemini_api_key,
+        }
+
+        def do_request() -> str:
+            response = self.session.post(
+                f"{self.settings.gemini_base_url}/models/{self.settings.gemini_model}:generateContent",
+                headers=headers,
+                json=payload,
+                timeout=self.settings.request_timeout_seconds,
+            )
+            response.raise_for_status()
+            body = response.json()
+            candidates = body.get("candidates") or []
+            if not candidates:
+                raise RuntimeError("Gemini returned no candidates")
+            parts = candidates[0].get("content", {}).get("parts") or []
+            text_parts = [str(part.get("text") or "").strip() for part in parts if isinstance(part, dict) and part.get("text")]
+            content = "\n".join(part for part in text_parts if part).strip()
+            if not content:
+                raise RuntimeError("Gemini returned empty content")
+            return content
+
+        return retry_call(
+            do_request,
+            attempts=self.settings.retry_attempts,
+            backoff_seconds=self.settings.retry_backoff_seconds,
+            max_backoff_seconds=max(self.settings.retry_backoff_seconds, self.settings.request_timeout_seconds),
+        )
+
+    def _chat_completion(self, system_prompt: str, user_payload: Any, temperature: float = 0) -> tuple[str, str]:
+        errors: list[str] = []
+        providers: list[tuple[str, Any]] = []
+        if self.settings.gemini_api_key:
+            providers.append(("gemini", self._chat_completion_gemini))
+        if self.settings.groq_api_key:
+            providers.append(("groq", self._chat_completion_groq))
+        if not providers:
+            raise RuntimeError("No AI provider configured")
+
+        for provider_name, handler in providers:
+            try:
+                return handler(system_prompt, user_payload, temperature), provider_name
+            except Exception as exc:  # noqa: BLE001
+                errors.append(f"{provider_name}:{exc}")
+
+        raise RuntimeError("; ".join(errors) or "All AI providers failed")
+
     def _fallback_extract_items(self, text: str) -> list[dict[str, Any]]:
         inline_items = extract_inline_items(text)
         if inline_items:
@@ -68,9 +135,12 @@ class AIService:
                 items.append(item)
         return items
 
+    def _coach_opening(self) -> str:
+        return "Aqui e a Cota, atuando como mestre de obra da compra."
+
     def extract_items(self, text: str) -> tuple[list[dict[str, Any]], str]:
         fallback = self._fallback_extract_items(text)
-        if not self.settings.groq_api_key:
+        if not self.settings.groq_api_key and not self.settings.gemini_api_key:
             return fallback, "local"
 
         prompt = (
@@ -80,7 +150,7 @@ class AIService:
             "Nao invente itens. Se nao houver item, retorne {\"items\": []}."
         )
         try:
-            content = self._chat_completion(prompt, {"message": text})
+            content, provider = self._chat_completion(prompt, {"message": text})
             match = re.search(r"\{.*\}", content, flags=re.DOTALL)
             payload = json.loads(match.group(0) if match else content)
             rows = payload.get("items", []) if isinstance(payload, dict) else []
@@ -105,31 +175,49 @@ class AIService:
                         "raw": str(row.get("raw") or name).strip(),
                     }
                 )
-            return items or fallback, "groq"
+            return items or fallback, provider
         except Exception as exc:  # noqa: BLE001
             return fallback, f"local_fallback:{exc}"
 
     def build_confirmation_message(self, items: list[dict[str, Any]]) -> tuple[str, str]:
-        fallback_lines = ["Entendi seu pedido. Confirma estes itens?"]
+        fallback_lines = [f"{self._coach_opening()} Revise comigo estes itens antes de eu mandar para cotacao:"]
         fallback_lines.extend([f"- {format_item_label(item)}" for item in items])
-        fallback_lines.append("Se estiver correto, clique em Confirmar pedido.")
+        fallback_lines.append("Se estiver tudo certo, confirme o pedido. Se faltar medida, bitola, marca ou padrao, me avise para eu ajustar.")
         fallback = "\n".join(fallback_lines)
 
-        if not self.settings.groq_api_key:
+        if not self.settings.groq_api_key and not self.settings.gemini_api_key:
             return fallback, "local"
 
         prompt = (
-            "Voce escreve uma mensagem curta de confirmacao para um assistente de cotacao. "
-            "Use portugues do Brasil. Seja objetivo, profissional e focado em confirmar os itens."
+            "Voce e a Cota, uma IA que fala como mestre de obra experiente e orientado por dados. "
+            "Escreva uma mensagem curta de confirmacao em portugues do Brasil. "
+            "Seja objetivo, pratico, confiavel e focado em revisar itens antes da compra. "
+            "Nao use girias excessivas. Soe experiente em obra, mas profissional."
         )
         try:
-            content = self._chat_completion(prompt, {"items": items})
-            return content or fallback, "groq"
+            content, provider = self._chat_completion(prompt, {"items": items})
+            return content or fallback, provider
         except Exception as exc:  # noqa: BLE001
             return fallback, f"local_fallback:{exc}"
 
+    def extract_material_entities(self, text: str) -> tuple[dict[str, Any], str]:
+        prompt = (
+            "Voce extrai entidades de um pedido de material para engenharia civil. "
+            "Retorne JSON puro com as chaves: item, marca, especificacao, quantidade, unidade e search_terms. "
+            "Se alguma informacao nao existir, use null. "
+            "Nao invente dados tecnicos. "
+            "Exemplo: {\"item\":\"Cimento\",\"marca\":\"Votoran\",\"especificacao\":\"CP II\",\"quantidade\":30,\"unidade\":\"saco\",\"search_terms\":[\"cimento votoran cp ii 50kg\"]}"
+        )
+        content, provider = self._chat_completion(prompt, {"message": text})
+        match = re.search(r"\{.*\}", content, flags=re.DOTALL)
+        payload = json.loads(match.group(0) if match else content)
+        if not isinstance(payload, dict):
+            raise RuntimeError("Invalid AI payload for material extraction")
+        return payload, provider
+
     def _fallback_summary(self, request_code: str, results: list[dict[str, Any]]) -> str:
-        return build_user_quote_response(request_code, results)
+        summary = build_user_quote_response(request_code, results)
+        return f"{self._coach_opening()}\n{summary}"
 
     def summarize_quote(self, request_code: str, results: list[dict[str, Any]]) -> tuple[str, str]:
         return self._fallback_summary(request_code, results), "template"

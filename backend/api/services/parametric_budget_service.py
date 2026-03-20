@@ -4,6 +4,8 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
+from pydantic import BaseModel, ConfigDict, Field
+
 
 @dataclass(frozen=True)
 class CompositionItem:
@@ -13,18 +15,45 @@ class CompositionItem:
     notes: str = ""
 
 
+class ConstructionItemPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    material: str
+    base_quantity: float | int
+    quantity: float | int
+    unit: str
+    display_quantity: str
+    notes: str
+    safety_margin_pct: int = Field(ge=0)
+
+
+class ConstructionSummaryPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    title: str | None = None
+    subtitle: str | None = None
+    disclaimer: str | None = None
+    safety_margin_pct: int | None = Field(default=None, ge=0)
+
+
+class ConstructionResponsePayload(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    mode: str
+    status: str
+    input: dict[str, Any]
+    summary: ConstructionSummaryPayload | None = None
+    items: list[ConstructionItemPayload] = Field(default_factory=list)
+    future_ready: dict[str, Any] | None = None
+    message: str | None = None
+    missing_fields: list[str] = Field(default_factory=list)
+
+
 class ParametricBudgetService:
-    """Builds first-pass material estimates from area and construction standard.
+    """Builds first-pass material estimates from area and construction standard."""
 
-    This service is intentionally lightweight and transparent. It does not aim
-    to replace SINAPI or a full engineering budget yet; instead, it gives Cotai
-    a reliable first version of "modo construcao" with:
-
-    - input by text or structured params
-    - a clear construction system (`wall`, `floor`, `slab`)
-    - a building standard multiplier (`economico`, `medio`, `alto`)
-    - a normalized list of base inputs ready for future composition tables
-    """
+    SAFETY_MARGIN_MULTIPLIER = 1.10
+    MAX_REASONABLE_AREA_M2 = 1_000_000.0
 
     STANDARD_MULTIPLIERS = {
         "economico": 0.92,
@@ -46,21 +75,23 @@ class ParametricBudgetService:
             CompositionItem("Areia media", "m3", 0.038, "Volume base de agregado para assentamento."),
         ),
         "floor": (
-            CompositionItem("Piso ceramico", "m2", 1.08, "Ja considera perda tecnica inicial."),
+            CompositionItem("Piso ceramico", "m2", 1.08, "Base sem margem final."),
             CompositionItem("Argamassa colante AC-II 20kg", "saco", 0.22, "Base de assentamento para revestimento."),
             CompositionItem("Rejunte 1kg", "un", 0.12, "Consumo medio para juntas padrao."),
-            CompositionItem("Regularizacao cimenticia", "m3", 0.015, "Base para contrapiso/regularizacao."),
+            CompositionItem("Regularizacao cimenticia", "m3", 0.015, "Base para contrapiso e regularizacao."),
         ),
         "slab": (
             CompositionItem("Concreto usinado fck 25", "m3", 0.12, "Espessura inicial de referencia."),
             CompositionItem("Aco CA-50", "kg", 3.2, "Armadura media inicial por m2."),
-            CompositionItem("Forma compensada plastificada", "m2", 1.05, "Base de forma com perda tecnica."),
+            CompositionItem("Forma compensada plastificada", "m2", 1.05, "Base de forma sem margem final."),
             CompositionItem("Cimento CP II 50kg", "saco", 0.84, "Equivalente medio quando nao houver concreto usinado."),
         ),
     }
 
     def estimate_from_text(self, text: str) -> dict[str, Any]:
         parsed = self.parse_request(text)
+        if parsed["status"] == "needs_clarification":
+            return ConstructionResponsePayload.model_validate(parsed).model_dump()
         return self.estimate_from_area(
             area_m2=parsed["area_m2"],
             building_standard=parsed["building_standard"],
@@ -76,10 +107,13 @@ class ParametricBudgetService:
         system_type: str | None = None,
         raw_text: str | None = None,
     ) -> dict[str, Any]:
-        normalized_system = self._normalize_system(system_type)
-        normalized_standard = self._normalize_standard(building_standard)
         if area_m2 <= 0:
             raise ValueError("A area precisa ser maior que zero.")
+        if area_m2 > self.MAX_REASONABLE_AREA_M2:
+            raise ValueError("A area informada esta fora de uma faixa plausivel para estimativa automatica.")
+
+        normalized_system = self._normalize_system(system_type)
+        normalized_standard = self._normalize_standard(building_standard)
 
         composition = self.COMPOSITIONS.get(normalized_system)
         if not composition:
@@ -88,19 +122,23 @@ class ParametricBudgetService:
         multiplier = self.STANDARD_MULTIPLIERS[normalized_standard]
         items = []
         for row in composition:
-            quantity = self._round_quantity(row.base_factor_per_m2 * area_m2 * multiplier, row.unit)
+            base_quantity = row.base_factor_per_m2 * area_m2 * multiplier
+            quantity = self._round_quantity(base_quantity * self.SAFETY_MARGIN_MULTIPLIER, row.unit)
             items.append(
                 {
                     "material": row.material,
+                    "base_quantity": self._round_quantity(base_quantity, row.unit),
                     "quantity": quantity,
                     "unit": row.unit,
                     "display_quantity": f"{quantity} {row.unit}",
                     "notes": row.notes,
+                    "safety_margin_pct": 10,
                 }
             )
 
-        return {
+        return ConstructionResponsePayload.model_validate({
             "mode": "construction",
+            "status": "ok",
             "input": {
                 "area_m2": round(area_m2, 2),
                 "building_standard": normalized_standard,
@@ -109,45 +147,77 @@ class ParametricBudgetService:
             },
             "summary": {
                 "title": f"Estimativa inicial para {self.SYSTEM_LABELS[normalized_system]}",
-                "subtitle": f"{round(area_m2, 2)} m2 • padrao {normalized_standard}",
+                "subtitle": f"{round(area_m2, 2)} m2 | padrao {normalized_standard}",
                 "disclaimer": "Estimativa inicial para estudo e compra preliminar. Validar em projeto executivo e composicoes oficiais.",
+                "safety_margin_pct": 10,
             },
             "items": items,
             "future_ready": {
                 "sinapi_composition_ready": True,
                 "composition_table_key": f"{normalized_system}:{normalized_standard}",
             },
-        }
+        }).model_dump()
 
     def parse_request(self, text: str) -> dict[str, Any]:
         area_match = re.search(r"(\d+(?:[.,]\d+)?)\s*m2\b", text or "", flags=re.IGNORECASE)
-        if not area_match:
-            raise ValueError("Nao identifiquei a area em m2. Exemplo: 120 m2 de piso padrao medio.")
+        missing_fields: list[str] = []
 
-        area_m2 = float(area_match.group(1).replace(",", "."))
-        system_type = self._normalize_system(self._infer_system(text))
-        building_standard = self._normalize_standard(self._infer_standard(text))
+        if not area_match:
+            missing_fields.append("area_m2")
+            area_m2 = None
+        else:
+            area_m2 = float(area_match.group(1).replace(",", "."))
+
+        inferred_system = self._infer_system(text)
+        if inferred_system is None:
+            missing_fields.append("system_type")
+
+        inferred_standard = self._infer_standard(text)
+        if inferred_standard is None:
+            missing_fields.append("building_standard")
+
+        if missing_fields:
+            return ConstructionResponsePayload.model_validate({
+                "mode": "construction",
+                "status": "needs_clarification",
+                "message": "Preciso confirmar alguns dados antes de calcular os materiais.",
+                "missing_fields": missing_fields,
+                "input": {
+                    "raw_text": text or "",
+                    "area_m2": area_m2,
+                    "system_type": inferred_system,
+                    "building_standard": inferred_standard,
+                },
+            }).model_dump()
+
+        assert area_m2 is not None
         return {
+            "mode": "construction",
+            "status": "ok",
             "area_m2": area_m2,
-            "system_type": system_type,
-            "building_standard": building_standard,
+            "system_type": self._normalize_system(inferred_system),
+            "building_standard": self._normalize_standard(inferred_standard),
         }
 
-    def _infer_system(self, text: str) -> str:
+    def _infer_system(self, text: str) -> str | None:
         lowered = str(text or "").lower()
         if "laje" in lowered:
             return "slab"
         if "piso" in lowered or "revestimento" in lowered:
             return "floor"
-        return "wall"
+        if any(token in lowered for token in ("parede", "alvenaria", "muro")):
+            return "wall"
+        return None
 
-    def _infer_standard(self, text: str) -> str:
+    def _infer_standard(self, text: str) -> str | None:
         lowered = str(text or "").lower()
         if any(token in lowered for token in ("alto padrao", "premium", "alto")):
             return "alto"
         if any(token in lowered for token in ("economico", "popular", "baixo")):
             return "economico"
-        return "medio"
+        if any(token in lowered for token in ("medio", "padrao medio", "standard")):
+            return "medio"
+        return None
 
     def _normalize_system(self, value: str | None) -> str:
         normalized = str(value or "wall").strip().lower()
@@ -183,4 +253,3 @@ class ParametricBudgetService:
         if unit in {"un", "saco"}:
             return max(1, int(round(rounded)))
         return rounded
-

@@ -5,7 +5,8 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
-from ..deps import get_current_actor, get_dynamic_quote_service
+from ..deps import get_construction_mode_service, get_current_actor, get_dynamic_quote_service
+from ..services.construction_mode_service import ConstructionModeService
 from ..services.dynamic_quote_service import DynamicQuoteService
 
 router = APIRouter(tags=["search"])
@@ -20,6 +21,11 @@ class ConstructionEstimatePayload(BaseModel):
     area_m2: float | None = Field(default=None, gt=0)
     building_standard: str | None = Field(default=None, max_length=40)
     system_type: str | None = Field(default=None, max_length=40)
+
+
+class ConstructionProjectPayload(BaseModel):
+    query: str = Field(min_length=3, max_length=4000, description="Pedido em texto livre descrevendo uma obra completa.")
+    context: dict[str, Any] | None = Field(default=None, description="Contexto acumulado da conversa para refino guiado.")
 
 
 @router.post("/cotar")
@@ -50,5 +56,17 @@ async def estimate_construction(
             building_standard=payload.building_standard or "medio",
             system_type=payload.system_type or "wall",
         )
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/modo-construcao/analisar")
+async def analyze_construction_project(
+    payload: ConstructionProjectPayload,
+    _: dict[str, Any] = Depends(get_current_actor),
+    construction_service: ConstructionModeService = Depends(get_construction_mode_service),
+) -> dict[str, Any]:
+    try:
+        return construction_service.analyze_project(payload.query, context=payload.context)
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=400, detail=str(exc)) from exc

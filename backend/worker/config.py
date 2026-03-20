@@ -51,6 +51,9 @@ class Settings:
     api_port: int
     api_base_url: str
     mercado_livre_site: str
+    gemini_api_key: str
+    gemini_model: str
+    gemini_base_url: str
     groq_api_key: str
     groq_model: str
     groq_base_url: str
@@ -88,6 +91,9 @@ def load_settings() -> Settings:
         api_port=api_port,
         api_base_url=os.getenv("API_BASE_URL", f"http://{api_host}:{api_port}").strip().rstrip("/"),
         mercado_livre_site=os.getenv("MERCADO_LIVRE_SITE", "MLB").strip() or "MLB",
+        gemini_api_key=os.getenv("GEMINI_API_KEY", "").strip(),
+        gemini_model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip() or "gemini-2.5-flash",
+        gemini_base_url=os.getenv("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta").strip().rstrip("/"),
         groq_api_key=os.getenv("GROQ_API_KEY", "").strip(),
         groq_model=os.getenv("GROQ_MODEL", "llama-3.1-8b-instant").strip() or "llama-3.1-8b-instant",
         groq_base_url=os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1").strip().rstrip("/"),

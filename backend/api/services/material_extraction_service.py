@@ -22,23 +22,13 @@ class MaterialExtractionService:
 
     def extract(self, text: str) -> tuple[dict[str, Any], str]:
         fallback = self._fallback_extract(text)
-        if not self.settings.groq_api_key:
-            return fallback, "local"
-
-        prompt = (
-            "Voce extrai entidades de um pedido de material para engenharia civil. "
-            "Retorne JSON puro com as chaves: item, marca, especificacao, quantidade, unidade e search_terms. "
-            "Se alguma informacao nao existir, use null. "
-            "Nao invente dados tecnicos. "
-            "Exemplo: {\"item\":\"Cimento\",\"marca\":\"Votoran\",\"especificacao\":\"CP II\",\"quantidade\":30,\"unidade\":\"saco\",\"search_terms\":[\"cimento votoran cp ii 50kg\"]}"
-        )
+        if not self.settings.groq_api_key and not self.settings.gemini_api_key:
+            return self._finalize_payload(fallback, raw=text), "local"
         try:
-            content = self.ai_service._chat_completion(prompt, {"message": text})  # noqa: SLF001
-            match = re.search(r"\{.*\}", content, flags=re.DOTALL)
-            payload = json.loads(match.group(0) if match else content)
-            return self._normalize_payload(payload, raw=text), "groq"
+            payload, provider = self.ai_service.extract_material_entities(text)
+            return self._finalize_payload(self._normalize_payload(payload, raw=text), raw=text), provider
         except Exception as exc:  # noqa: BLE001
-            return fallback, f"local_fallback:{exc}"
+            return self._finalize_payload(fallback, raw=text), f"local_fallback:{exc}"
 
     def _normalize_payload(self, payload: dict[str, Any], *, raw: str) -> dict[str, Any]:
         search_terms = payload.get("search_terms") if isinstance(payload.get("search_terms"), list) else []
@@ -55,6 +45,16 @@ class MaterialExtractionService:
             "unidade": str(payload.get("unidade") or "").strip() or self._infer_unit(raw),
             "search_terms": [str(term).strip() for term in search_terms if str(term).strip()] or [self._build_search_term(raw, payload)],
             "raw": raw.strip(),
+        }
+
+    def _finalize_payload(self, payload: dict[str, Any], *, raw: str) -> dict[str, Any]:
+        issues = self._validation_issues(payload, raw=raw)
+        missing_fields = [issue["field"] for issue in issues if issue["code"] == "missing"]
+        return {
+            **payload,
+            "status": "needs_clarification" if issues else "ready",
+            "validation_issues": issues,
+            "missing_fields": missing_fields,
         }
 
     def _fallback_extract(self, text: str) -> dict[str, Any]:
@@ -112,3 +112,19 @@ class MaterialExtractionService:
         ]
         return " ".join(str(part).strip() for part in parts if part).strip() or raw.strip()
 
+    def _validation_issues(self, payload: dict[str, Any], *, raw: str) -> list[dict[str, str]]:
+        issues: list[dict[str, str]] = []
+        item = str(payload.get("item") or "").strip()
+        quantity = payload.get("quantidade")
+        search_terms = payload.get("search_terms") or []
+        cleaned_raw = str(raw or "").strip()
+
+        if len(cleaned_raw) < 3:
+            issues.append({"field": "query", "code": "missing", "message": "Descreva melhor o item para cotacao."})
+        if not item or item.lower() == "material" or len(item.split()) < 1:
+            issues.append({"field": "item", "code": "missing", "message": "Nao consegui identificar qual material deve ser buscado."})
+        if isinstance(quantity, (int, float)) and quantity <= 0:
+            issues.append({"field": "quantidade", "code": "invalid", "message": "A quantidade informada precisa ser maior que zero."})
+        if not search_terms or not any(str(term).strip() for term in search_terms):
+            issues.append({"field": "search_terms", "code": "missing", "message": "Nao consegui montar um termo de busca confiavel."})
+        return issues

@@ -1,6 +1,7 @@
 import { LOGIN_PATH } from "../config.js";
 import { requireAuth, signOut } from "../auth.js";
 import {
+  analyzeConstruction,
   confirmChatThread,
   estimateConstruction,
   getApiHealth,
@@ -33,6 +34,7 @@ let quoteRenderContext = {
 };
 let latestDynamicPreview = null;
 let latestConstructionPreview = null;
+let latestConstructionContext = null;
 
 const STATUS_LABELS = {
   DRAFT: "Rascunho",
@@ -335,20 +337,55 @@ function renderQuoteResponseCard(row) {
 }
 
 function renderDynamicMarketPreview(payload) {
+  const status = String(payload?.status || "").toLowerCase();
   const offers = Array.isArray(payload?.offers) ? payload.offers : [];
-  if (!offers.length) return "";
-
   const itemLabel = payload?.query?.item || "Material";
   const brandLabel = payload?.query?.marca ? ` ${payload.query.marca}` : "";
   const specificationLabel = payload?.query?.especificacao ? ` ${payload.query.especificacao}` : "";
   const searchTerm = payload?.search_term || payload?.query?.raw || itemLabel;
+  const warnings = Array.isArray(payload?.meta?.warnings) ? payload.meta.warnings.filter(Boolean) : [];
+  const missingFields = Array.isArray(payload?.query?.missing_fields) ? payload.query.missing_fields : [];
+  const pricingMode = payload?.providers?.pricing_mode || "live_market";
+
+  if (status === "needs_clarification") {
+    return `
+      <div class="chat-quote-response">
+        <div class="chat-quote-summary">
+          <span class="app-badge is-warning">Clarificar</span>
+          <strong>Preciso de mais contexto para buscar com seguranca</strong>
+        </div>
+        <section class="chat-quote-card">
+          <p class="chat-quote-note"><i class="bx bx-help-circle" aria-hidden="true"></i>${escapeHtml(payload?.message || "Confirme os dados do material antes de continuar.")}</p>
+          ${missingFields.length ? `<p class="chat-quote-note"><i class="bx bx-list-check" aria-hidden="true"></i>Faltando: ${escapeHtml(missingFields.join(", "))}</p>` : ""}
+          ${warnings.map((warning) => `<p class="chat-quote-note"><i class="bx bx-info-circle" aria-hidden="true"></i>${escapeHtml(warning)}</p>`).join("")}
+        </section>
+      </div>
+    `;
+  }
+
+  if (status === "not_found") {
+    return `
+      <div class="chat-quote-response">
+        <div class="chat-quote-summary">
+          <span class="app-badge is-warning">Nao localizado</span>
+          <strong>${escapeHtml(payload?.message || "Item nao localizado na base de dados atual")}</strong>
+        </div>
+        <section class="chat-quote-card">
+          <p class="chat-quote-note"><i class="bx bx-search-alt" aria-hidden="true"></i>Busca usada: ${escapeHtml(searchTerm)}</p>
+          ${warnings.map((warning) => `<p class="chat-quote-note"><i class="bx bx-info-circle" aria-hidden="true"></i>${escapeHtml(warning)}</p>`).join("")}
+        </section>
+      </div>
+    `;
+  }
+
+  if (!offers.length) return "";
 
   return `
     <div class="chat-quote-response">
       <div class="chat-quote-summary">
-        <span class="app-badge is-info">Mercado</span>
+        <span class="app-badge ${pricingMode === "historical_reference" ? "is-warning" : "is-info"}">${pricingMode === "historical_reference" ? "Referencia" : "Mercado"}</span>
         <strong>Previa de mercado para ${escapeHtml(`${itemLabel}${brandLabel}${specificationLabel}`.trim())}</strong>
-        <span class="chat-quote-total-order">${payload.cache_hit ? "Resultado em cache" : "Busca ao vivo"}</span>
+        <span class="chat-quote-total-order">${payload.cache_hit ? "Resultado em cache" : pricingMode === "historical_reference" ? "Base historica" : "Busca ao vivo"}</span>
       </div>
       <div class="chat-quote-stack">
         ${offers
@@ -383,6 +420,7 @@ function renderDynamicMarketPreview(payload) {
           .join("")}
       </div>
       <p class="chat-quote-note"><i class="bx bx-info-circle" aria-hidden="true"></i>Busca usada: ${escapeHtml(searchTerm)}. Esta previa ajuda a decidir mais rapido antes da cotacao consolidada.</p>
+      ${warnings.map((warning) => `<p class="chat-quote-note"><i class="bx bx-shield-quarter" aria-hidden="true"></i>${escapeHtml(warning)}</p>`).join("")}
     </div>
   `;
 }
@@ -392,7 +430,211 @@ function looksLikeConstructionEstimate(message) {
   return /(\d+(?:[.,]\d+)?)\s*m2\b/.test(text) && /(parede|piso|laje|revestimento|alvenaria)/.test(text);
 }
 
+function looksLikeConstructionProject(message) {
+  const text = String(message || "").toLowerCase();
+  return /(\d+(?:[.,]\d+)?)\s*m2\b/.test(text) && /(casa|sobrado|galp[aã]o|obra comercial|resid[eê]ncia|residencial|obra)/.test(text);
+}
+
+function looksLikeConstructionProjectSafe(message) {
+  const text = String(message || "").toLowerCase();
+  return /(\d+(?:[.,]\d+)?)\s*m2\b/.test(text) && /(casa|sobrado|galpao|obra comercial|residencia|residencial|obra)/.test(text);
+}
+
+function shouldContinueConstructionFlow(message) {
+  const text = String(message || "").trim().toLowerCase();
+  if (!latestConstructionContext || !text) return false;
+  return /(padrao|economico|medio|alto|cidade|regiao|cobertura|telha|laje|fibrocimento|metalica|fundacao|sapata|radier|estaca|bloco|quarto|banheiro|pavimento|m2|metro)/.test(text);
+}
+
 function renderConstructionPreview(payload) {
+  if (String(payload?.mode || "").toLowerCase() === "construction_project") {
+    const phases = Array.isArray(payload?.phases) ? payload.phases : [];
+    const assumptions = Array.isArray(payload?.assumptions) ? payload.assumptions : [];
+    const nextQuestions = Array.isArray(payload?.next_questions) ? payload.next_questions : [];
+    const procurementItems = Array.isArray(payload?.procurement_items) ? payload.procurement_items : [];
+    const conversation = payload?.conversation || {};
+    const context = conversation?.context || payload?.project || {};
+    const pricedMaterials = Number(payload?.summary?.priced_materials || 0);
+    const missingPriceMaterials = Number(payload?.summary?.missing_price_materials || 0);
+    const pricingCoverage = Number(payload?.summary?.pricing_coverage_pct || 0);
+    const estimatedTotalCost = payload?.summary?.estimated_total_cost_display || "";
+
+    if (String(payload?.status || "").toLowerCase() === "needs_clarification") {
+      const missingFields = Array.isArray(payload?.missing_fields) ? payload.missing_fields : [];
+      return `
+        <div class="chat-quote-response">
+          <div class="chat-quote-summary">
+            <span class="app-badge is-warning">Modo construcao</span>
+            <strong>Preciso fechar o escopo da obra</strong>
+          </div>
+          <section class="chat-quote-card">
+            <p class="chat-quote-note"><i class="bx bx-hard-hat" aria-hidden="true"></i>${escapeHtml(payload?.message || "Confirme os dados principais da obra para eu montar a previsao.")}</p>
+            ${missingFields.length ? `<p class="chat-quote-note"><i class="bx bx-list-check" aria-hidden="true"></i>Faltando: ${escapeHtml(missingFields.join(", "))}</p>` : ""}
+          </section>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="chat-quote-response">
+        <div class="chat-quote-summary">
+          <span class="app-badge is-success">Modo construcao</span>
+          <strong>${escapeHtml(payload?.summary?.title || "Previsao inicial da obra")}</strong>
+          <span class="chat-quote-total-order">${escapeHtml(payload?.summary?.subtitle || "")}</span>
+        </div>
+        <section class="chat-quote-card">
+          <div class="chat-quote-card-head">
+            <strong>Painel do mestre de obra</strong>
+            <span class="app-badge ${conversation?.stage === "ready" ? "is-success" : conversation?.stage === "refinement" ? "is-info" : "is-warning"}">${escapeHtml(conversation?.stage || "scope")}</span>
+          </div>
+          <div class="chat-quote-grid">
+            <div class="chat-quote-metric">
+              <span class="chat-quote-label"><i class="bx bx-ruler" aria-hidden="true"></i>Area</span>
+              <strong>${escapeHtml(context?.area_m2 ? `${context.area_m2} m2` : "Pendente")}</strong>
+            </div>
+            <div class="chat-quote-metric">
+              <span class="chat-quote-label"><i class="bx bx-building-house" aria-hidden="true"></i>Tipo</span>
+              <strong>${escapeHtml(context?.project_label || context?.project_type || "Pendente")}</strong>
+            </div>
+            <div class="chat-quote-metric">
+              <span class="chat-quote-label"><i class="bx bx-map" aria-hidden="true"></i>Local</span>
+              <strong>${escapeHtml(context?.location || "Pendente")}</strong>
+            </div>
+            <div class="chat-quote-metric">
+              <span class="chat-quote-label"><i class="bx bx-layer" aria-hidden="true"></i>Fundacao</span>
+              <strong>${escapeHtml(context?.foundation_type || "Pendente")}</strong>
+            </div>
+          </div>
+        </section>
+        ${
+          estimatedTotalCost
+            ? `
+              <section class="chat-quote-card">
+                <div class="chat-quote-card-head">
+                  <strong>Custo medio estimado da obra</strong>
+                  <span class="app-badge ${pricingCoverage >= 60 ? "is-success" : "is-warning"}">${escapeHtml(`${pricingCoverage.toFixed(1)}% coberto`)}</span>
+                </div>
+                <div class="chat-quote-grid">
+                  <div class="chat-quote-metric">
+                    <span class="chat-quote-label"><i class="bx bx-home-circle" aria-hidden="true"></i>Total preliminar</span>
+                    <strong>${escapeHtml(estimatedTotalCost)}</strong>
+                  </div>
+                  <div class="chat-quote-metric">
+                    <span class="chat-quote-label"><i class="bx bx-check-shield" aria-hidden="true"></i>Materiais precificados</span>
+                    <strong>${escapeHtml(String(pricedMaterials))}</strong>
+                  </div>
+                  <div class="chat-quote-metric">
+                    <span class="chat-quote-label"><i class="bx bx-search-alt" aria-hidden="true"></i>Sem referencia</span>
+                    <strong>${escapeHtml(String(missingPriceMaterials))}</strong>
+                  </div>
+                  <div class="chat-quote-metric">
+                    <span class="chat-quote-label"><i class="bx bx-line-chart" aria-hidden="true"></i>Status</span>
+                    <strong>${pricingCoverage >= 60 ? "Boa cobertura" : "Cobertura parcial"}</strong>
+                  </div>
+                </div>
+              </section>
+            `
+            : `
+              <section class="chat-quote-card">
+                <div class="chat-quote-card-head">
+                  <strong>Custo medio estimado da obra</strong>
+                  <span class="app-badge is-warning">Sem base suficiente</span>
+                </div>
+                <p class="chat-quote-note"><i class="bx bx-info-circle" aria-hidden="true"></i>A Cota montou o quantitativo da obra, mas ainda nao encontrou referencias confiaveis para transformar tudo em custo medio.</p>
+              </section>
+            `
+        }
+        <div class="chat-quote-stack">
+          ${phases
+            .map(
+              (phase) => `
+                <section class="chat-quote-card">
+                  <div class="chat-quote-card-head">
+                    <strong>${escapeHtml(phase.title || "Fase")}</strong>
+                    <span class="app-badge is-muted">${escapeHtml(phase.share_label || "Previsao")}</span>
+                  </div>
+                  <div class="chat-quote-grid">
+                    <div class="chat-quote-metric">
+                      <span class="chat-quote-label"><i class="bx bx-wallet" aria-hidden="true"></i>Custo da fase</span>
+                      <strong>${escapeHtml(phase.estimated_cost_display || "Referencia insuficiente")}</strong>
+                    </div>
+                    <div class="chat-quote-metric">
+                      <span class="chat-quote-label"><i class="bx bx-check-circle" aria-hidden="true"></i>Precificados</span>
+                      <strong>${escapeHtml(String(phase.priced_materials || 0))}</strong>
+                    </div>
+                    <div class="chat-quote-metric">
+                      <span class="chat-quote-label"><i class="bx bx-error-circle" aria-hidden="true"></i>Pendentes</span>
+                      <strong>${escapeHtml(String(phase.missing_price_materials || 0))}</strong>
+                    </div>
+                  </div>
+                  <div class="chat-quote-offers">
+                    ${(phase.materials || [])
+                      .slice(0, 4)
+                      .map(
+                        (item) => `
+                          <div class="chat-quote-offer-chip">
+                            <span>${escapeHtml(item.material || "Material")}</span>
+                            <strong>${escapeHtml(`${item.quantity} ${item.unit || ""}`.trim())}</strong>
+                            ${item.estimated_total_display ? `<small>${escapeHtml(item.estimated_total_display)}</small>` : `<small>Sem preco medio</small>`}
+                          </div>
+                        `
+                      )
+                      .join("")}
+                  </div>
+                </section>
+              `
+            )
+            .join("")}
+          ${
+            procurementItems.length
+              ? `
+                <section class="chat-quote-card">
+                  <div class="chat-quote-card-head">
+                    <strong>Pacote inicial de compra</strong>
+                    <span class="app-badge is-warning">Preliminar</span>
+                  </div>
+                  <div class="chat-quote-offers">
+                    ${procurementItems
+                      .slice(0, 6)
+                      .map(
+                        (item) => `
+                          <div class="chat-quote-offer-chip">
+                            <span>${escapeHtml(item.material || "Material")}</span>
+                            <strong>${escapeHtml(`${item.quantity} ${item.unit || ""}`.trim())}</strong>
+                            <small>${escapeHtml(item.estimated_total_display || item.unit_price_display || "Sem preco medio")}</small>
+                          </div>
+                        `
+                      )
+                      .join("")}
+                  </div>
+                </section>
+              `
+              : ""
+          }
+        </div>
+        ${assumptions.map((item) => `<p class="chat-quote-note"><i class="bx bx-info-circle" aria-hidden="true"></i>${escapeHtml(item)}</p>`).join("")}
+        ${nextQuestions.map((item) => `<p class="chat-quote-note"><i class="bx bx-help-circle" aria-hidden="true"></i>${escapeHtml(item)}</p>`).join("")}
+        <p class="chat-quote-note"><i class="bx bx-shield-quarter" aria-hidden="true"></i>${escapeHtml(payload?.summary?.disclaimer || "Valide a previsao com o projeto executivo antes da compra.")}</p>
+      </div>
+    `;
+  }
+
+  if (String(payload?.status || "").toLowerCase() === "needs_clarification") {
+    const missingFields = Array.isArray(payload?.missing_fields) ? payload.missing_fields : [];
+    return `
+      <div class="chat-quote-response">
+        <div class="chat-quote-summary">
+          <span class="app-badge is-warning">Clarificar</span>
+          <strong>Preciso confirmar os dados do calculo</strong>
+        </div>
+        <section class="chat-quote-card">
+          <p class="chat-quote-note"><i class="bx bx-ruler" aria-hidden="true"></i>${escapeHtml(payload?.message || "Informe os dados necessarios para a estimativa.")}</p>
+          ${missingFields.length ? `<p class="chat-quote-note"><i class="bx bx-list-check" aria-hidden="true"></i>Faltando: ${escapeHtml(missingFields.join(", "))}</p>` : ""}
+        </section>
+      </div>
+    `;
+  }
+
   const items = Array.isArray(payload?.items) ? payload.items : [];
   if (!items.length) return "";
 
@@ -413,6 +655,8 @@ function renderConstructionPreview(payload) {
                   <span class="app-badge is-muted">${escapeHtml(item.display_quantity || "-")}</span>
                 </div>
                 <p class="chat-quote-note"><i class="bx bx-info-circle" aria-hidden="true"></i>${escapeHtml(item.notes || "Composicao inicial para estudo.")}</p>
+                ${item.base_quantity !== undefined ? `<p class="chat-quote-note"><i class="bx bx-layer" aria-hidden="true"></i>Base: ${escapeHtml(String(item.base_quantity))} ${escapeHtml(item.unit || "")}</p>` : ""}
+                ${item.safety_margin_pct ? `<p class="chat-quote-note"><i class="bx bx-shield-quarter" aria-hidden="true"></i>Margem de seguranca aplicada: ${escapeHtml(String(item.safety_margin_pct))}%</p>` : ""}
               </section>
             `
           )
@@ -706,6 +950,10 @@ function renderThread(payload) {
   if (payload?.request?.id || !Array.isArray(payload?.detected_items) || !payload.detected_items.length) {
     latestDynamicPreview = null;
   }
+  if (payload?.request?.id) {
+    latestConstructionPreview = null;
+    latestConstructionContext = null;
+  }
   injectDynamicPreviewIntoLatestAssistant();
 
   updateSidebar(payload);
@@ -758,10 +1006,15 @@ async function loadDynamicPreview(message, payload) {
 async function loadConstructionPreview(message, payload) {
   if (!message?.trim()) return;
   if (payload?.request?.id) return;
-  if (!looksLikeConstructionEstimate(message)) return;
+  if (!looksLikeConstructionEstimate(message) && !looksLikeConstructionProjectSafe(message) && !shouldContinueConstructionFlow(message)) return;
 
   try {
-    latestConstructionPreview = await estimateConstruction({ query: message });
+    latestConstructionPreview = looksLikeConstructionProjectSafe(message) || shouldContinueConstructionFlow(message)
+      ? await analyzeConstruction({ query: message, context: latestConstructionContext || undefined })
+      : await estimateConstruction({ query: message });
+    if (latestConstructionPreview?.conversation?.context) {
+      latestConstructionContext = latestConstructionPreview.conversation.context;
+    }
     injectDynamicPreviewIntoLatestAssistant();
   } catch (_) {
     // Construction estimate is additive only; keep chat flow stable on failure.
