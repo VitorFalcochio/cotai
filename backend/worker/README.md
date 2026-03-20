@@ -11,7 +11,7 @@ Responsabilidades atuais:
 1. Buscar requests pendentes no banco.
 2. Fazer claim seguro da execucao.
 3. Criar e atualizar `request_quotes`.
-4. Buscar ofertas via snapshots persistidos, catalogo local e Mercado Livre.
+4. Buscar ofertas via snapshots persistidos, catalogo local, Mercado Livre e scraping configurado de lojas.
 5. Salvar `quote_results`.
 6. Consolidar resposta final com Groq ou fallback local.
 7. Atualizar status do request.

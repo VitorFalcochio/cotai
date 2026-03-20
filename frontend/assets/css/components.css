@@ -201,6 +201,60 @@
   color: #7a8795;
 }
 
+.materials-insights-metrics {
+  margin-bottom: 18px;
+}
+
+.materials-insights-panel {
+  margin-bottom: 18px;
+}
+
+.materials-insights-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr);
+  margin-top: 18px;
+}
+
+.materials-source-list,
+.materials-insights-notes {
+  display: grid;
+  gap: 12px;
+}
+
+.materials-source-card,
+.materials-note-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 14px 16px;
+}
+
+.materials-source-card.is-empty {
+  min-height: 100%;
+  align-content: center;
+}
+
+.materials-source-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.materials-source-card p,
+.materials-note-card p {
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .materials-insights-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .metric-card h3,
 .app-metric-card h3,
 .admin-metric-card h3 {

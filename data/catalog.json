@@ -1,89 +1,698 @@
-[
-  { "name": "Cimento CP-II 50kg", "price": 34.9, "supplier": "Deposito Nova Obra", "category": "cimento", "unit": "saco", "link": "https://example.com/cimento-cp2" },
-  { "name": "Cimento CP-II 50kg", "price": 35.7, "supplier": "ConstruMax Regional", "category": "cimento", "unit": "saco", "link": "https://example.com/cimento-cp2-construmax" },
-  { "name": "Cimento CP-II 50kg", "price": 36.4, "supplier": "Casa Forte Materiais", "category": "cimento", "unit": "saco", "link": "https://example.com/cimento-cp2-casa-forte" },
-  { "name": "Cimento CP-III 50kg", "price": 37.8, "supplier": "Casa Forte Materiais", "category": "cimento", "unit": "saco", "link": "https://example.com/cimento-cp3" },
-  { "name": "Cimento CP-III 50kg", "price": 38.9, "supplier": "Deposito Horizonte", "category": "cimento", "unit": "saco", "link": "https://example.com/cimento-cp3-horizonte" },
-  { "name": "Cimento branco 25kg", "price": 42.9, "supplier": "Central de Acabamentos", "category": "cimento", "unit": "saco", "link": "https://example.com/cimento-branco" },
-  { "name": "Cimento branco 25kg", "price": 44.2, "supplier": "Acabamento Premium", "category": "cimento", "unit": "saco", "link": "https://example.com/cimento-branco-premium" },
-  { "name": "Argamassa ACII 20kg", "price": 24.7, "supplier": "Acabamento Premium", "category": "argamassa", "unit": "saco", "link": "https://example.com/argamassa-ac2" },
-  { "name": "Argamassa ACII 20kg", "price": 25.9, "supplier": "Central de Acabamentos", "category": "argamassa", "unit": "saco", "link": "https://example.com/argamassa-ac2-central" },
-  { "name": "Argamassa ACIII 20kg", "price": 29.8, "supplier": "Central de Acabamentos", "category": "argamassa", "unit": "saco", "link": "https://example.com/argamassa-ac3" },
-  { "name": "Argamassa ACIII 20kg", "price": 31.2, "supplier": "Acabamento Premium", "category": "argamassa", "unit": "saco", "link": "https://example.com/argamassa-ac3-premium" },
-  { "name": "Rejunte flexivel 1kg", "price": 11.9, "supplier": "Acabamento Premium", "category": "acabamento", "unit": "pacote", "link": "https://example.com/rejunte-flexivel" },
-  { "name": "Areia fina m3", "price": 179.0, "supplier": "Areial Rio Preto", "category": "agregado", "unit": "m3", "link": "https://example.com/areia-fina" },
-  { "name": "Areia fina m3", "price": 186.0, "supplier": "Areial Boa Vista", "category": "agregado", "unit": "m3", "link": "https://example.com/areia-fina-boa-vista" },
-  { "name": "Areia media m3", "price": 189.0, "supplier": "Areial Boa Vista", "category": "agregado", "unit": "m3", "link": "https://example.com/areia-media" },
-  { "name": "Areia media m3", "price": 191.5, "supplier": "Mineracao Central", "category": "agregado", "unit": "m3", "link": "https://example.com/areia-media-mineracao" },
-  { "name": "Areia media m3", "price": 194.0, "supplier": "Areial Rio Preto", "category": "agregado", "unit": "m3", "link": "https://example.com/areia-media-rio-preto" },
-  { "name": "Areia grossa m3", "price": 198.0, "supplier": "Areial Boa Vista", "category": "agregado", "unit": "m3", "link": "https://example.com/areia-grossa" },
-  { "name": "Areia grossa m3", "price": 204.0, "supplier": "Areial Rio Preto", "category": "agregado", "unit": "m3", "link": "https://example.com/areia-grossa-rio-preto" },
-  { "name": "Brita 0 m3", "price": 169.0, "supplier": "Pedreira Uniao", "category": "agregado", "unit": "m3", "link": "https://example.com/brita-0" },
-  { "name": "Brita 0 m3", "price": 173.5, "supplier": "Mineracao Central", "category": "agregado", "unit": "m3", "link": "https://example.com/brita-0-mineracao" },
-  { "name": "Brita 1 m3", "price": 174.0, "supplier": "Pedreira Uniao", "category": "agregado", "unit": "m3", "link": "https://example.com/brita-1" },
-  { "name": "Brita 1 m3", "price": 179.0, "supplier": "Mineracao Central", "category": "agregado", "unit": "m3", "link": "https://example.com/brita-1-mineracao" },
-  { "name": "Pedrisco m3", "price": 182.0, "supplier": "Mineracao Central", "category": "agregado", "unit": "m3", "link": "https://example.com/pedrisco" },
-  { "name": "Bloco estrutural 14x19x39", "price": 4.35, "supplier": "Blocos Imperial", "category": "alvenaria", "unit": "unidade", "link": "https://example.com/bloco-14x19x39" },
-  { "name": "Bloco estrutural 14x19x39", "price": 4.48, "supplier": "Ceramica Nova Base", "category": "alvenaria", "unit": "unidade", "link": "https://example.com/bloco-14x19x39-base" },
-  { "name": "Bloco estrutural 14x19x39", "price": 4.55, "supplier": "Pre Moldados Oeste", "category": "alvenaria", "unit": "unidade", "link": "https://example.com/bloco-14x19x39-oeste" },
-  { "name": "Bloco estrutural 19x19x39", "price": 5.1, "supplier": "Blocos Imperial", "category": "alvenaria", "unit": "unidade", "link": "https://example.com/bloco-19x19x39" },
-  { "name": "Bloco estrutural 19x19x39", "price": 5.3, "supplier": "Pre Moldados Oeste", "category": "alvenaria", "unit": "unidade", "link": "https://example.com/bloco-19x19x39-oeste" },
-  { "name": "Tijolo ceramico 8 furos", "price": 1.28, "supplier": "Ceramica Sao Lucas", "category": "alvenaria", "unit": "unidade", "link": "https://example.com/tijolo-8-furos" },
-  { "name": "Tijolo ceramico 8 furos", "price": 1.34, "supplier": "Ceramica Nova Base", "category": "alvenaria", "unit": "unidade", "link": "https://example.com/tijolo-8-furos-base" },
-  { "name": "Tijolo macico", "price": 1.72, "supplier": "Ceramica Sao Lucas", "category": "alvenaria", "unit": "unidade", "link": "https://example.com/tijolo-macico" },
-  { "name": "Canaleta de concreto 14x19x39", "price": 6.2, "supplier": "Blocos Imperial", "category": "alvenaria", "unit": "unidade", "link": "https://example.com/canaleta-concreto" },
-  { "name": "Vergalhao CA-50 8mm", "price": 44.9, "supplier": "Aco Forte Distribuidora", "category": "aco", "unit": "barra 12m", "link": "https://example.com/vergalhao-8mm" },
-  { "name": "Vergalhao CA-50 8mm", "price": 46.3, "supplier": "Rede do Aco", "category": "aco", "unit": "barra 12m", "link": "https://example.com/vergalhao-8mm-rede" },
-  { "name": "Vergalhao CA-50 10mm", "price": 62.5, "supplier": "Aco Forte Distribuidora", "category": "aco", "unit": "barra 12m", "link": "https://example.com/vergalhao-10mm" },
-  { "name": "Vergalhao CA-50 10mm", "price": 63.2, "supplier": "Casa do Aco", "category": "aco", "unit": "barra 12m", "link": "https://example.com/vergalhao-10mm-casa-aco" },
-  { "name": "Vergalhao CA-50 10mm", "price": 64.0, "supplier": "Rede do Aco", "category": "aco", "unit": "barra 12m", "link": "https://example.com/vergalhao-10mm-rede" },
-  { "name": "Vergalhao CA-50 12.5mm", "price": 93.9, "supplier": "Aco Forte Distribuidora", "category": "aco", "unit": "barra 12m", "link": "https://example.com/vergalhao-125mm" },
-  { "name": "Vergalhao CA-50 12.5mm", "price": 96.5, "supplier": "Casa do Aco", "category": "aco", "unit": "barra 12m", "link": "https://example.com/vergalhao-125mm-casa-aco" },
-  { "name": "Estribo pronto 5x15", "price": 1.95, "supplier": "Malharia do Aco", "category": "aco", "unit": "unidade", "link": "https://example.com/estribo-5x15" },
-  { "name": "Trelica H8 6m", "price": 38.0, "supplier": "Malharia do Aco", "category": "aco", "unit": "unidade", "link": "https://example.com/trelica-h8" },
-  { "name": "Tela soldada Q92 2x3m", "price": 118.0, "supplier": "Rede do Aco", "category": "aco", "unit": "painel", "link": "https://example.com/tela-q92" },
-  { "name": "Tubo PVC esgoto 100mm 6m", "price": 89.0, "supplier": "Hidro Base", "category": "hidraulica", "unit": "barra", "link": "https://example.com/tubo-pvc-100" },
-  { "name": "Tubo PVC esgoto 100mm 6m", "price": 92.4, "supplier": "Conexoes Brasil", "category": "hidraulica", "unit": "barra", "link": "https://example.com/tubo-pvc-100-conexoes" },
-  { "name": "Tubo PVC soldavel 25mm 6m", "price": 31.9, "supplier": "Hidro Base", "category": "hidraulica", "unit": "barra", "link": "https://example.com/tubo-pvc-25" },
-  { "name": "Tubo PVC soldavel 25mm 6m", "price": 33.5, "supplier": "Conexoes Brasil", "category": "hidraulica", "unit": "barra", "link": "https://example.com/tubo-pvc-25-conexoes" },
-  { "name": "Tubo PPR 25mm 3m", "price": 42.6, "supplier": "Hidro Base", "category": "hidraulica", "unit": "barra", "link": "https://example.com/tubo-ppr-25" },
-  { "name": "Joelho soldavel 25mm", "price": 1.85, "supplier": "Conexoes Brasil", "category": "hidraulica", "unit": "unidade", "link": "https://example.com/joelho-25" },
-  { "name": "Registro de esfera 25mm", "price": 21.5, "supplier": "Conexoes Brasil", "category": "hidraulica", "unit": "unidade", "link": "https://example.com/registro-esfera-25" },
-  { "name": "Registro de esfera 25mm", "price": 22.9, "supplier": "Hidro Base", "category": "hidraulica", "unit": "unidade", "link": "https://example.com/registro-esfera-25-hidro" },
-  { "name": "Caixa d'agua 1000L", "price": 489.0, "supplier": "Hidro Base", "category": "hidraulica", "unit": "unidade", "link": "https://example.com/caixa-dagua-1000" },
-  { "name": "Fio 2.5mm rolo 100m", "price": 214.0, "supplier": "Eletro Lider", "category": "eletrica", "unit": "rolo", "link": "https://example.com/fio-25" },
-  { "name": "Fio 2.5mm rolo 100m", "price": 221.0, "supplier": "Casa Eletrica Oeste", "category": "eletrica", "unit": "rolo", "link": "https://example.com/fio-25-oeste" },
-  { "name": "Fio 4mm rolo 100m", "price": 328.0, "supplier": "Eletro Lider", "category": "eletrica", "unit": "rolo", "link": "https://example.com/fio-4mm" },
-  { "name": "Fio 4mm rolo 100m", "price": 336.0, "supplier": "Casa Eletrica Oeste", "category": "eletrica", "unit": "rolo", "link": "https://example.com/fio-4mm-oeste" },
-  { "name": "Disjuntor monopolar 20A", "price": 16.9, "supplier": "Eletro Lider", "category": "eletrica", "unit": "unidade", "link": "https://example.com/disjuntor-20a" },
-  { "name": "Disjuntor monopolar 20A", "price": 17.8, "supplier": "Casa Eletrica Oeste", "category": "eletrica", "unit": "unidade", "link": "https://example.com/disjuntor-20a-oeste" },
-  { "name": "Quadro de distribuicao 12 disjuntores", "price": 118.0, "supplier": "Painel Eletrico Center", "category": "eletrica", "unit": "unidade", "link": "https://example.com/quadro-12" },
-  { "name": "Caixa 4x2 plastica", "price": 1.45, "supplier": "Eletro Lider", "category": "eletrica", "unit": "unidade", "link": "https://example.com/caixa-4x2" },
-  { "name": "Interruptor simples", "price": 8.7, "supplier": "Eletro Lider", "category": "eletrica", "unit": "unidade", "link": "https://example.com/interruptor-simples" },
-  { "name": "Telha fibrocimento 2.44x1.10", "price": 96.0, "supplier": "Coberturas Oeste", "category": "cobertura", "unit": "unidade", "link": "https://example.com/telha-fibrocimento" },
-  { "name": "Telha fibrocimento 2.44x1.10", "price": 101.0, "supplier": "Madeiras Vale", "category": "cobertura", "unit": "unidade", "link": "https://example.com/telha-fibrocimento-vale" },
-  { "name": "Telha trapezoidal galvanizada 3m", "price": 182.0, "supplier": "Coberturas Oeste", "category": "cobertura", "unit": "unidade", "link": "https://example.com/telha-trapezoidal" },
-  { "name": "Cumeeira fibrocimento", "price": 39.9, "supplier": "Coberturas Oeste", "category": "cobertura", "unit": "unidade", "link": "https://example.com/cumeeira-fibrocimento" },
-  { "name": "Manta asfaltica 3mm rolo", "price": 259.0, "supplier": "Impermeabiliza Ja", "category": "impermeabilizacao", "unit": "rolo", "link": "https://example.com/manta-asfaltica" },
-  { "name": "Vedacit 18L", "price": 168.0, "supplier": "Impermeabiliza Ja", "category": "impermeabilizacao", "unit": "balde", "link": "https://example.com/vedacit-18l" },
-  { "name": "Tinta acrilica fosca 18L", "price": 289.0, "supplier": "Tintas Regional", "category": "pintura", "unit": "lata", "link": "https://example.com/tinta-acrilica-18" },
-  { "name": "Tinta acrilica fosca 18L", "price": 301.0, "supplier": "Acabamento Premium", "category": "pintura", "unit": "lata", "link": "https://example.com/tinta-acrilica-18-premium" },
-  { "name": "Selador acrilico 18L", "price": 129.0, "supplier": "Tintas Regional", "category": "pintura", "unit": "lata", "link": "https://example.com/selador-acrilico" },
-  { "name": "Massa corrida PVA 25kg", "price": 54.5, "supplier": "Tintas Regional", "category": "pintura", "unit": "balde", "link": "https://example.com/massa-corrida" },
-  { "name": "Piso porcelanato 72x72", "price": 68.9, "supplier": "Acabamento Premium", "category": "acabamento", "unit": "m2", "link": "https://example.com/porcelanato-72" },
-  { "name": "Piso porcelanato 72x72", "price": 72.4, "supplier": "Central de Acabamentos", "category": "acabamento", "unit": "m2", "link": "https://example.com/porcelanato-72-central" },
-  { "name": "Piso ceramico 60x60", "price": 34.9, "supplier": "Acabamento Premium", "category": "acabamento", "unit": "m2", "link": "https://example.com/piso-60x60" },
-  { "name": "Rodape poliestireno 10cm", "price": 26.0, "supplier": "Acabamento Premium", "category": "acabamento", "unit": "barra", "link": "https://example.com/rodape-10cm" },
-  { "name": "Porta pronta 80cm", "price": 389.0, "supplier": "Madeiras Vale", "category": "esquadria", "unit": "unidade", "link": "https://example.com/porta-pronta-80" },
-  { "name": "Porta pronta 80cm", "price": 402.0, "supplier": "Esquadrias Premium", "category": "esquadria", "unit": "unidade", "link": "https://example.com/porta-pronta-80-premium" },
-  { "name": "Janela aluminio 1.20x1.00", "price": 529.0, "supplier": "Esquadrias Premium", "category": "esquadria", "unit": "unidade", "link": "https://example.com/janela-aluminio-120" },
-  { "name": "Fechadura externa inox", "price": 64.9, "supplier": "Madeiras Vale", "category": "esquadria", "unit": "unidade", "link": "https://example.com/fechadura-externa" },
-  { "name": "Madeira pinus 5x10 3m", "price": 42.0, "supplier": "Madeiras Vale", "category": "madeira", "unit": "peca", "link": "https://example.com/pinus-5x10" },
-  { "name": "Compensado plastificado 18mm", "price": 198.0, "supplier": "Madeiras Vale", "category": "madeira", "unit": "chapa", "link": "https://example.com/compensado-18mm" },
-  { "name": "Prego 18x27 1kg", "price": 21.8, "supplier": "Ferragens Central", "category": "ferragem", "unit": "pacote", "link": "https://example.com/prego-18x27" },
-  { "name": "Parafuso para telha 5/16", "price": 1.28, "supplier": "Ferragens Central", "category": "ferragem", "unit": "unidade", "link": "https://example.com/parafuso-telha" },
-  { "name": "Caixa de gordura PVC", "price": 118.0, "supplier": "Conexoes Brasil", "category": "hidraulica", "unit": "unidade", "link": "https://example.com/caixa-gordura" },
-  { "name": "Laje trelicada m2", "price": 89.0, "supplier": "Pre Moldados Oeste", "category": "estrutura", "unit": "m2", "link": "https://example.com/laje-trelicada" },
-  { "name": "Concreto usinado fck 25 m3", "price": 468.0, "supplier": "Concreteira Rio Preto", "category": "concreto", "unit": "m3", "link": "https://example.com/concreto-fck25" },
-  { "name": "Concreto usinado fck 25 m3", "price": 479.0, "supplier": "Concreto Forte", "category": "concreto", "unit": "m3", "link": "https://example.com/concreto-fck25-forte" }
+﻿[
+  {
+    "name": "Cimento CP-II 50kg",
+    "price": 34.9,
+    "supplier": "Deposito Nova Obra",
+    "category": "cimento",
+    "unit": "saco",
+    "link": "https://example.com/cimento-cp2"
+  },
+  {
+    "name": "Cimento CP-II 50kg",
+    "price": 35.7,
+    "supplier": "ConstruMax Regional",
+    "category": "cimento",
+    "unit": "saco",
+    "link": "https://example.com/cimento-cp2-construmax"
+  },
+  {
+    "name": "Cimento CP-II 50kg",
+    "price": 36.4,
+    "supplier": "Casa Forte Materiais",
+    "category": "cimento",
+    "unit": "saco",
+    "link": "https://example.com/cimento-cp2-casa-forte"
+  },
+  {
+    "name": "Cimento CP-III 50kg",
+    "price": 37.8,
+    "supplier": "Casa Forte Materiais",
+    "category": "cimento",
+    "unit": "saco",
+    "link": "https://example.com/cimento-cp3"
+  },
+  {
+    "name": "Cimento CP-III 50kg",
+    "price": 38.9,
+    "supplier": "Deposito Horizonte",
+    "category": "cimento",
+    "unit": "saco",
+    "link": "https://example.com/cimento-cp3-horizonte"
+  },
+  {
+    "name": "Cimento branco 25kg",
+    "price": 42.9,
+    "supplier": "Central de Acabamentos",
+    "category": "cimento",
+    "unit": "saco",
+    "link": "https://example.com/cimento-branco"
+  },
+  {
+    "name": "Cimento branco 25kg",
+    "price": 44.2,
+    "supplier": "Acabamento Premium",
+    "category": "cimento",
+    "unit": "saco",
+    "link": "https://example.com/cimento-branco-premium"
+  },
+  {
+    "name": "Argamassa ACII 20kg",
+    "price": 24.7,
+    "supplier": "Acabamento Premium",
+    "category": "argamassa",
+    "unit": "saco",
+    "link": "https://example.com/argamassa-ac2"
+  },
+  {
+    "name": "Argamassa ACII 20kg",
+    "price": 25.9,
+    "supplier": "Central de Acabamentos",
+    "category": "argamassa",
+    "unit": "saco",
+    "link": "https://example.com/argamassa-ac2-central"
+  },
+  {
+    "name": "Argamassa ACIII 20kg",
+    "price": 29.8,
+    "supplier": "Central de Acabamentos",
+    "category": "argamassa",
+    "unit": "saco",
+    "link": "https://example.com/argamassa-ac3"
+  },
+  {
+    "name": "Argamassa ACIII 20kg",
+    "price": 31.2,
+    "supplier": "Acabamento Premium",
+    "category": "argamassa",
+    "unit": "saco",
+    "link": "https://example.com/argamassa-ac3-premium"
+  },
+  {
+    "name": "Rejunte flexivel 1kg",
+    "price": 11.9,
+    "supplier": "Acabamento Premium",
+    "category": "acabamento",
+    "unit": "pacote",
+    "link": "https://example.com/rejunte-flexivel"
+  },
+  {
+    "name": "Areia fina m3",
+    "price": 179.0,
+    "supplier": "Areial Rio Preto",
+    "category": "agregado",
+    "unit": "m3",
+    "link": "https://example.com/areia-fina"
+  },
+  {
+    "name": "Areia fina m3",
+    "price": 186.0,
+    "supplier": "Areial Boa Vista",
+    "category": "agregado",
+    "unit": "m3",
+    "link": "https://example.com/areia-fina-boa-vista"
+  },
+  {
+    "name": "Areia media m3",
+    "price": 189.0,
+    "supplier": "Areial Boa Vista",
+    "category": "agregado",
+    "unit": "m3",
+    "link": "https://example.com/areia-media"
+  },
+  {
+    "name": "Areia media m3",
+    "price": 191.5,
+    "supplier": "Mineracao Central",
+    "category": "agregado",
+    "unit": "m3",
+    "link": "https://example.com/areia-media-mineracao"
+  },
+  {
+    "name": "Areia media m3",
+    "price": 194.0,
+    "supplier": "Areial Rio Preto",
+    "category": "agregado",
+    "unit": "m3",
+    "link": "https://example.com/areia-media-rio-preto"
+  },
+  {
+    "name": "Areia grossa m3",
+    "price": 198.0,
+    "supplier": "Areial Boa Vista",
+    "category": "agregado",
+    "unit": "m3",
+    "link": "https://example.com/areia-grossa"
+  },
+  {
+    "name": "Areia grossa m3",
+    "price": 204.0,
+    "supplier": "Areial Rio Preto",
+    "category": "agregado",
+    "unit": "m3",
+    "link": "https://example.com/areia-grossa-rio-preto"
+  },
+  {
+    "name": "Brita 0 m3",
+    "price": 169.0,
+    "supplier": "Pedreira Uniao",
+    "category": "agregado",
+    "unit": "m3",
+    "link": "https://example.com/brita-0"
+  },
+  {
+    "name": "Brita 0 m3",
+    "price": 173.5,
+    "supplier": "Mineracao Central",
+    "category": "agregado",
+    "unit": "m3",
+    "link": "https://example.com/brita-0-mineracao"
+  },
+  {
+    "name": "Brita 1 m3",
+    "price": 174.0,
+    "supplier": "Pedreira Uniao",
+    "category": "agregado",
+    "unit": "m3",
+    "link": "https://example.com/brita-1"
+  },
+  {
+    "name": "Brita 1 m3",
+    "price": 179.0,
+    "supplier": "Mineracao Central",
+    "category": "agregado",
+    "unit": "m3",
+    "link": "https://example.com/brita-1-mineracao"
+  },
+  {
+    "name": "Pedrisco m3",
+    "price": 182.0,
+    "supplier": "Mineracao Central",
+    "category": "agregado",
+    "unit": "m3",
+    "link": "https://example.com/pedrisco"
+  },
+  {
+    "name": "Bloco estrutural 14x19x39",
+    "price": 4.35,
+    "supplier": "Blocos Imperial",
+    "category": "alvenaria",
+    "unit": "unidade",
+    "link": "https://example.com/bloco-14x19x39"
+  },
+  {
+    "name": "Bloco estrutural 14x19x39",
+    "price": 4.48,
+    "supplier": "Ceramica Nova Base",
+    "category": "alvenaria",
+    "unit": "unidade",
+    "link": "https://example.com/bloco-14x19x39-base"
+  },
+  {
+    "name": "Bloco estrutural 14x19x39",
+    "price": 4.55,
+    "supplier": "Pre Moldados Oeste",
+    "category": "alvenaria",
+    "unit": "unidade",
+    "link": "https://example.com/bloco-14x19x39-oeste"
+  },
+  {
+    "name": "Bloco estrutural 19x19x39",
+    "price": 5.1,
+    "supplier": "Blocos Imperial",
+    "category": "alvenaria",
+    "unit": "unidade",
+    "link": "https://example.com/bloco-19x19x39"
+  },
+  {
+    "name": "Bloco estrutural 19x19x39",
+    "price": 5.3,
+    "supplier": "Pre Moldados Oeste",
+    "category": "alvenaria",
+    "unit": "unidade",
+    "link": "https://example.com/bloco-19x19x39-oeste"
+  },
+  {
+    "name": "Tijolo ceramico 8 furos",
+    "price": 1.28,
+    "supplier": "Ceramica Sao Lucas",
+    "category": "alvenaria",
+    "unit": "unidade",
+    "link": "https://example.com/tijolo-8-furos"
+  },
+  {
+    "name": "Tijolo ceramico 8 furos",
+    "price": 1.34,
+    "supplier": "Ceramica Nova Base",
+    "category": "alvenaria",
+    "unit": "unidade",
+    "link": "https://example.com/tijolo-8-furos-base"
+  },
+  {
+    "name": "Tijolo macico",
+    "price": 1.72,
+    "supplier": "Ceramica Sao Lucas",
+    "category": "alvenaria",
+    "unit": "unidade",
+    "link": "https://example.com/tijolo-macico"
+  },
+  {
+    "name": "Canaleta de concreto 14x19x39",
+    "price": 6.2,
+    "supplier": "Blocos Imperial",
+    "category": "alvenaria",
+    "unit": "unidade",
+    "link": "https://example.com/canaleta-concreto"
+  },
+  {
+    "name": "Vergalhao CA-50 8mm",
+    "price": 44.9,
+    "supplier": "Aco Forte Distribuidora",
+    "category": "aco",
+    "unit": "barra 12m",
+    "link": "https://example.com/vergalhao-8mm"
+  },
+  {
+    "name": "Vergalhao CA-50 8mm",
+    "price": 46.3,
+    "supplier": "Rede do Aco",
+    "category": "aco",
+    "unit": "barra 12m",
+    "link": "https://example.com/vergalhao-8mm-rede"
+  },
+  {
+    "name": "Vergalhao CA-50 10mm",
+    "price": 62.5,
+    "supplier": "Aco Forte Distribuidora",
+    "category": "aco",
+    "unit": "barra 12m",
+    "link": "https://example.com/vergalhao-10mm"
+  },
+  {
+    "name": "Vergalhao CA-50 10mm",
+    "price": 63.2,
+    "supplier": "Casa do Aco",
+    "category": "aco",
+    "unit": "barra 12m",
+    "link": "https://example.com/vergalhao-10mm-casa-aco"
+  },
+  {
+    "name": "Vergalhao CA-50 10mm",
+    "price": 64.0,
+    "supplier": "Rede do Aco",
+    "category": "aco",
+    "unit": "barra 12m",
+    "link": "https://example.com/vergalhao-10mm-rede"
+  },
+  {
+    "name": "Vergalhao CA-50 12.5mm",
+    "price": 93.9,
+    "supplier": "Aco Forte Distribuidora",
+    "category": "aco",
+    "unit": "barra 12m",
+    "link": "https://example.com/vergalhao-125mm"
+  },
+  {
+    "name": "Vergalhao CA-50 12.5mm",
+    "price": 96.5,
+    "supplier": "Casa do Aco",
+    "category": "aco",
+    "unit": "barra 12m",
+    "link": "https://example.com/vergalhao-125mm-casa-aco"
+  },
+  {
+    "name": "Estribo pronto 5x15",
+    "price": 1.95,
+    "supplier": "Malharia do Aco",
+    "category": "aco",
+    "unit": "unidade",
+    "link": "https://example.com/estribo-5x15"
+  },
+  {
+    "name": "Trelica H8 6m",
+    "price": 38.0,
+    "supplier": "Malharia do Aco",
+    "category": "aco",
+    "unit": "unidade",
+    "link": "https://example.com/trelica-h8"
+  },
+  {
+    "name": "Tela soldada Q92 2x3m",
+    "price": 118.0,
+    "supplier": "Rede do Aco",
+    "category": "aco",
+    "unit": "painel",
+    "link": "https://example.com/tela-q92"
+  },
+  {
+    "name": "Tubo PVC esgoto 100mm 6m",
+    "price": 89.0,
+    "supplier": "Hidro Base",
+    "category": "hidraulica",
+    "unit": "barra",
+    "link": "https://example.com/tubo-pvc-100"
+  },
+  {
+    "name": "Tubo PVC esgoto 100mm 6m",
+    "price": 92.4,
+    "supplier": "Conexoes Brasil",
+    "category": "hidraulica",
+    "unit": "barra",
+    "link": "https://example.com/tubo-pvc-100-conexoes"
+  },
+  {
+    "name": "Tubo PVC soldavel 25mm 6m",
+    "price": 31.9,
+    "supplier": "Hidro Base",
+    "category": "hidraulica",
+    "unit": "barra",
+    "link": "https://example.com/tubo-pvc-25"
+  },
+  {
+    "name": "Tubo PVC soldavel 25mm 6m",
+    "price": 33.5,
+    "supplier": "Conexoes Brasil",
+    "category": "hidraulica",
+    "unit": "barra",
+    "link": "https://example.com/tubo-pvc-25-conexoes"
+  },
+  {
+    "name": "Tubo PPR 25mm 3m",
+    "price": 42.6,
+    "supplier": "Hidro Base",
+    "category": "hidraulica",
+    "unit": "barra",
+    "link": "https://example.com/tubo-ppr-25"
+  },
+  {
+    "name": "Joelho soldavel 25mm",
+    "price": 1.85,
+    "supplier": "Conexoes Brasil",
+    "category": "hidraulica",
+    "unit": "unidade",
+    "link": "https://example.com/joelho-25"
+  },
+  {
+    "name": "Registro de esfera 25mm",
+    "price": 21.5,
+    "supplier": "Conexoes Brasil",
+    "category": "hidraulica",
+    "unit": "unidade",
+    "link": "https://example.com/registro-esfera-25"
+  },
+  {
+    "name": "Registro de esfera 25mm",
+    "price": 22.9,
+    "supplier": "Hidro Base",
+    "category": "hidraulica",
+    "unit": "unidade",
+    "link": "https://example.com/registro-esfera-25-hidro"
+  },
+  {
+    "name": "Caixa d'agua 1000L",
+    "price": 489.0,
+    "supplier": "Hidro Base",
+    "category": "hidraulica",
+    "unit": "unidade",
+    "link": "https://example.com/caixa-dagua-1000"
+  },
+  {
+    "name": "Fio 2.5mm rolo 100m",
+    "price": 214.0,
+    "supplier": "Eletro Lider",
+    "category": "eletrica",
+    "unit": "rolo",
+    "link": "https://example.com/fio-25"
+  },
+  {
+    "name": "Fio 2.5mm rolo 100m",
+    "price": 221.0,
+    "supplier": "Casa Eletrica Oeste",
+    "category": "eletrica",
+    "unit": "rolo",
+    "link": "https://example.com/fio-25-oeste"
+  },
+  {
+    "name": "Fio 4mm rolo 100m",
+    "price": 328.0,
+    "supplier": "Eletro Lider",
+    "category": "eletrica",
+    "unit": "rolo",
+    "link": "https://example.com/fio-4mm"
+  },
+  {
+    "name": "Fio 4mm rolo 100m",
+    "price": 336.0,
+    "supplier": "Casa Eletrica Oeste",
+    "category": "eletrica",
+    "unit": "rolo",
+    "link": "https://example.com/fio-4mm-oeste"
+  },
+  {
+    "name": "Disjuntor monopolar 20A",
+    "price": 16.9,
+    "supplier": "Eletro Lider",
+    "category": "eletrica",
+    "unit": "unidade",
+    "link": "https://example.com/disjuntor-20a"
+  },
+  {
+    "name": "Disjuntor monopolar 20A",
+    "price": 17.8,
+    "supplier": "Casa Eletrica Oeste",
+    "category": "eletrica",
+    "unit": "unidade",
+    "link": "https://example.com/disjuntor-20a-oeste"
+  },
+  {
+    "name": "Quadro de distribuicao 12 disjuntores",
+    "price": 118.0,
+    "supplier": "Painel Eletrico Center",
+    "category": "eletrica",
+    "unit": "unidade",
+    "link": "https://example.com/quadro-12"
+  },
+  {
+    "name": "Caixa 4x2 plastica",
+    "price": 1.45,
+    "supplier": "Eletro Lider",
+    "category": "eletrica",
+    "unit": "unidade",
+    "link": "https://example.com/caixa-4x2"
+  },
+  {
+    "name": "Interruptor simples",
+    "price": 8.7,
+    "supplier": "Eletro Lider",
+    "category": "eletrica",
+    "unit": "unidade",
+    "link": "https://example.com/interruptor-simples"
+  },
+  {
+    "name": "Telha fibrocimento 2.44x1.10",
+    "price": 96.0,
+    "supplier": "Coberturas Oeste",
+    "category": "cobertura",
+    "unit": "unidade",
+    "link": "https://example.com/telha-fibrocimento"
+  },
+  {
+    "name": "Telha fibrocimento 2.44x1.10",
+    "price": 101.0,
+    "supplier": "Madeiras Vale",
+    "category": "cobertura",
+    "unit": "unidade",
+    "link": "https://example.com/telha-fibrocimento-vale"
+  },
+  {
+    "name": "Telha trapezoidal galvanizada 3m",
+    "price": 182.0,
+    "supplier": "Coberturas Oeste",
+    "category": "cobertura",
+    "unit": "unidade",
+    "link": "https://example.com/telha-trapezoidal"
+  },
+  {
+    "name": "Cumeeira fibrocimento",
+    "price": 39.9,
+    "supplier": "Coberturas Oeste",
+    "category": "cobertura",
+    "unit": "unidade",
+    "link": "https://example.com/cumeeira-fibrocimento"
+  },
+  {
+    "name": "Manta asfaltica 3mm rolo",
+    "price": 259.0,
+    "supplier": "Impermeabiliza Ja",
+    "category": "impermeabilizacao",
+    "unit": "rolo",
+    "link": "https://example.com/manta-asfaltica"
+  },
+  {
+    "name": "Vedacit 18L",
+    "price": 168.0,
+    "supplier": "Impermeabiliza Ja",
+    "category": "impermeabilizacao",
+    "unit": "balde",
+    "link": "https://example.com/vedacit-18l"
+  },
+  {
+    "name": "Tinta acrilica fosca 18L",
+    "price": 289.0,
+    "supplier": "Tintas Regional",
+    "category": "pintura",
+    "unit": "lata",
+    "link": "https://example.com/tinta-acrilica-18"
+  },
+  {
+    "name": "Tinta acrilica fosca 18L",
+    "price": 301.0,
+    "supplier": "Acabamento Premium",
+    "category": "pintura",
+    "unit": "lata",
+    "link": "https://example.com/tinta-acrilica-18-premium"
+  },
+  {
+    "name": "Selador acrilico 18L",
+    "price": 129.0,
+    "supplier": "Tintas Regional",
+    "category": "pintura",
+    "unit": "lata",
+    "link": "https://example.com/selador-acrilico"
+  },
+  {
+    "name": "Massa corrida PVA 25kg",
+    "price": 54.5,
+    "supplier": "Tintas Regional",
+    "category": "pintura",
+    "unit": "balde",
+    "link": "https://example.com/massa-corrida"
+  },
+  {
+    "name": "Piso porcelanato 72x72",
+    "price": 68.9,
+    "supplier": "Acabamento Premium",
+    "category": "acabamento",
+    "unit": "m2",
+    "link": "https://example.com/porcelanato-72"
+  },
+  {
+    "name": "Piso porcelanato 72x72",
+    "price": 72.4,
+    "supplier": "Central de Acabamentos",
+    "category": "acabamento",
+    "unit": "m2",
+    "link": "https://example.com/porcelanato-72-central"
+  },
+  {
+    "name": "Piso ceramico 60x60",
+    "price": 34.9,
+    "supplier": "Acabamento Premium",
+    "category": "acabamento",
+    "unit": "m2",
+    "link": "https://example.com/piso-60x60"
+  },
+  {
+    "name": "Rodape poliestireno 10cm",
+    "price": 26.0,
+    "supplier": "Acabamento Premium",
+    "category": "acabamento",
+    "unit": "barra",
+    "link": "https://example.com/rodape-10cm"
+  },
+  {
+    "name": "Porta pronta 80cm",
+    "price": 389.0,
+    "supplier": "Madeiras Vale",
+    "category": "esquadria",
+    "unit": "unidade",
+    "link": "https://example.com/porta-pronta-80"
+  },
+  {
+    "name": "Porta pronta 80cm",
+    "price": 402.0,
+    "supplier": "Esquadrias Premium",
+    "category": "esquadria",
+    "unit": "unidade",
+    "link": "https://example.com/porta-pronta-80-premium"
+  },
+  {
+    "name": "Janela aluminio 1.20x1.00",
+    "price": 529.0,
+    "supplier": "Esquadrias Premium",
+    "category": "esquadria",
+    "unit": "unidade",
+    "link": "https://example.com/janela-aluminio-120"
+  },
+  {
+    "name": "Fechadura externa inox",
+    "price": 64.9,
+    "supplier": "Madeiras Vale",
+    "category": "esquadria",
+    "unit": "unidade",
+    "link": "https://example.com/fechadura-externa"
+  },
+  {
+    "name": "Madeira pinus 5x10 3m",
+    "price": 42.0,
+    "supplier": "Madeiras Vale",
+    "category": "madeira",
+    "unit": "peca",
+    "link": "https://example.com/pinus-5x10"
+  },
+  {
+    "name": "Compensado plastificado 18mm",
+    "price": 198.0,
+    "supplier": "Madeiras Vale",
+    "category": "madeira",
+    "unit": "chapa",
+    "link": "https://example.com/compensado-18mm"
+  },
+  {
+    "name": "Prego 18x27 1kg",
+    "price": 21.8,
+    "supplier": "Ferragens Central",
+    "category": "ferragem",
+    "unit": "pacote",
+    "link": "https://example.com/prego-18x27"
+  },
+  {
+    "name": "Parafuso para telha 5/16",
+    "price": 1.28,
+    "supplier": "Ferragens Central",
+    "category": "ferragem",
+    "unit": "unidade",
+    "link": "https://example.com/parafuso-telha"
+  },
+  {
+    "name": "Caixa de gordura PVC",
+    "price": 118.0,
+    "supplier": "Conexoes Brasil",
+    "category": "hidraulica",
+    "unit": "unidade",
+    "link": "https://example.com/caixa-gordura"
+  },
+  {
+    "name": "Laje trelicada m2",
+    "price": 89.0,
+    "supplier": "Pre Moldados Oeste",
+    "category": "estrutura",
+    "unit": "m2",
+    "link": "https://example.com/laje-trelicada"
+  },
+  {
+    "name": "Concreto usinado fck 25 m3",
+    "price": 468.0,
+    "supplier": "Concreteira Rio Preto",
+    "category": "concreto",
+    "unit": "m3",
+    "link": "https://example.com/concreto-fck25"
+  },
+  {
+    "name": "Concreto usinado fck 25 m3",
+    "price": 479.0,
+    "supplier": "Concreto Forte",
+    "category": "concreto",
+    "unit": "m3",
+    "link": "https://example.com/concreto-fck25-forte"
+  }
 ]

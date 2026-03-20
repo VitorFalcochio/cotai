@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import asyncio
 import json
 from dataclasses import dataclass
 from typing import Any
 
+from ..api.services.dynamic_search_engine import SearchEngine
 from .config import load_settings, validate_settings
 from .services.search_service import SearchService, normalize_text
 from .services.supabase_service import SupabaseService
@@ -17,6 +19,14 @@ class WatchItem:
     source_name: str
     company_id: str | None = None
     max_results: int = 5
+
+
+DEFAULT_RECENT_ITEM_PROVIDERS: tuple[tuple[str, str, int], ...] = (
+    ("mercado_livre", "mercado_livre", 5),
+    ("leroy_merlin", "Leroy Merlin", 3),
+    ("telhanorte", "Telhanorte", 3),
+    ("obramax", "Obramax", 3),
+)
 
 
 def load_watchlist(settings, supabase: SupabaseService) -> list[WatchItem]:
@@ -56,55 +66,69 @@ def load_watchlist(settings, supabase: SupabaseService) -> list[WatchItem]:
         recent_items = []
 
     for item_name in recent_items:
-        key = (normalize_text(item_name), "mercado_livre", settings.worker_company_id or None)
-        if key in seen:
-            continue
-        seen.add(key)
-        watch_items.append(
-            WatchItem(
-                item_name=item_name,
-                query=item_name,
-                provider="mercado_livre",
-                source_name="mercado_livre",
-                company_id=settings.worker_company_id or None,
-                max_results=5,
+        for provider, source_name, max_results in DEFAULT_RECENT_ITEM_PROVIDERS:
+            key = (normalize_text(item_name), provider, settings.worker_company_id or None)
+            if key in seen:
+                continue
+            seen.add(key)
+            watch_items.append(
+                WatchItem(
+                    item_name=item_name,
+                    query=item_name,
+                    provider=provider,
+                    source_name=source_name,
+                    company_id=settings.worker_company_id or None,
+                    max_results=max_results,
+                )
             )
-        )
 
     return watch_items
 
 
-def collect_offers_for_watch_item(search: SearchService, item: WatchItem) -> list[dict[str, Any]]:
-    if item.provider != "mercado_livre":
-        return []
+def _to_snapshot_row(item: WatchItem, offer: dict[str, Any]) -> dict[str, Any]:
+    title = str(offer.get("title") or offer.get("product_name") or item.item_name).strip()
+    supplier_name = str(offer.get("supplier") or item.source_name or "Fornecedor").strip()
+    link = offer.get("link") or offer.get("offer_url")
+    source = str(offer.get("source") or item.source_name or item.provider).strip()
 
-    offers = search.search_mercado_livre(item.query, limit=item.max_results)
-    snapshots: list[dict[str, Any]] = []
-    for offer in offers:
-        snapshots.append(
-            {
-                "company_id": item.company_id,
-                "item_name": item.item_name,
-                "normalized_item_name": normalize_text(item.item_name),
-                "query": item.query,
-                "provider": item.provider,
-                "source_name": item.source_name,
-                "supplier_name": str(offer.get("supplier") or item.source_name or "Fornecedor").strip(),
-                "title": str(offer.get("title") or item.item_name).strip(),
-                "price": offer.get("price"),
-                "unit_price": offer.get("price"),
-                "currency": "BRL",
-                "delivery_days": offer.get("delivery_days"),
-                "delivery_label": offer.get("delivery_label") or None,
-                "result_url": offer.get("link"),
-                "metadata": {
-                    "source": offer.get("source"),
-                    "raw_title": offer.get("title"),
-                    "captured_via": "collector",
-                },
-            }
-        )
-    return snapshots
+    return {
+        "company_id": item.company_id,
+        "item_name": item.item_name,
+        "normalized_item_name": normalize_text(item.item_name),
+        "query": item.query,
+        "provider": item.provider,
+        "source_name": item.source_name,
+        "supplier_name": supplier_name,
+        "title": title,
+        "price": offer.get("price"),
+        "unit_price": offer.get("price"),
+        "currency": str(offer.get("currency") or "BRL"),
+        "delivery_days": offer.get("delivery_days"),
+        "delivery_label": offer.get("delivery_label") or None,
+        "result_url": link,
+        "metadata": {
+            "source": source,
+            "raw_title": title,
+            "captured_via": "collector",
+        },
+    }
+
+
+async def _collect_live_provider_offers(live_search: SearchEngine, item: WatchItem) -> list[dict[str, Any]]:
+    offers = await live_search.search(item.query, providers=(item.provider,))
+    snapshots = [_to_snapshot_row(item, offer) for offer in offers[: item.max_results]]
+    return [row for row in snapshots if row.get("price") is not None]
+
+
+def collect_offers_for_watch_item(search: SearchService, live_search: SearchEngine, item: WatchItem) -> list[dict[str, Any]]:
+    if item.provider == "mercado_livre":
+        offers = search.search_mercado_livre(item.query, limit=item.max_results)
+        return [_to_snapshot_row(item, offer) for offer in offers if offer.get("price") is not None]
+
+    if item.provider in {"leroy_merlin", "telhanorte", "obramax"}:
+        return asyncio.run(_collect_live_provider_offers(live_search, item))
+
+    return []
 
 
 def main() -> int:
@@ -112,12 +136,13 @@ def main() -> int:
     validate_settings(settings)
     supabase = SupabaseService(settings)
     search = SearchService(settings)
+    live_search = SearchEngine(settings)
     try:
         watchlist = load_watchlist(settings, supabase)
         all_rows: list[dict[str, Any]] = []
         for item in watchlist:
             try:
-                all_rows.extend(collect_offers_for_watch_item(search, item))
+                all_rows.extend(collect_offers_for_watch_item(search, live_search, item))
             except Exception:
                 continue
         supabase.insert_supplier_price_snapshots(all_rows)

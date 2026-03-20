@@ -37,8 +37,9 @@ def parse_price(value: Any) -> float | None:
 
 @dataclass(frozen=True)
 class ProviderConfig:
+    key: str
     name: str
-    search_url_template: str
+    search_url_templates: tuple[str, ...]
     card_selectors: tuple[str, ...]
     title_selectors: tuple[str, ...]
     price_selectors: tuple[str, ...]
@@ -55,19 +56,67 @@ class SearchEngine:
 
     PROVIDERS: tuple[ProviderConfig, ...] = (
         ProviderConfig(
+            key="leroy_merlin",
             name="Leroy Merlin",
-            search_url_template="https://www.leroymerlin.com.br/busca?q={query}",
-            card_selectors=("[data-testid='product-card']", ".product-item", ".product-card"),
-            title_selectors=("[data-testid='product-title']", ".product-item__name", ".product-card__name", "h2", "h3", "a[title]"),
-            price_selectors=("[data-testid='price']", ".price", ".product-price", ".sales-price", "[class*='price']"),
+            search_url_templates=(
+                "https://www.leroymerlin.com.br/busca?q={query}",
+                "https://www.leroymerlin.com.br/search?term={query}",
+            ),
+            card_selectors=("[data-testid='product-card']", ".new-product-thumb", ".product-item", ".product-card"),
+            title_selectors=(
+                "[data-testid='product-title']",
+                ".css-1eaoahv-ellipsis",
+                ".product-item__name",
+                ".product-card__name",
+                "h2",
+                "h3",
+                "a[title]",
+            ),
+            price_selectors=(
+                "[data-testid='price']",
+                ".css-gt77zv-price-tag",
+                ".price",
+                ".product-price",
+                ".sales-price",
+                "[class*='price']",
+            ),
             link_selectors=("a[href]",),
         ),
         ProviderConfig(
+            key="obramax",
             name="Obramax",
-            search_url_template="https://www.obramax.com.br/search?text={query}",
+            search_url_templates=("https://www.obramax.com.br/search?text={query}",),
             card_selectors=("[data-testid='product-card']", ".vtex-search-result-3-x-galleryItem", ".product-card", "article"),
             title_selectors=("[data-testid='product-title']", ".vtex-product-summary-2-x-productBrand", ".product-card__name", "h2", "h3", "a[title]"),
             price_selectors=("[data-testid='price']", ".price", ".sales-price", ".vtex-product-price-1-x-sellingPriceValue", "[class*='price']"),
+            link_selectors=("a[href]",),
+        ),
+        ProviderConfig(
+            key="telhanorte",
+            name="Telhanorte",
+            search_url_templates=("https://www.telhanorte.com.br/busca?q={query}",),
+            card_selectors=(
+                "div.vtex-product-summary-2-x-container",
+                ".vtex-search-result-3-x-galleryItem",
+                "[data-testid='product-card']",
+                "article",
+            ),
+            title_selectors=(
+                ".vtex-product-summary-2-x-brandName",
+                ".vtex-product-summary-2-x-productBrand",
+                "[data-testid='product-title']",
+                "h2",
+                "h3",
+                "a[title]",
+            ),
+            price_selectors=(
+                ".vtex-product-summary-2-x-sellingPrice",
+                ".vtex-product-price-1-x-sellingPriceValue",
+                "[data-testid='price']",
+                ".price",
+                ".sales-price",
+                "[class*='price']",
+            ),
             link_selectors=("a[href]",),
         ),
     )
@@ -75,12 +124,16 @@ class SearchEngine:
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
 
-    async def search(self, term: str) -> list[dict[str, Any]]:
+    async def search(self, term: str, providers: tuple[str, ...] | None = None) -> list[dict[str, Any]]:
+        selected_providers = self._resolve_providers(providers)
+        if not selected_providers:
+            return []
+
         async with async_playwright() as playwright:
             browser = await playwright.chromium.launch(headless=self.settings.scraping_headless)
             try:
                 results = await asyncio.gather(
-                    *(self._search_provider(browser, provider, term) for provider in self.PROVIDERS),
+                    *(self._search_provider(browser, provider, term) for provider in selected_providers),
                     return_exceptions=True,
                 )
             finally:
@@ -96,13 +149,16 @@ class SearchEngine:
     async def _search_provider(self, browser: Browser, provider: ProviderConfig, term: str) -> list[dict[str, Any]]:
         page = await browser.new_page()
         try:
-            search_url = provider.search_url_template.format(query=quote_plus(term))
-            await page.goto(search_url, wait_until="domcontentloaded", timeout=self.settings.scraping_timeout_ms)
-            await page.wait_for_timeout(1500)
-            offers = await self._extract_provider_offers(page, provider)
-            if offers:
-                return offers[: self.settings.scraping_max_offers_per_store]
-            return (await self._extract_json_ld_offers(page, provider.name))[: self.settings.scraping_max_offers_per_store]
+            for search_url in self._candidate_search_urls(provider, term):
+                await page.goto(search_url, wait_until="domcontentloaded", timeout=self.settings.scraping_timeout_ms)
+                await page.wait_for_timeout(1500)
+                offers = await self._extract_provider_offers(page, provider)
+                if offers:
+                    return offers[: self.settings.scraping_max_offers_per_store]
+                json_ld_offers = await self._extract_json_ld_offers(page, provider.name)
+                if json_ld_offers:
+                    return json_ld_offers[: self.settings.scraping_max_offers_per_store]
+            return []
         except Exception as exc:  # noqa: BLE001
             log_event(self.settings, "WARNING", "Provider scraping failed", provider=provider.name, search_term=term, error=str(exc))
             return []
@@ -168,6 +224,24 @@ class SearchEngine:
             return [item for item in payload if isinstance(item, dict)]
         return []
 
+    def _candidate_search_urls(self, provider: ProviderConfig, term: str) -> list[str]:
+        query = quote_plus(term)
+        return [template.format(query=query) for template in provider.search_url_templates]
+
+    def _resolve_providers(self, providers: tuple[str, ...] | None) -> tuple[ProviderConfig, ...]:
+        if not providers:
+            return self.PROVIDERS
+        wanted = {normalize_text(item).replace(" ", "_") for item in providers if str(item).strip()}
+        selected = []
+        for provider in self.PROVIDERS:
+            aliases = {
+                normalize_text(provider.key).replace(" ", "_"),
+                normalize_text(provider.name).replace(" ", "_"),
+            }
+            if aliases.intersection(wanted):
+                selected.append(provider)
+        return tuple(selected)
+
     async def _query_all(self, page: Page, selectors: tuple[str, ...]) -> list[ElementHandle]:
         for selector in selectors:
             try:
@@ -202,4 +276,3 @@ class SearchEngine:
             except Exception:
                 continue
         return page.url
-
