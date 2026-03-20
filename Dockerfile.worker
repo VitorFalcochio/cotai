@@ -1,15 +1,18 @@
-FROM python:3.12-slim
+# Substitua a primeira linha por esta:
+FROM mcr.microsoft.com/playwright/python:v1.40.0-jammy
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+# A imagem da Microsoft já gerencia o path do browser, você pode manter ou remover essa linha:
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 WORKDIR /app
 
 COPY requirements.txt /app/requirements.txt
 
+# Como a imagem já tem as deps de sistema, você só precisa instalar os pacotes python e o chromium
 RUN pip install --no-cache-dir -r /app/requirements.txt \
-    && python -m playwright install --with-deps chromium
+    && playwright install chromium
 
 COPY . /app
 
