@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cotai Admin | Logs</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <link rel="stylesheet" href="./assets/css/apex.css" />
+</head>
+<body data-page="admin-logs">
+  <div class="app-shell app-layout dashboard-apex-layout">
+    <aside class="sidebar app-sidebar app-sidebar-admin dashboard-apex-sidebar" id="appSidebar">
+      <div class="side-shell-head">
+        <a class="brand" href="admin-dashboard.html"><span class="brand-mark">C</span><span class="brand-name">Cotai Admin</span></a>
+        <button class="btn btn-ghost side-collapse-btn" type="button" id="sidebarCollapse" aria-label="Colapsar menu" aria-expanded="true"><span class="collapse-arrow" aria-hidden="true"><</span></button>
+      </div>
+      <nav class="app-nav" id="appNav">
+        <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
+        <a class="side-link" data-nav="admin-dashboard" href="admin-dashboard.html" title="Visão geral"><span class="left"><span class="nav-label">Visão geral</span></span><span class="mini-badge">Core</span></a>
+        <a class="side-link" data-nav="admin-companies" href="admin-companies.html" title="Empresas"><span class="left"><span class="nav-label">Empresas</span></span><span class="mini-badge">SaaS</span></a>
+        <a class="side-link" data-nav="admin-users" href="admin-users.html" title="Usuários"><span class="left"><span class="nav-label">Usuários</span></span><span class="mini-badge">Auth</span></a>
+        <a class="side-link" data-nav="admin-requests" href="admin-requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span><span class="mini-badge">Ops</span></a>
+        <a class="side-link" data-nav="admin-worker" href="admin-worker.html" title="Worker"><span class="left"><span class="nav-label">Worker</span></span><span class="mini-badge">Bot</span></a>
+        <a class="side-link" data-nav="admin-snapshots" href="admin-snapshots.html" title="Snapshots"><span class="left"><span class="nav-label">Snapshots</span></span><span class="mini-badge">Preço</span></a>
+        <a class="side-link" data-nav="admin-billing" href="admin-billing.html" title="Receita"><span class="left"><span class="nav-label">Receita</span></span><span class="mini-badge">MRR</span></a>
+        <a class="side-link" data-nav="admin-logs" href="admin-logs.html" title="Logs"><span class="left"><span class="nav-label">Logs</span></span><span class="mini-badge">Audit</span></a>
+      </nav>
+      <div class="app-sidebar-foot"><a class="btn btn-ghost w-full" href="dashboard.html">Voltar ao cliente</a></div>
+    </aside>
+    <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
+    <main class="app-main dashboard-apex-main">
+      <header class="app-topbar">
+        <div>
+          <p class="eyebrow">Auditoria e eventos</p>
+          <h1>Logs</h1>
+          <p>Concentre eventos administrativos e sinais do worker com filtros claros e melhor leitura da trilha histórica.</p>
+        </div>
+        <div class="app-topbar-actions">
+          <div class="admin-topbar-identity"><strong id="adminIdentity">Admin</strong><span class="app-badge is-success" id="adminRole">ADMIN</span></div>
+          <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
+          <button class="btn btn-ghost" id="backToClientButton" type="button">Cliente</button>
+          <button class="btn btn-ghost" id="logoutButton" type="button">Sair</button>
+        </div>
+      </header>
+      <section class="admin-hero-card">
+        <div class="admin-hero-grid">
+          <div class="hero-copy-stack">
+            <span class="badge">Trilha de auditoria da plataforma</span>
+            <h2>Filtrar melhor encurta o caminho entre o sintoma e a causa</h2>
+            <p class="muted">A área de logs ganha uma moldura mais consistente com o restante do console para favorecer análise e investigação.</p>
+          </div>
+          <aside class="admin-note">
+            <strong>Use os filtros para</strong>
+            <ul class="admin-note-list">
+              <li>Separar períodos de pico ou incidente.</li>
+              <li>Isolar empresas com comportamento anômalo.</li>
+              <li>Concentrar um tipo específico de evento.</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+      <p class="app-feedback hidden" id="adminLogsFeedback" role="alert"></p>
+      <section class="filter-shell">
+        <div class="filter-shell-head">
+          <div>
+            <p class="eyebrow">Refino da leitura</p>
+            <h2>Filtros de auditoria</h2>
+          </div>
+        </div>
+        <form class="admin-filter-grid" id="adminLogsFilters">
+          <div class="form-row"><label for="logStartDate">Data inicial</label><input id="logStartDate" type="date" /></div>
+          <div class="form-row"><label for="logEndDate">Data final</label><input id="logEndDate" type="date" /></div>
+          <div class="form-row"><label for="logCompanyFilter">Empresa</label><select id="logCompanyFilter"><option value="all">Todas as empresas</option></select></div>
+          <div class="form-row"><label for="logTypeFilter">Tipo de evento</label><select id="logTypeFilter"><option value="all">Todos os eventos</option></select></div>
+          <div class="form-row admin-filter-submit"><label>&nbsp;</label><button class="btn btn-primary" type="submit">Aplicar filtros</button></div>
+        </form>
+      </section>
+      <section class="card table-shell">
+        <div class="app-table-wrap">
+          <table class="app-table">
+            <thead><tr><th>Quando</th><th>Tipo</th><th>Empresa</th><th>Responsável</th><th>Mensagem</th></tr></thead>
+            <tbody id="adminLogsBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./assets/js/pages/admin-logs.page.js"></script>
+</body>
+</html>

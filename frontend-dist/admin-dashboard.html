@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cotai Admin | Visao geral</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <link rel="stylesheet" href="./assets/css/apex.css" />
+</head>
+<body data-page="admin-dashboard">
+  <div class="app-shell app-layout dashboard-apex-layout">
+    <aside class="sidebar app-sidebar app-sidebar-admin dashboard-apex-sidebar" id="appSidebar"></aside>
+    <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
+
+    <main class="app-main dashboard-apex-main">
+      <header class="app-topbar">
+        <div>
+          <p class="eyebrow">Controle da plataforma</p>
+          <h1>Painel administrativo</h1>
+          <p>Comece pela fila, pelo worker e pelos erros recentes. O resto vem depois.</p>
+        </div>
+        <div class="app-topbar-actions">
+          <div class="admin-topbar-identity"><strong id="adminIdentity">Admin</strong><span class="app-badge is-success" id="adminRole">ADMIN</span></div>
+          <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
+          <button class="btn btn-ghost" id="backToClientButton" type="button">Cliente</button>
+          <button class="btn btn-ghost" id="logoutButton" type="button">Sair</button>
+        </div>
+      </header>
+
+      <p class="app-feedback hidden" id="adminDashboardFeedback" role="alert"></p>
+
+      <section class="admin-grid admin-grid-metrics">
+        <article class="card admin-metric-card"><p>Pedidos hoje</p><h3 id="metricRequestsToday">0</h3><span id="metricRequestsTodayMeta">Volume recente</span></article>
+        <article class="card admin-metric-card"><p>Fila pendente</p><h3 id="metricRequestsQueued">0</h3><span id="metricRequestsQueuedMeta">Aguardando worker</span></article>
+        <article class="card admin-metric-card"><p>Em processamento</p><h3 id="metricRequestsProcessing">0</h3><span id="metricRequestsProcessingMeta">Execucao ativa</span></article>
+        <article class="card admin-metric-card"><p>Worker</p><h3 id="metricWorkerStatus">-</h3><span id="metricWorkerStatusMeta">Heartbeat operacional</span></article>
+        <article class="card admin-metric-card"><p>Erros recentes</p><h3 id="metricQuotesError">0</h3><span id="metricQuotesErrorMeta">Falhas que pedem acao</span></article>
+        <article class="card admin-metric-card"><p>Taxa de sucesso</p><h3 id="metricSuccessRate">-</h3><span id="metricSuccessRateMeta">Concluidas sem erro</span></article>
+      </section>
+
+      <section class="admin-dual-panel">
+        <article class="card table-shell">
+          <div class="filter-shell-head">
+            <div>
+              <p class="eyebrow">Risco operacional</p>
+              <h2>Alertas uteis</h2>
+            </div>
+          </div>
+          <div id="adminAlerts" class="admin-status-stack"></div>
+        </article>
+
+        <article class="card table-shell">
+          <div class="filter-shell-head">
+            <div>
+              <p class="eyebrow">Saude do sistema</p>
+              <h2>Sinais do ambiente</h2>
+            </div>
+          </div>
+          <div id="adminSystemStatus" class="admin-status-stack"></div>
+        </article>
+      </section>
+
+      <section class="admin-dual-panel">
+        <article class="card table-shell">
+          <div class="filter-shell-head">
+            <div>
+              <p class="eyebrow">Atividade</p>
+              <h2>Pedidos recentes</h2>
+            </div>
+          </div>
+          <div class="app-table-wrap">
+            <table class="app-table">
+              <thead><tr><th>Pedido</th><th>Cliente</th><th>Status</th><th>Empresa</th><th>Criado em</th></tr></thead>
+              <tbody id="adminOverviewRecentRequests"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="card table-shell">
+          <div class="filter-shell-head">
+            <div>
+              <p class="eyebrow">Risco recente</p>
+              <h2>Erros do worker</h2>
+            </div>
+          </div>
+          <div class="app-table-wrap">
+            <table class="app-table">
+              <thead><tr><th>Pedido</th><th>Status</th><th>Erro</th><th>Quando</th></tr></thead>
+              <tbody id="adminOverviewErrors"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="admin-dual-panel">
+        <article class="card table-shell">
+          <div class="filter-shell-head">
+            <div>
+              <p class="eyebrow">Base ativa</p>
+              <h2>Empresas e usuarios</h2>
+            </div>
+          </div>
+          <div class="admin-inline-stats">
+            <article class="admin-mini-card"><span>Empresas ativas</span><strong id="metricCompanies">0</strong></article>
+            <article class="admin-mini-card"><span>Usuarios totais</span><strong id="metricUsers">0</strong></article>
+            <article class="admin-mini-card"><span>Aguardando aprovacao</span><strong id="metricApprovalPending">0</strong></article>
+            <article class="admin-mini-card"><span>SLA vencido</span><strong id="metricOverdueSla">0</strong></article>
+          </div>
+        </article>
+
+        <article class="card table-shell">
+          <div class="filter-shell-head">
+            <div>
+              <p class="eyebrow">Negocio</p>
+              <h2>Resumo da base</h2>
+            </div>
+          </div>
+          <div class="admin-inline-stats">
+            <article class="admin-mini-card"><span>Pedidos no mes</span><strong id="metricRequestsMonth">0</strong></article>
+            <article class="admin-mini-card"><span>Cotacoes concluidas</span><strong id="metricQuotesDone">0</strong></article>
+            <article class="admin-mini-card"><span>Receita estimada</span><strong id="metricRevenue">Nao integrado</strong></article>
+            <article class="admin-mini-card"><span>Observacoes</span><strong id="metricSummaryNotice">Sem alertas extras</strong></article>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./assets/js/pages/admin-dashboard.page.js"></script>
+</body>
+</html>

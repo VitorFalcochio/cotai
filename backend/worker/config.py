@@ -32,6 +32,13 @@ def _env_int(name: str, default: int) -> int:
         return default
 
 
+def _env_list(name: str, default: tuple[str, ...] = ()) -> tuple[str, ...]:
+    raw = os.getenv(name, "").strip()
+    if not raw:
+        return default
+    return tuple(item.strip() for item in raw.split(",") if item.strip())
+
+
 @dataclass(frozen=True)
 class Settings:
     debug: bool
@@ -50,6 +57,7 @@ class Settings:
     api_host: str
     api_port: int
     api_base_url: str
+    cors_origins: tuple[str, ...]
     mercado_livre_site: str
     gemini_api_key: str
     gemini_model: str
@@ -90,6 +98,7 @@ def load_settings() -> Settings:
         api_host=api_host,
         api_port=api_port,
         api_base_url=os.getenv("API_BASE_URL", f"http://{api_host}:{api_port}").strip().rstrip("/"),
+        cors_origins=_env_list("CORS_ORIGINS", ("*",)),
         mercado_livre_site=os.getenv("MERCADO_LIVRE_SITE", "MLB").strip() or "MLB",
         gemini_api_key=os.getenv("GEMINI_API_KEY", "").strip(),
         gemini_model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip() or "gemini-2.5-flash",

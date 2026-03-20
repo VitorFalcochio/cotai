@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cotai | Fornecedores</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <link rel="stylesheet" href="./assets/css/apex.css" />
+</head>
+<body data-page="suppliers">
+  <div class="app-shell app-layout dashboard-apex-layout">
+    <aside class="sidebar app-sidebar dashboard-apex-sidebar" id="appSidebar"></aside>
+    <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
+
+    <main class="app-main dashboard-apex-main">
+      <header class="app-topbar">
+        <div>
+          <p class="eyebrow">Banco estruturado de fornecedores</p>
+          <h1>Fornecedores</h1>
+          <p>Base limpa para acompanhar cobertura, prazo e parceiros mais confiáveis.</p>
+        </div>
+        <div class="app-topbar-actions">
+          <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
+          <button class="btn btn-primary" id="newSupplierBtn" type="button">Novo fornecedor</button>
+        </div>
+      </header>
+      <p class="app-feedback hidden" id="supplierFeedback" role="alert"></p>
+
+      <section class="app-metrics app-metrics-compact">
+        <article class="card app-metric-card metric-card-compact">
+          <p>Fornecedores ativos</p>
+          <h3 id="supplierMetricTotal">0</h3>
+        </article>
+        <article class="card app-metric-card metric-card-compact">
+          <p>Melhor avaliação</p>
+          <h3 id="supplierMetricRating">-</h3>
+        </article>
+        <article class="card app-metric-card metric-card-compact">
+          <p>Prazo médio</p>
+          <h3 id="supplierMetricDelivery">-</h3>
+        </article>
+        <article class="card app-metric-card metric-card-compact">
+          <p>Top parceiro</p>
+          <h3 id="supplierMetricTop">-</h3>
+        </article>
+      </section>
+
+      <section class="insight-grid insight-grid-2">
+        <article class="card table-shell">
+          <div class="filter-shell-head">
+            <div>
+              <p class="eyebrow">Maps</p>
+              <h2>Lojas proximas</h2>
+              <p>Mapa interativo com distancia e rota ate os fornecedores cadastrados.</p>
+            </div>
+            <div class="app-inline-actions">
+              <button class="btn btn-secondary" id="supplierLocateBtn" type="button">Usar minha localizacao</button>
+            </div>
+          </div>
+          <div class="supplier-map-shell">
+            <div class="supplier-map-canvas" id="supplierMap" aria-label="Mapa de fornecedores"></div>
+            <div class="supplier-map-summary" id="supplierMapSummary">Ative sua localizacao ou cadastre latitude e longitude dos fornecedores para visualizar as lojas no mapa.</div>
+            <div id="supplierNearestList" class="entity-list"></div>
+          </div>
+        </article>
+
+        <article class="card table-shell">
+          <div class="filter-shell-head">
+            <div>
+              <p class="eyebrow">Insights</p>
+              <h2>Parceiros e cobertura</h2>
+              <p>Resumo curto da rede: quem mais participa e quais materiais estao mais cobertos.</p>
+            </div>
+          </div>
+          <div id="supplierHighlights" class="entity-list"></div>
+          <div id="supplierCoverage" class="entity-list"></div>
+        </article>
+      </section>
+
+      <section class="card table-shell">
+        <div class="filter-shell-head">
+          <div>
+            <p class="eyebrow">Base operacional</p>
+            <h2>Relacionamento com fornecedores</h2>
+            <p>Visão objetiva da rede, com foco em contato, cobertura e performance.</p>
+          </div>
+        </div>
+        <div class="app-table-wrap">
+          <table class="app-table">
+            <thead>
+              <tr>
+                <th>Fornecedor</th>
+                <th>Cobertura</th>
+                <th>Tags</th>
+                <th>Performance</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="suppliersTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="app-modal" id="supplierModal" aria-hidden="true">
+    <div class="app-modal-backdrop"></div>
+    <div class="modal-card app-modal-card" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <h3 id="supplierModalTitle">Novo fornecedor</h3>
+        <button class="icon-btn" type="button" data-close-modal>&times;</button>
+      </div>
+      <form class="form" id="supplierForm">
+        <input id="supplierId" type="hidden" name="id" />
+        <div class="form-row">
+          <label for="supplierName">Nome do fornecedor</label>
+          <input id="supplierName" type="text" name="name" required />
+        </div>
+        <div class="app-grid-2">
+          <div class="form-row">
+            <label for="supplierRegion">Região</label>
+            <input id="supplierRegion" type="text" name="region" />
+          </div>
+          <div class="form-row">
+            <label for="supplierCity">Cidade</label>
+            <input id="supplierCity" type="text" name="city" />
+          </div>
+          <div class="form-row">
+            <label for="supplierState">Estado</label>
+            <input id="supplierState" type="text" name="state" />
+          </div>
+          <div class="form-row">
+            <label for="supplierDeliveryDays">Prazo médio (dias)</label>
+            <input id="supplierDeliveryDays" type="number" name="average_delivery_days" min="1" />
+          </div>
+        </div>
+        <div class="form-row">
+          <label for="supplierAddress">Endereco da loja</label>
+          <input id="supplierAddress" type="text" name="address_line" placeholder="Rua, numero, bairro" />
+        </div>
+        <div class="app-grid-2">
+          <div class="form-row">
+            <label for="supplierPostalCode">CEP</label>
+            <input id="supplierPostalCode" type="text" name="postal_code" placeholder="00000-000" />
+          </div>
+          <div class="form-row">
+            <label for="supplierLatitude">Latitude</label>
+            <input id="supplierLatitude" type="number" name="latitude" step="any" placeholder="-20.8113" />
+          </div>
+          <div class="form-row">
+            <label for="supplierLongitude">Longitude</label>
+            <input id="supplierLongitude" type="number" name="longitude" step="any" placeholder="-49.3758" />
+          </div>
+        </div>
+        <div class="form-row">
+          <label for="supplierContact">Contato</label>
+          <input id="supplierContact" type="text" name="contact_name" />
+        </div>
+        <div class="form-row">
+          <label for="supplierChannel">WhatsApp / E-mail</label>
+          <input id="supplierChannel" type="text" name="contact_channel" />
+        </div>
+        <div class="form-row">
+          <label for="supplierTags">Materiais atendidos</label>
+          <input id="supplierTags" type="text" name="material_tags" placeholder="cimento, aço, bloco" />
+        </div>
+        <div class="form-row">
+          <label for="supplierStatus">Status</label>
+          <select id="supplierStatus" name="status">
+            <option value="active">Ativo</option>
+            <option value="inactive">Inativo</option>
+          </select>
+        </div>
+        <div class="app-inline-actions">
+          <button class="btn btn-primary" type="submit">Salvar</button>
+          <button class="btn btn-ghost" type="button" data-close-modal>Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script type="module" src="./assets/js/pages/suppliers.page.js"></script>
+</body>
+</html>

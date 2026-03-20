@@ -63,6 +63,19 @@ Testes:
 python -m unittest backend.tests.test_worker backend.tests.test_api
 ```
 
+## Deploy
+
+O caminho recomendado de publicacao hoje esta em:
+
+- [docs/deploy.md](C:/Users/vitin/Desktop/cotai/cotaiedit/docs/deploy.md)
+
+Resumo:
+
+- `frontend` no `Vercel`
+- `backend API` no `Railway` com `Dockerfile.api`
+- `worker` no `Railway` com `Dockerfile.worker`
+- `Supabase` como banco e auth
+
 ## O que fica para depois
 
 Modulos laterais continuam existindo, mas estao despriorizados temporariamente:

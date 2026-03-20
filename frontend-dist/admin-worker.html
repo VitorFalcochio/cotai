@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cotai Admin | Worker</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <link rel="stylesheet" href="./assets/css/apex.css" />
+</head>
+<body data-page="admin-worker">
+  <div class="app-shell app-layout dashboard-apex-layout">
+    <aside class="sidebar app-sidebar app-sidebar-admin dashboard-apex-sidebar" id="appSidebar">
+      <div class="side-shell-head">
+        <a class="brand" href="admin-dashboard.html"><span class="brand-mark">C</span><span class="brand-name">Cotai Admin</span></a>
+        <button class="btn btn-ghost side-collapse-btn" type="button" id="sidebarCollapse" aria-label="Colapsar menu" aria-expanded="true"><span class="collapse-arrow" aria-hidden="true"><</span></button>
+      </div>
+      <nav class="app-nav" id="appNav">
+        <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
+        <a class="side-link" data-nav="admin-dashboard" href="admin-dashboard.html" title="Visão geral"><span class="left"><span class="nav-label">Visão geral</span></span><span class="mini-badge">Core</span></a>
+        <a class="side-link" data-nav="admin-companies" href="admin-companies.html" title="Empresas"><span class="left"><span class="nav-label">Empresas</span></span><span class="mini-badge">SaaS</span></a>
+        <a class="side-link" data-nav="admin-users" href="admin-users.html" title="Usuários"><span class="left"><span class="nav-label">Usuários</span></span><span class="mini-badge">Auth</span></a>
+        <a class="side-link" data-nav="admin-requests" href="admin-requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span><span class="mini-badge">Ops</span></a>
+        <a class="side-link" data-nav="admin-worker" href="admin-worker.html" title="Worker"><span class="left"><span class="nav-label">Worker</span></span><span class="mini-badge">Bot</span></a>
+        <a class="side-link" data-nav="admin-snapshots" href="admin-snapshots.html" title="Snapshots"><span class="left"><span class="nav-label">Snapshots</span></span><span class="mini-badge">Preço</span></a>
+        <a class="side-link" data-nav="admin-billing" href="admin-billing.html" title="Receita"><span class="left"><span class="nav-label">Receita</span></span><span class="mini-badge">MRR</span></a>
+        <a class="side-link" data-nav="admin-logs" href="admin-logs.html" title="Logs"><span class="left"><span class="nav-label">Logs</span></span><span class="mini-badge">Audit</span></a>
+      </nav>
+      <div class="app-sidebar-foot"><a class="btn btn-ghost w-full" href="dashboard.html">Voltar ao cliente</a></div>
+    </aside>
+    <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
+    <main class="app-main dashboard-apex-main">
+      <header class="app-topbar">
+        <div>
+          <p class="eyebrow">Motor de execução</p>
+          <h1>Worker</h1>
+          <p>Monitore heartbeat, throughput, falhas e execuções recentes com uma leitura mais objetiva da saúde operacional.</p>
+        </div>
+        <div class="app-topbar-actions">
+          <div class="admin-topbar-identity"><strong id="adminIdentity">Admin</strong><span class="app-badge is-success" id="adminRole">ADMIN</span></div>
+          <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
+          <button class="btn btn-ghost" id="backToClientButton" type="button">Cliente</button>
+          <button class="btn btn-ghost" id="logoutButton" type="button">Sair</button>
+        </div>
+      </header>
+      <section class="admin-hero-card">
+        <div class="admin-hero-grid">
+          <div class="hero-copy-stack">
+            <span class="badge">Saúde do bot e execução assíncrona</span>
+            <h2>O worker precisa comunicar risco antes de falhar em escala</h2>
+            <p class="muted">Esta tela destaca heartbeat, tempo médio e erros recentes para leitura operacional imediata.</p>
+          </div>
+          <aside class="admin-note">
+            <strong>Sinais de atenção</strong>
+            <ul class="admin-note-list">
+              <li>Heartbeat atrasado ou instável.</li>
+              <li>Tempo médio crescente por execução.</li>
+              <li>Repetição de falhas por tipo de pedido.</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+      <p class="app-feedback hidden" id="adminWorkerFeedback" role="alert"></p>
+      <section class="admin-grid admin-grid-metrics">
+        <article class="card admin-metric-card"><p>Status do worker</p><h3 id="workerStatusValue">-</h3></article>
+        <article class="card admin-metric-card"><p>Último heartbeat</p><h3 id="workerHeartbeatValue">-</h3></article>
+        <article class="card admin-metric-card"><p>Mensagens processadas hoje</p><h3 id="workerProcessedToday">0</h3></article>
+        <article class="card admin-metric-card"><p>Ignoradas por deduplicação</p><h3 id="workerIgnoredToday">0</h3></article>
+        <article class="card admin-metric-card"><p>Falhas recentes</p><h3 id="workerFailureCount">0</h3></article>
+        <article class="card admin-metric-card"><p>Tempo médio</p><h3 id="workerAverageExecution">Sem histórico</h3></article>
+      </section>
+      <section class="admin-dual-panel">
+        <article class="card table-shell">
+          <div class="filter-shell-head">
+            <div>
+              <p class="eyebrow">Execução</p>
+              <h2>Últimas execuções</h2>
+            </div>
+          </div>
+          <div class="app-table-wrap">
+            <table class="app-table">
+              <thead><tr><th>Quote ID</th><th>Pedido</th><th>Status</th><th>Início</th><th>Fim</th><th>Erro</th></tr></thead>
+              <tbody id="adminWorkerExecutionsBody"></tbody>
+            </table>
+          </div>
+        </article>
+        <article class="card table-shell">
+          <div class="filter-shell-head">
+            <div>
+              <p class="eyebrow">Falhas</p>
+              <h2>Ocorrências recentes</h2>
+            </div>
+          </div>
+          <div class="app-table-wrap">
+            <table class="app-table">
+              <thead><tr><th>Pedido</th><th>Status</th><th>Erro</th><th>Quando</th></tr></thead>
+              <tbody id="adminWorkerFailuresBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./assets/js/pages/admin-worker.page.js"></script>
+</body>
+</html>

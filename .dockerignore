@@ -1,0 +1,17 @@
+.git
+.gitignore
+.vscode
+.run
+.tmp
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+test-results
+uvicorn.out.log
+uvicorn.err.log
+worker.out.log
+worker.err.log
+frontend-dist
+Search

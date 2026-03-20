@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cotai Admin | Snapshots de preços</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <link rel="stylesheet" href="./assets/css/apex.css" />
+</head>
+<body data-page="admin-snapshots">
+  <div class="app-shell app-layout dashboard-apex-layout">
+    <aside class="sidebar app-sidebar app-sidebar-admin dashboard-apex-sidebar" id="appSidebar">
+      <div class="side-shell-head">
+        <a class="brand" href="admin-dashboard.html">
+          <span class="brand-mark">C</span>
+          <span class="brand-name">Cotai Admin</span>
+        </a>
+        <button class="btn btn-ghost side-collapse-btn" type="button" id="sidebarCollapse" aria-label="Colapsar menu" aria-expanded="true">
+          <span class="collapse-arrow" aria-hidden="true"><</span>
+        </button>
+      </div>
+      <nav class="app-nav" id="appNav">
+        <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
+        <a class="side-link" data-nav="admin-dashboard" href="admin-dashboard.html" title="Visão geral"><span class="left"><span class="nav-label">Visão geral</span></span><span class="mini-badge">Core</span></a>
+        <a class="side-link" data-nav="admin-companies" href="admin-companies.html" title="Empresas"><span class="left"><span class="nav-label">Empresas</span></span><span class="mini-badge">SaaS</span></a>
+        <a class="side-link" data-nav="admin-users" href="admin-users.html" title="Usuários"><span class="left"><span class="nav-label">Usuários</span></span><span class="mini-badge">Auth</span></a>
+        <a class="side-link" data-nav="admin-requests" href="admin-requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span><span class="mini-badge">Ops</span></a>
+        <a class="side-link" data-nav="admin-worker" href="admin-worker.html" title="Worker"><span class="left"><span class="nav-label">Worker</span></span><span class="mini-badge">Bot</span></a>
+        <a class="side-link" data-nav="admin-snapshots" href="admin-snapshots.html" title="Snapshots"><span class="left"><span class="nav-label">Snapshots</span></span><span class="mini-badge">Preço</span></a>
+        <a class="side-link" data-nav="admin-billing" href="admin-billing.html" title="Billing"><span class="left"><span class="nav-label">Receita</span></span><span class="mini-badge">MRR</span></a>
+        <a class="side-link" data-nav="admin-logs" href="admin-logs.html" title="Logs"><span class="left"><span class="nav-label">Logs</span></span><span class="mini-badge">Audit</span></a>
+      </nav>
+      <div class="app-sidebar-foot">
+        <a class="btn btn-ghost w-full" href="dashboard.html">Voltar ao cliente</a>
+      </div>
+    </aside>
+    <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
+
+    <main class="app-main dashboard-apex-main">
+      <header class="app-topbar">
+        <div>
+          <p class="eyebrow">Base automática de preços</p>
+          <h1>Snapshots de preços</h1>
+          <p>Visualize, edite e complemente os preços coletados para manter uma base confiável de produtos e fornecedores.</p>
+        </div>
+        <div class="app-topbar-actions">
+          <div class="admin-topbar-identity"><strong id="adminIdentity">Admin</strong><span class="app-badge is-success" id="adminRole">ADMIN</span></div>
+          <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
+          <button class="btn btn-ghost" id="backToClientButton" type="button">Cliente</button>
+          <button class="btn btn-ghost" id="logoutButton" type="button">Sair</button>
+          <button class="btn btn-primary" id="newSnapshotBtn" type="button">Novo produto/preço</button>
+        </div>
+      </header>
+
+      <p class="app-feedback hidden" id="adminSnapshotsFeedback" role="alert"></p>
+
+      <section class="app-metrics">
+        <article class="card app-metric-card"><p>Snapshots visíveis</p><h3 id="snapshotMetricTotal">0</h3></article>
+        <article class="card app-metric-card"><p>Produtos únicos</p><h3 id="snapshotMetricItems">0</h3></article>
+        <article class="card app-metric-card"><p>Fornecedores únicos</p><h3 id="snapshotMetricSuppliers">0</h3></article>
+        <article class="card app-metric-card"><p>Preço médio</p><h3 id="snapshotMetricAveragePrice">-</h3></article>
+        <article class="card app-metric-card"><p>Última captura</p><h3 id="snapshotMetricLatest">-</h3></article>
+      </section>
+
+      <section class="card table-shell">
+        <div class="filter-shell-head">
+          <div>
+            <p class="eyebrow">Controle geral</p>
+            <h2>Produtos e snapshots coletados</h2>
+          </div>
+        </div>
+
+        <div class="app-filter-bar">
+          <div class="form-row">
+            <label for="snapshotSearch">Buscar</label>
+            <input id="snapshotSearch" type="search" placeholder="Produto, fornecedor, provider ou query" />
+          </div>
+          <div class="form-row">
+            <label for="snapshotProviderFilter">Provider</label>
+            <select id="snapshotProviderFilter">
+              <option value="">Todos</option>
+              <option value="mercado_livre">Mercado Livre</option>
+              <option value="manual">Manual</option>
+              <option value="catalog">Catálogo</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>&nbsp;</label>
+            <button class="btn btn-ghost" id="snapshotClearFilters" type="button">Limpar filtros</button>
+          </div>
+        </div>
+
+        <div class="app-table-wrap">
+          <table class="app-table">
+            <thead>
+              <tr>
+                <th>Produto</th>
+                <th>Fornecedor</th>
+                <th>Preço</th>
+                <th>Prazo</th>
+                <th>Query</th>
+                <th>Capturado em</th>
+                <th>Link</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="adminSnapshotsBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="app-modal" id="snapshotModal" aria-hidden="true">
+    <div class="app-modal-backdrop"></div>
+    <div class="modal-card app-modal-card" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <h3 id="snapshotModalTitle">Novo produto/preço</h3>
+        <button class="icon-btn" type="button" data-close-modal>&times;</button>
+      </div>
+      <form class="form" id="snapshotForm">
+        <input id="snapshotId" type="hidden" />
+        <div class="app-grid-2">
+          <div class="form-row">
+            <label for="snapshotCompanyId">Company ID</label>
+            <input id="snapshotCompanyId" type="text" placeholder="Opcional" />
+          </div>
+          <div class="form-row">
+            <label for="snapshotProvider">Provider</label>
+            <input id="snapshotProvider" type="text" placeholder="manual ou mercado_livre" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <label for="snapshotItemName">Produto</label>
+          <input id="snapshotItemName" type="text" required />
+        </div>
+        <div class="form-row">
+          <label for="snapshotNormalizedItemName">Produto normalizado</label>
+          <input id="snapshotNormalizedItemName" type="text" placeholder="Ex.: cimento CP-II 50 kg" />
+        </div>
+        <div class="form-row">
+          <label for="snapshotQuery">Query de coleta</label>
+          <input id="snapshotQuery" type="text" required />
+        </div>
+        <div class="app-grid-2">
+          <div class="form-row">
+            <label for="snapshotSourceName">Origem</label>
+            <input id="snapshotSourceName" type="text" required />
+          </div>
+          <div class="form-row">
+            <label for="snapshotSupplierName">Fornecedor</label>
+            <input id="snapshotSupplierName" type="text" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <label for="snapshotTitle">Título capturado</label>
+          <input id="snapshotTitle" type="text" required />
+        </div>
+        <div class="app-grid-2">
+          <div class="form-row">
+            <label for="snapshotPrice">Preço</label>
+            <input id="snapshotPrice" type="number" step="0.01" />
+          </div>
+          <div class="form-row">
+            <label for="snapshotUnitPrice">Preço unitário</label>
+            <input id="snapshotUnitPrice" type="number" step="0.01" />
+          </div>
+          <div class="form-row">
+            <label for="snapshotCurrency">Moeda</label>
+            <input id="snapshotCurrency" type="text" value="BRL" />
+          </div>
+          <div class="form-row">
+            <label for="snapshotDeliveryDays">Prazo em dias</label>
+            <input id="snapshotDeliveryDays" type="number" min="0" />
+          </div>
+        </div>
+        <div class="form-row">
+          <label for="snapshotDeliveryLabel">Prazo descritivo</label>
+          <input id="snapshotDeliveryLabel" type="text" placeholder="Ex.: 2 dia(s)" />
+        </div>
+        <div class="form-row">
+          <label for="snapshotResultUrl">Link</label>
+          <input id="snapshotResultUrl" type="url" placeholder="https://..." />
+        </div>
+        <div class="form-row">
+          <label for="snapshotMetadata">Metadados JSON</label>
+          <textarea id="snapshotMetadata" rows="4" placeholder='{"observacao":"manual"}'></textarea>
+        </div>
+        <div class="app-inline-actions">
+          <button class="btn btn-primary" type="submit">Salvar</button>
+          <button class="btn btn-ghost" type="button" data-close-modal>Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./assets/js/pages/admin-snapshots.page.js"></script>
+</body>
+</html>

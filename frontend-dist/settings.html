@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cotai | Configuracoes</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <link rel="stylesheet" href="./assets/css/apex.css" />
+</head>
+<body data-page="settings">
+  <div class="app-shell app-layout dashboard-apex-layout">
+    <aside class="sidebar app-sidebar dashboard-apex-sidebar" id="appSidebar"></aside>
+    <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
+
+    <main class="app-main dashboard-apex-main">
+      <header class="app-topbar">
+        <div>
+          <p class="eyebrow">Conta</p>
+          <h1>Configuracoes</h1>
+          <p>Ajustes essenciais da operacao.</p>
+        </div>
+        <div class="app-topbar-actions">
+          <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
+        </div>
+      </header>
+
+      <form id="settingsForm" class="section-stack">
+        <section class="insight-grid insight-grid-2">
+          <article class="card form-section-card">
+            <div class="filter-shell-head">
+              <div>
+                <p class="eyebrow">Empresa</p>
+                <h2>Identidade</h2>
+              </div>
+            </div>
+            <div class="app-grid-2">
+              <div class="form-row">
+                <label for="setCompany">Empresa</label>
+                <input id="setCompany" type="text" name="company" required />
+              </div>
+              <div class="form-row">
+                <label for="setResponsible">Responsavel</label>
+                <input id="setResponsible" type="text" name="responsible" />
+              </div>
+            </div>
+          </article>
+
+          <article class="card form-section-card">
+            <div class="filter-shell-head">
+              <div>
+                <p class="eyebrow">Contato</p>
+                <h2>Canais</h2>
+              </div>
+            </div>
+            <div class="app-grid-2">
+              <div class="form-row">
+                <label for="setWhatsapp">WhatsApp</label>
+                <input id="setWhatsapp" type="text" name="whatsapp" />
+              </div>
+              <div class="form-row">
+                <label for="setEmail">E-mail</label>
+                <input id="setEmail" type="email" name="email" />
+              </div>
+            </div>
+            <div class="form-row">
+              <label for="setCity">Cidade-base</label>
+              <input id="setCity" type="text" name="city" />
+            </div>
+          </article>
+        </section>
+
+        <article class="card form-section-card">
+          <div class="filter-shell-head">
+            <div>
+              <p class="eyebrow">Alertas</p>
+              <h2>Preferencias</h2>
+            </div>
+          </div>
+          <label class="app-check" for="setNotifications">
+            <input id="setNotifications" type="checkbox" name="notifications" />
+            Receber notificacoes sobre atualizacoes de status dos pedidos
+          </label>
+          <div class="app-inline-actions">
+            <button class="btn btn-primary" type="submit">Salvar configuracoes</button>
+          </div>
+          <p id="settingsStatus" class="muted"></p>
+        </article>
+      </form>
+    </main>
+  </div>
+  <script src="./assets/js/app.js"></script>
+</body>
+</html>

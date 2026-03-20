@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cotai | Pedidos</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <link rel="stylesheet" href="./assets/css/apex.css" />
+</head>
+<body data-page="requests">
+  <div class="app-shell app-layout dashboard-apex-layout">
+    <aside class="sidebar app-sidebar dashboard-apex-sidebar" id="appSidebar"></aside>
+    <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
+
+    <main class="app-main dashboard-apex-main">
+      <header class="app-topbar">
+        <div>
+          <p class="eyebrow">Historico de cotacoes</p>
+          <h1>Pedidos</h1>
+          <p id="requestsCount">0 pedidos monitorados</p>
+        </div>
+        <div class="app-topbar-actions">
+          <button class="btn btn-ghost" id="requestsExportCsv" type="button">Exportar CSV</button>
+          <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
+          <button class="btn btn-ghost" id="logoutButton" type="button">Sair</button>
+          <a class="btn btn-primary" href="new-request.html">Nova cotacao</a>
+        </div>
+      </header>
+
+      <section class="app-metrics app-metrics-compact">
+        <article class="card app-metric-card metric-card-compact">
+          <p>Pedidos</p>
+          <h3 id="requestsMetricTotal">0</h3>
+          <span id="requestsMetricTotalMeta">Historico total</span>
+        </article>
+        <article class="card app-metric-card metric-card-compact">
+          <p>Em andamento</p>
+          <h3 id="requestsMetricProcessing">0</h3>
+          <span id="requestsMetricProcessingMeta">Fila ativa</span>
+        </article>
+        <article class="card app-metric-card metric-card-compact">
+          <p>Concluidos</p>
+          <h3 id="requestsMetricDone">0</h3>
+          <span id="requestsMetricDoneMeta">Pedidos fechados</span>
+        </article>
+        <article class="card app-metric-card metric-card-compact">
+          <p>Economia estimada</p>
+          <h3 id="requestsMetricSavings">R$ 0</h3>
+          <span id="requestsMetricSavingsMeta">Melhor opcao vs maior preco</span>
+        </article>
+      </section>
+
+      <section class="insight-grid insight-grid-2">
+        <article class="card table-shell">
+          <div class="filter-shell-head">
+            <div>
+              <p class="eyebrow">Demanda</p>
+              <h2>Materiais mais cotados</h2>
+            </div>
+          </div>
+          <div id="requestsTopMaterials" class="entity-list"></div>
+        </article>
+
+        <article class="card table-shell">
+          <div class="filter-shell-head">
+            <div>
+              <p class="eyebrow">Operacao</p>
+              <h2>Status da fila</h2>
+            </div>
+          </div>
+          <div id="requestsPipeline" class="entity-list"></div>
+        </article>
+      </section>
+
+      <section class="card table-shell">
+        <div class="table-toolbar">
+          <div>
+            <p class="eyebrow">Busca</p>
+            <h2>Historico de pedidos</h2>
+          </div>
+        </div>
+
+        <div class="app-filter-bar app-filter-bar-compact">
+          <div class="form-row">
+            <label for="requestsSearch">Buscar</label>
+            <input id="requestsSearch" type="search" placeholder="Codigo, cliente, local ou fornecedor" />
+          </div>
+          <div class="form-row">
+            <label for="requestsStatusFilter">Status</label>
+            <select id="requestsStatusFilter">
+              <option value="">Todos</option>
+              <option value="DONE">Concluido</option>
+              <option value="PROCESSING">Em andamento</option>
+              <option value="PENDING_QUOTE">Pendente</option>
+              <option value="ERROR">Erro</option>
+              <option value="AWAITING_APPROVAL">Aguardando aprovacao</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="requestsPriorityFilter">Prioridade</label>
+            <select id="requestsPriorityFilter">
+              <option value="">Todas</option>
+              <option value="LOW">LOW</option>
+              <option value="MEDIUM">MEDIUM</option>
+              <option value="HIGH">HIGH</option>
+              <option value="URGENT">URGENT</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="requestsSort">Ordenar</label>
+            <select id="requestsSort">
+              <option value="recent">Mais recentes</option>
+              <option value="savings">Maior economia</option>
+              <option value="status">Melhor status</option>
+            </select>
+          </div>
+          <div class="form-row form-row-end">
+            <button class="btn btn-ghost" id="requestsClearFilters" type="button">Limpar</button>
+          </div>
+        </div>
+
+        <p class="app-feedback hidden" id="requestsFeedback" role="alert"></p>
+        <div class="app-table-wrap">
+          <table class="app-table">
+            <thead>
+              <tr>
+                <th>Pedido</th>
+                <th>Status</th>
+                <th>Decisao</th>
+                <th>Entrega</th>
+                <th>Atualizado</th>
+                <th>Acoes</th>
+              </tr>
+            </thead>
+            <tbody id="requestsTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card table-shell">
+        <div class="filter-shell-head">
+          <div>
+            <p class="eyebrow">Comparador</p>
+            <h2 id="requestDetailTitle">Selecione um pedido</h2>
+          </div>
+        </div>
+        <div class="comparison-summary-grid" id="requestDecisionSummary">
+          <article class="comparison-summary-card"><span>Melhor preco</span><strong>-</strong></article>
+          <article class="comparison-summary-card"><span>Melhor prazo</span><strong>-</strong></article>
+          <article class="comparison-summary-card"><span>Melhor opcao geral</span><strong>-</strong></article>
+          <article class="comparison-summary-card"><span>Total estimado</span><strong>-</strong></article>
+        </div>
+        <div id="requestComparisonPanel" class="entity-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./assets/js/pages/requests.page.js"></script>
+</body>
+</html>

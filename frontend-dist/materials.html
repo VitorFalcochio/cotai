@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cotai | Materiais</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <link rel="stylesheet" href="./assets/css/apex.css" />
+</head>
+<body data-page="materials">
+  <div class="app-shell app-layout dashboard-apex-layout">
+    <aside class="sidebar app-sidebar dashboard-apex-sidebar" id="appSidebar"></aside>
+    <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
+
+    <main class="app-main dashboard-apex-main">
+      <header class="app-topbar">
+        <div>
+          <p class="eyebrow">Base mestre</p>
+          <h1>Materiais</h1>
+          <p>Catalogo padronizado para cotações mais consistentes.</p>
+        </div>
+        <div class="app-topbar-actions">
+          <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
+          <button class="btn btn-primary" id="newMaterialBtn" type="button">Novo material</button>
+        </div>
+      </header>
+
+      <p class="app-feedback hidden" id="materialsInsightsFeedback" role="alert"></p>
+
+      <section class="app-metrics app-metrics-compact materials-insights-metrics">
+        <article class="card app-metric-card metric-card-compact">
+          <p>Materiais mapeados</p>
+          <h3 id="materialsMetricCatalog">0</h3>
+        </article>
+        <article class="card app-metric-card metric-card-compact">
+          <p>Com historico</p>
+          <h3 id="materialsMetricCovered">0</h3>
+        </article>
+        <article class="card app-metric-card metric-card-compact">
+          <p>Fontes ativas</p>
+          <h3 id="materialsMetricSources">0</h3>
+        </article>
+        <article class="card app-metric-card metric-card-compact">
+          <p>Ultima captura</p>
+          <h3 id="materialsMetricLatest">-</h3>
+        </article>
+      </section>
+
+      <section class="card materials-insights-panel">
+        <div class="table-toolbar">
+          <div>
+            <p class="eyebrow">Inteligencia de busca</p>
+            <h2>Fontes e frescor da base</h2>
+            <p id="materialsInsightsSummary">Leitura objetiva das fontes que sustentam a referencia de preco.</p>
+          </div>
+          <span class="app-badge is-muted" id="materialsInsightsBadge">Painel local</span>
+        </div>
+        <div class="materials-insights-grid">
+          <div class="materials-source-list" id="materialsSourceList"></div>
+          <div class="materials-insights-notes">
+            <div class="materials-note-card">
+              <strong>Cobertura</strong>
+              <p id="materialsCoverageNote">Os materiais mais consultados ainda nao possuem historico suficiente.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card table-shell">
+        <div class="table-toolbar">
+          <div>
+            <p class="eyebrow">Catalogo</p>
+            <h2>Base de materiais</h2>
+          </div>
+          <span class="app-badge is-muted">Cadastro manual</span>
+        </div>
+        <br>
+        <div class="app-table-wrap">
+          <table class="app-table">
+            <thead>
+              <tr>
+                <th>Material</th>
+                <th>Unidade</th>
+                <th>Categoria</th>
+                <th>Observacoes</th>
+                <th>Acoes</th>
+              </tr>
+            </thead>
+            <tbody id="materialsTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="app-modal" id="materialModal" aria-hidden="true">
+    <div class="app-modal-backdrop"></div>
+    <div class="modal-card app-modal-card" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <h3 id="materialModalTitle">Novo material</h3>
+        <button class="icon-btn" type="button" data-close-modal>x</button>
+      </div>
+      <form class="form" id="materialForm">
+        <input id="materialId" type="hidden" name="id" />
+        <div class="form-row">
+          <label for="materialName">Nome do material</label>
+          <input id="materialName" type="text" name="name" required />
+        </div>
+        <div class="form-row">
+          <label for="materialUnit">Unidade</label>
+          <input id="materialUnit" type="text" name="unit" placeholder="Ex.: saco de 50 kg" />
+        </div>
+        <div class="form-row">
+          <label for="materialCategory">Categoria</label>
+          <input id="materialCategory" type="text" name="category" placeholder="Ex.: cimento" />
+        </div>
+        <div class="form-row">
+          <label for="materialNotes">Observacoes</label>
+          <textarea id="materialNotes" name="notes" rows="3"></textarea>
+        </div>
+        <div class="app-inline-actions">
+          <button class="btn btn-primary" type="submit">Salvar</button>
+          <button class="btn btn-ghost" type="button" data-close-modal>Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./assets/js/app.js"></script>
+  <script type="module" src="./assets/js/pages/materials.page.js"></script>
+</body>
+</html>

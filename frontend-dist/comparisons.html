@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cotai | Comparativos</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <link rel="stylesheet" href="./assets/css/apex.css" />
+</head>
+<body data-page="comparisons">
+  <div class="app-shell app-layout dashboard-apex-layout">
+    <aside class="sidebar app-sidebar dashboard-apex-sidebar" id="appSidebar"></aside>
+    <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
+    <main class="app-main dashboard-apex-main">
+      <header class="app-topbar">
+        <div>
+          <p class="eyebrow">Procurement</p>
+          <h1>Comparativos</h1>
+          <p id="comparisonsTitle">Melhores opcoes por pedido.</p>
+        </div>
+        <div class="app-topbar-actions">
+          <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
+          <button class="btn btn-ghost" id="logoutButton" type="button">Sair</button>
+        </div>
+      </header>
+      <p class="app-feedback hidden" id="comparisonsFeedback" role="alert"></p>
+
+      <section class="app-metrics app-metrics-compact">
+        <article class="card app-metric-card metric-card-compact"><p>Comparativos</p><h3 id="comparisonsCount">0</h3></article>
+      </section>
+
+      <section class="section-stack comparisons-grid-polished" id="comparisonsGrid"></section>
+    </main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./assets/js/pages/comparisons.page.js"></script>
+</body>
+</html>
