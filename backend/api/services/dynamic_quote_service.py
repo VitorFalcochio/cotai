@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from ...worker.config import Settings
 from ...worker.services.search_service import SearchService
+from ...worker.utils.telemetry import telemetry
 from .dynamic_search_engine import SearchEngine, normalize_text
 from .material_extraction_service import MaterialExtractionService
 from .parametric_budget_service import ParametricBudgetService
@@ -86,8 +87,10 @@ class DynamicQuoteService:
 
     async def quote_materials(self, free_text: str) -> dict[str, Any]:
         structured, extraction_provider = self.extractor.extract(free_text)
+        telemetry.record("quote_requested", extraction_provider=extraction_provider)
         clarification = self._clarification_response_if_needed(structured, extraction_provider)
         if clarification is not None:
+            telemetry.record("quote_needs_clarification", extraction_provider=extraction_provider)
             return clarification
 
         cache_payload = {
@@ -100,6 +103,7 @@ class DynamicQuoteService:
         cache_key = self.cache.build_daily_key("quote_search", cache_payload)
         cached = self.cache.get(cache_key)
         if cached is not None:
+            telemetry.record("quote_cache_hit", extraction_provider=extraction_provider)
             return {**cached, "cache_hit": True}
 
         search_term = str((structured.get("search_terms") or [structured.get("raw") or structured.get("item")])[0]).strip()
@@ -124,6 +128,13 @@ class DynamicQuoteService:
                 search_provider_label = "playwright_parallel+historical_fallback"
         else:
             search_provider_label = "playwright_parallel"
+
+        telemetry.record(
+            "quote_completed",
+            status="ok" if final_offers else "not_found",
+            pricing_mode="historical_reference" if fallback_used else "live_market",
+            extraction_provider=extraction_provider,
+        )
 
         response = self._build_response(
             structured=structured,

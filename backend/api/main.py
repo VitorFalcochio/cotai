@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from ..worker.config import load_settings
 from ..worker.utils.logger import log_event
+from ..worker.utils.telemetry import telemetry
 from .routes.chat import router as chat_router
 from .routes.ops import router as ops_router
 from .routes.quote_engine import router as quote_router
@@ -34,6 +35,7 @@ async def add_request_context(request: Request, call_next):
     try:
         response = await call_next(request)
     except Exception as exc:  # noqa: BLE001
+        telemetry.record("http_request_failed", method=request.method, path=request.url.path)
         log_event(
             settings,
             "ERROR",
@@ -47,6 +49,7 @@ async def add_request_context(request: Request, call_next):
 
     duration_ms = round((time.perf_counter() - started_at) * 1000, 2)
     response.headers["X-Request-Id"] = request_id
+    telemetry.record("http_request_completed", method=request.method, path=request.url.path, status_code=response.status_code)
     log_event(
         settings,
         "INFO",

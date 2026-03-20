@@ -12,6 +12,7 @@ from playwright.async_api import Browser, ElementHandle, Page, async_playwright
 
 from ...worker.config import Settings
 from ...worker.utils.logger import log_event
+from ...worker.utils.telemetry import telemetry
 
 
 def normalize_text(value: str) -> str:
@@ -154,12 +155,15 @@ class SearchEngine:
                 await page.wait_for_timeout(1500)
                 offers = await self._extract_provider_offers(page, provider)
                 if offers:
+                    telemetry.record("provider_scrape_succeeded", provider=provider.key, offers=min(len(offers), self.settings.scraping_max_offers_per_store))
                     return offers[: self.settings.scraping_max_offers_per_store]
                 json_ld_offers = await self._extract_json_ld_offers(page, provider.name)
                 if json_ld_offers:
+                    telemetry.record("provider_scrape_succeeded", provider=provider.key, offers=min(len(json_ld_offers), self.settings.scraping_max_offers_per_store))
                     return json_ld_offers[: self.settings.scraping_max_offers_per_store]
             return []
         except Exception as exc:  # noqa: BLE001
+            telemetry.record("provider_scrape_failed", provider=provider.key)
             log_event(self.settings, "WARNING", "Provider scraping failed", provider=provider.name, search_term=term, error=str(exc))
             return []
         finally:

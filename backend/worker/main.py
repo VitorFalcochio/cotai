@@ -11,6 +11,7 @@ from .services.ai_service import AIService
 from .services.search_service import SearchService
 from .services.supabase_service import SupabaseService
 from .utils.logger import log_event
+from .utils.telemetry import telemetry
 from ..shared.request_parser import parse_request_message
 
 
@@ -135,6 +136,7 @@ class WorkerApp:
             request_quote_id=request_quote_id,
             thread_id=request_row.get("chat_thread_id"),
         )
+        telemetry.record("worker_quote_reply_published")
 
     def process_pending_requests(self) -> None:
         pending = self.supabase.fetch_pending_requests(self.settings.requests_per_cycle)
@@ -175,6 +177,7 @@ class WorkerApp:
                     item_count=len(quote_results),
                     ai_provider=ai_provider,
                 )
+                telemetry.record("worker_request_completed", status="done", ai_provider=ai_provider)
             except Exception as exc:  # noqa: BLE001
                 self.supabase.complete_quote_execution(
                     request_quote_id=request_quote_id,
@@ -191,6 +194,7 @@ class WorkerApp:
                     request_quote_id=request_quote_id,
                     error=str(exc),
                 )
+                telemetry.record("worker_request_completed", status="error")
 
     def run_forever(self) -> int:
         log_event(

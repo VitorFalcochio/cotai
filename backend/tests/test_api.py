@@ -8,17 +8,21 @@ from fastapi.testclient import TestClient
 from backend.api import deps
 from backend.api.main import app
 from backend.api.services.chat_service import ChatService
+from backend.api.services.construction_mode_service import ConstructionModeService
 from backend.api.services.dynamic_quote_service import DynamicQuoteService
 from backend.api.services.parametric_budget_service import ParametricBudgetService
 from backend.api.services.quote_service import QuoteService
 from backend.api.services.request_parser import RequestParserService
+from backend.worker.config import load_settings
 from backend.worker.testing import InMemoryAIService, InMemorySupabase
+from backend.worker.utils.telemetry import telemetry
 
 
 class ApiTests(unittest.TestCase):
     def setUp(self) -> None:
         self.supabase = InMemorySupabase()
         self.ai = InMemoryAIService()
+        telemetry.reset()
 
         def override_actor():
             return {
@@ -72,6 +76,24 @@ class ApiTests(unittest.TestCase):
                     },
                 }
 
+        class FakeConstructionSearchService:
+            def search_supplier_snapshots(self, item_name: str, limit: int = 5):
+                rows = {
+                    "Concreto usinado fck 25": [{"price": 490.0, "source": "snapshot", "captured_at": "2026-03-20T10:00:00+00:00"}],
+                    "Aco CA-50": [{"price": 8.0, "source": "snapshot", "captured_at": "2026-03-20T10:00:00+00:00"}],
+                    "Bloco estrutural 14x19x39": [{"price": 6.1, "source": "snapshot", "captured_at": "2026-03-20T10:00:00+00:00"}],
+                }
+                return rows.get(item_name, [])[:limit]
+
+            def search_catalog(self, item_name: str, limit: int = 5):
+                rows = {
+                    "Argamassa de assentamento": [{"price": 420.0, "source": "catalog"}],
+                    "Cimento CP II 50kg": [{"price": 41.0, "source": "catalog"}],
+                    "Brita 1": [{"price": 180.0, "source": "catalog"}],
+                    "Areia media": [{"price": 165.0, "source": "catalog"}],
+                }
+                return rows.get(item_name, [])[:limit]
+
         def override_supabase():
             return self.supabase
 
@@ -79,10 +101,12 @@ class ApiTests(unittest.TestCase):
         app.dependency_overrides[deps.get_chat_service] = override_chat_service
         app.dependency_overrides[deps.get_quote_service] = override_quote_service
         app.dependency_overrides[deps.get_dynamic_quote_service] = lambda: FakeDynamicQuoteService()
+        app.dependency_overrides[deps.get_construction_mode_service] = lambda: ConstructionModeService(load_settings(), FakeConstructionSearchService())
         app.dependency_overrides[deps.get_supabase] = override_supabase
         self.client = TestClient(app)
 
     def tearDown(self) -> None:
+        telemetry.reset()
         app.dependency_overrides.clear()
 
     def test_chat_message_creates_thread_and_awaits_confirmation(self) -> None:
@@ -312,6 +336,47 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(payload["input"]["area_m2"], 120.0)
         self.assertTrue(payload["items"])
         self.assertTrue(payload["future_ready"]["sinapi_composition_ready"])
+
+    def test_construction_analysis_and_procurement_endpoints_work_end_to_end(self) -> None:
+        analysis = self.client.post(
+            "/modo-construcao/analisar",
+            json={"query": "Quero construir uma casa de 120 m2 em Campinas"},
+        )
+        self.assertEqual(analysis.status_code, 200)
+        analysis_payload = analysis.json()
+        self.assertEqual(analysis_payload["mode"], "construction_project")
+        self.assertEqual(analysis_payload["status"], "ok")
+
+        procurement = self.client.post(
+            "/modo-construcao/compra",
+            json={
+                "query": "Quero construir uma casa de 120 m2 em Campinas",
+                "context": analysis_payload.get("conversation", {}).get("context"),
+                "selected_phase": "foundation",
+                "include_live_quotes": True,
+            },
+        )
+        self.assertEqual(procurement.status_code, 200)
+        procurement_payload = procurement.json()
+        self.assertEqual(procurement_payload["mode"], "construction_procurement")
+        self.assertEqual(procurement_payload["status"], "ok")
+        self.assertTrue(procurement_payload["purchase_list"])
+        self.assertTrue(procurement_payload["phase_packages"])
+        self.assertEqual(procurement_payload["selected_phase_key"], "foundation")
+        self.assertTrue(procurement_payload["live_quotes"])
+
+    def test_telemetry_endpoint_exposes_recent_cota_flow(self) -> None:
+        self.client.post("/modo-construcao/analisar", json={"query": "Quero construir uma casa de 90 m2 em Campinas"})
+        self.client.post("/cotar", json={"query": "30 sacos de cimento votoran"})
+
+        response = self.client.get("/ops/telemetry")
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertIn("counters", payload)
+        self.assertIn("recent_events", payload)
+        counter_keys = " ".join(payload["counters"].keys())
+        self.assertIn("construction_analysis_completed", counter_keys)
+        self.assertIn("http_request_completed", counter_keys)
 
     def test_admin_can_reprocess_request_with_reason_and_audit_log(self) -> None:
         thread = self.supabase.create_chat_thread(user_id="user-1", company_id="company-1", title="Teste")

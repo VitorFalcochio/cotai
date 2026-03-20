@@ -2,6 +2,7 @@ import { LOGIN_PATH } from "../config.js";
 import { requireAuth, signOut } from "../auth.js";
 import {
   analyzeConstruction,
+  buildConstructionProcurement,
   confirmChatThread,
   estimateConstruction,
   getApiHealth,
@@ -35,6 +36,7 @@ let quoteRenderContext = {
 let latestDynamicPreview = null;
 let latestConstructionPreview = null;
 let latestConstructionContext = null;
+let latestConstructionQuery = "";
 
 const STATUS_LABELS = {
   DRAFT: "Rascunho",
@@ -437,16 +439,130 @@ function looksLikeConstructionProject(message) {
 
 function looksLikeConstructionProjectSafe(message) {
   const text = String(message || "").toLowerCase();
-  return /(\d+(?:[.,]\d+)?)\s*m2\b/.test(text) && /(casa|sobrado|galpao|obra comercial|residencia|residencial|obra)/.test(text);
+  return /(\d+(?:[.,]\d+)?)\s*m2\b/.test(text) && /(casa|sobrado|galpao|obra comercial|residencia|residencial|obra|reforma|muro|calcada|contrapiso)/.test(text);
 }
 
 function shouldContinueConstructionFlow(message) {
   const text = String(message || "").trim().toLowerCase();
   if (!latestConstructionContext || !text) return false;
-  return /(padrao|economico|medio|alto|cidade|regiao|cobertura|telha|laje|fibrocimento|metalica|fundacao|sapata|radier|estaca|bloco|quarto|banheiro|pavimento|m2|metro)/.test(text);
+  return /(padrao|economico|medio|alto|cidade|regiao|cobertura|telha|laje|fibrocimento|metalica|fundacao|sapata|radier|estaca|bloco|quarto|banheiro|pavimento|m2|metro|reforma|muro|calcada|contrapiso)/.test(text);
 }
 
 function renderConstructionPreview(payload) {
+  if (String(payload?.mode || "").toLowerCase() === "construction_procurement") {
+    const purchaseList = Array.isArray(payload?.purchase_list) ? payload.purchase_list : [];
+    const phasePackages = Array.isArray(payload?.phase_packages) ? payload.phase_packages : [];
+    const liveQuotes = Array.isArray(payload?.live_quotes) ? payload.live_quotes : [];
+    const selectedPhaseKey = payload?.selected_phase_key || "";
+
+    return `
+      <div class="chat-quote-response">
+        <div class="chat-quote-summary">
+          <span class="app-badge is-success">Compra</span>
+          <strong>${escapeHtml(payload?.summary?.title || "Plano de compra da obra")}</strong>
+          <span class="chat-quote-total-order">${escapeHtml(payload?.summary?.subtitle || "")}</span>
+        </div>
+        <section class="chat-quote-card">
+          <div class="chat-quote-card-head">
+            <strong>Acoes da Cota</strong>
+            <span class="app-badge is-info">${escapeHtml(payload?.summary?.pricing_strength_label || "Compra guiada")}</span>
+          </div>
+          <div class="chat-quote-actions">
+            <button class="btn btn-secondary" type="button" data-construction-procurement="all">Atualizar lista de compra</button>
+            ${phasePackages
+              .slice(0, 4)
+              .map(
+                (phase) => `<button class="btn btn-primary" type="button" data-construction-phase="${escapeHtml(phase.key)}">Cotar ${escapeHtml(phase.title || phase.key)}</button>`
+              )
+              .join("")}
+          </div>
+        </section>
+        ${
+          purchaseList.length
+            ? `
+              <section class="chat-quote-card">
+                <div class="chat-quote-card-head">
+                  <strong>Lista geral de compra</strong>
+                  <span class="app-badge is-warning">${escapeHtml(String(purchaseList.length))} itens</span>
+                </div>
+                <div class="chat-quote-offers">
+                  ${purchaseList.slice(0, 8).map((item) => `
+                    <div class="chat-quote-offer-chip">
+                      <span>${escapeHtml(item.material || "Material")}</span>
+                      <strong>${escapeHtml(`${item.quantity} ${item.unit || ""}`.trim())}</strong>
+                      <small>${escapeHtml(item.estimated_total_display || item.unit_price_display || "Sem preco medio")}</small>
+                    </div>
+                  `).join("")}
+                </div>
+              </section>
+            `
+            : ""
+        }
+        <div class="chat-quote-stack">
+          ${phasePackages.map((phase) => `
+            <section class="chat-quote-card">
+              <div class="chat-quote-card-head">
+                <strong>${escapeHtml(phase.title || "Fase")}</strong>
+                <span class="app-badge ${phase.key === selectedPhaseKey ? "is-success" : "is-muted"}">${escapeHtml(phase.pricing_strength || "unavailable")}</span>
+              </div>
+              <div class="chat-quote-grid">
+                <div class="chat-quote-metric">
+                  <span class="chat-quote-label"><i class="bx bx-package" aria-hidden="true"></i>Itens</span>
+                  <strong>${escapeHtml(String(phase.item_count || 0))}</strong>
+                </div>
+                <div class="chat-quote-metric">
+                  <span class="chat-quote-label"><i class="bx bx-wallet" aria-hidden="true"></i>Estimativa</span>
+                  <strong>${escapeHtml(phase.estimated_cost_display || "Sem base")}</strong>
+                </div>
+                <div class="chat-quote-metric">
+                  <span class="chat-quote-label"><i class="bx bx-transfer-alt" aria-hidden="true"></i>Faixa</span>
+                  <strong>${escapeHtml(phase.estimated_cost_range_min_display && phase.estimated_cost_range_max_display ? `${phase.estimated_cost_range_min_display} a ${phase.estimated_cost_range_max_display}` : "Faixa indisponivel")}</strong>
+                </div>
+              </div>
+            </section>
+          `).join("")}
+        </div>
+        ${
+          liveQuotes.length
+            ? `
+              <section class="chat-quote-card">
+                <div class="chat-quote-card-head">
+                  <strong>Cotacao real da fase</strong>
+                  <span class="app-badge is-success">${escapeHtml(selectedPhaseKey || "fase")}</span>
+                </div>
+                <div class="chat-quote-stack">
+                  ${liveQuotes.map((quote) => `
+                    <section class="chat-quote-card">
+                      <div class="chat-quote-card-head">
+                        <strong>${escapeHtml(quote.material || "Material")}</strong>
+                        <span class="app-badge ${String(quote.status || "").toLowerCase() === "ok" ? "is-success" : "is-warning"}">${escapeHtml(quote.status || "-")}</span>
+                      </div>
+                      <p class="chat-quote-note"><i class="bx bx-search-alt" aria-hidden="true"></i>${escapeHtml(quote.query || "")}</p>
+                      ${
+                        Array.isArray(quote.offers) && quote.offers.length
+                          ? `<div class="chat-quote-offers">
+                              ${quote.offers.map((offer) => `
+                                <div class="chat-quote-offer-chip">
+                                  <span>${escapeHtml(offer.supplier || "Fornecedor")}</span>
+                                  <strong>${escapeHtml(offer.display_price || "-")}</strong>
+                                  <small>${escapeHtml(offer.product_name || "Oferta")}</small>
+                                </div>
+                              `).join("")}
+                            </div>`
+                          : `<p class="chat-quote-note"><i class="bx bx-info-circle" aria-hidden="true"></i>${escapeHtml(quote.message || "Sem oferta valida agora.")}</p>`
+                      }
+                    </section>
+                  `).join("")}
+                </div>
+              </section>
+            `
+            : ""
+        }
+        <p class="chat-quote-note"><i class="bx bx-info-circle" aria-hidden="true"></i>${escapeHtml(payload?.message || "A Cota preparou a compra da obra.")}</p>
+      </div>
+    `;
+  }
+
   if (String(payload?.mode || "").toLowerCase() === "construction_project") {
     const phases = Array.isArray(payload?.phases) ? payload.phases : [];
     const assumptions = Array.isArray(payload?.assumptions) ? payload.assumptions : [];
@@ -458,6 +574,11 @@ function renderConstructionPreview(payload) {
     const missingPriceMaterials = Number(payload?.summary?.missing_price_materials || 0);
     const pricingCoverage = Number(payload?.summary?.pricing_coverage_pct || 0);
     const estimatedTotalCost = payload?.summary?.estimated_total_cost_display || "";
+    const estimatedMinCost = payload?.summary?.estimated_total_cost_range_min_display || "";
+    const estimatedMaxCost = payload?.summary?.estimated_total_cost_range_max_display || "";
+    const freshestReferenceLabel = payload?.summary?.freshest_reference_label || "Sem data recente";
+    const pricingStrength = payload?.summary?.pricing_strength || "unavailable";
+    const pricingStrengthLabel = payload?.summary?.pricing_strength_label || "Sem confianca de preco";
 
     if (String(payload?.status || "").toLowerCase() === "needs_clarification") {
       const missingFields = Array.isArray(payload?.missing_fields) ? payload.missing_fields : [];
@@ -512,7 +633,7 @@ function renderConstructionPreview(payload) {
               <section class="chat-quote-card">
                 <div class="chat-quote-card-head">
                   <strong>Custo medio estimado da obra</strong>
-                  <span class="app-badge ${pricingCoverage >= 60 ? "is-success" : "is-warning"}">${escapeHtml(`${pricingCoverage.toFixed(1)}% coberto`)}</span>
+                  <span class="app-badge ${pricingStrength === "strong" ? "is-success" : pricingStrength === "moderate" ? "is-info" : "is-warning"}">${escapeHtml(pricingStrengthLabel)}</span>
                 </div>
                 <div class="chat-quote-grid">
                   <div class="chat-quote-metric">
@@ -528,10 +649,19 @@ function renderConstructionPreview(payload) {
                     <strong>${escapeHtml(String(missingPriceMaterials))}</strong>
                   </div>
                   <div class="chat-quote-metric">
-                    <span class="chat-quote-label"><i class="bx bx-line-chart" aria-hidden="true"></i>Status</span>
-                    <strong>${pricingCoverage >= 60 ? "Boa cobertura" : "Cobertura parcial"}</strong>
+                    <span class="chat-quote-label"><i class="bx bx-line-chart" aria-hidden="true"></i>Cobertura</span>
+                    <strong>${escapeHtml(`${pricingCoverage.toFixed(1)}% coberto`)}</strong>
+                  </div>
+                  <div class="chat-quote-metric">
+                    <span class="chat-quote-label"><i class="bx bx-transfer-alt" aria-hidden="true"></i>Faixa</span>
+                    <strong>${escapeHtml(estimatedMinCost && estimatedMaxCost ? `${estimatedMinCost} a ${estimatedMaxCost}` : "Faixa indisponivel")}</strong>
+                  </div>
+                  <div class="chat-quote-metric">
+                    <span class="chat-quote-label"><i class="bx bx-time-five" aria-hidden="true"></i>Recencia</span>
+                    <strong>${escapeHtml(freshestReferenceLabel)}</strong>
                   </div>
                 </div>
+                ${pricingStrength === "weak" ? `<p class="chat-quote-note"><i class="bx bx-error-circle" aria-hidden="true"></i>Estimativa com base mais fraca. Use como referencia inicial e refine antes de comprar.</p>` : ""}
               </section>
             `
             : `
@@ -559,12 +689,24 @@ function renderConstructionPreview(payload) {
                       <strong>${escapeHtml(phase.estimated_cost_display || "Referencia insuficiente")}</strong>
                     </div>
                     <div class="chat-quote-metric">
+                      <span class="chat-quote-label"><i class="bx bx-transfer-alt" aria-hidden="true"></i>Faixa</span>
+                      <strong>${escapeHtml(phase.estimated_cost_range_min_display && phase.estimated_cost_range_max_display ? `${phase.estimated_cost_range_min_display} a ${phase.estimated_cost_range_max_display}` : "Faixa indisponivel")}</strong>
+                    </div>
+                    <div class="chat-quote-metric">
                       <span class="chat-quote-label"><i class="bx bx-check-circle" aria-hidden="true"></i>Precificados</span>
                       <strong>${escapeHtml(String(phase.priced_materials || 0))}</strong>
                     </div>
                     <div class="chat-quote-metric">
                       <span class="chat-quote-label"><i class="bx bx-error-circle" aria-hidden="true"></i>Pendentes</span>
                       <strong>${escapeHtml(String(phase.missing_price_materials || 0))}</strong>
+                    </div>
+                    <div class="chat-quote-metric">
+                      <span class="chat-quote-label"><i class="bx bx-time-five" aria-hidden="true"></i>Recencia</span>
+                      <strong>${escapeHtml(phase.reference_age_label || "Sem data recente")}</strong>
+                    </div>
+                    <div class="chat-quote-metric">
+                      <span class="chat-quote-label"><i class="bx bx-shield-quarter" aria-hidden="true"></i>Confianca</span>
+                      <strong>${escapeHtml(phase.pricing_strength || "unavailable")}</strong>
                     </div>
                   </div>
                   <div class="chat-quote-offers">
@@ -575,7 +717,11 @@ function renderConstructionPreview(payload) {
                           <div class="chat-quote-offer-chip">
                             <span>${escapeHtml(item.material || "Material")}</span>
                             <strong>${escapeHtml(`${item.quantity} ${item.unit || ""}`.trim())}</strong>
-                            ${item.estimated_total_display ? `<small>${escapeHtml(item.estimated_total_display)}</small>` : `<small>Sem preco medio</small>`}
+                            ${
+                              item.estimated_total_display
+                                ? `<small>${escapeHtml(item.estimated_total_display)}</small><small>${escapeHtml(item.estimated_total_range_min_display && item.estimated_total_range_max_display ? `${item.estimated_total_range_min_display} a ${item.estimated_total_range_max_display}` : item.reference_age_label || "Sem data recente")}</small>`
+                                : `<small>Sem preco medio</small>`
+                            }
                           </div>
                         `
                       )
@@ -602,6 +748,7 @@ function renderConstructionPreview(payload) {
                             <span>${escapeHtml(item.material || "Material")}</span>
                             <strong>${escapeHtml(`${item.quantity} ${item.unit || ""}`.trim())}</strong>
                             <small>${escapeHtml(item.estimated_total_display || item.unit_price_display || "Sem preco medio")}</small>
+                            <small>${escapeHtml(item.reference_age_label || item.pricing_strength || "Sem data recente")}</small>
                           </div>
                         `
                       )
@@ -953,6 +1100,7 @@ function renderThread(payload) {
   if (payload?.request?.id) {
     latestConstructionPreview = null;
     latestConstructionContext = null;
+    latestConstructionQuery = "";
   }
   injectDynamicPreviewIntoLatestAssistant();
 
@@ -1014,10 +1162,26 @@ async function loadConstructionPreview(message, payload) {
       : await estimateConstruction({ query: message });
     if (latestConstructionPreview?.conversation?.context) {
       latestConstructionContext = latestConstructionPreview.conversation.context;
+      latestConstructionQuery = latestConstructionPreview?.project?.raw_text || latestConstructionQuery || message;
     }
     injectDynamicPreviewIntoLatestAssistant();
   } catch (_) {
     // Construction estimate is additive only; keep chat flow stable on failure.
+  }
+}
+
+async function loadConstructionProcurement(selectedPhase = "", includeLiveQuotes = false) {
+  if (!latestConstructionQuery) return;
+  try {
+    latestConstructionPreview = await buildConstructionProcurement({
+      query: latestConstructionQuery,
+      context: latestConstructionContext || undefined,
+      selected_phase: selectedPhase || undefined,
+      include_live_quotes: includeLiveQuotes
+    });
+    injectDynamicPreviewIntoLatestAssistant();
+  } catch (_) {
+    // Procurement preview is additive only; the main chat flow should not fail because of it.
   }
 }
 
@@ -1149,6 +1313,21 @@ function bindDraftEditor() {
   });
 }
 
+function bindConstructionActions() {
+  document.addEventListener("click", async (event) => {
+    const procurementButton = event.target.closest("[data-construction-procurement]");
+    if (procurementButton) {
+      await loadConstructionProcurement("", false);
+      return;
+    }
+
+    const phaseButton = event.target.closest("[data-construction-phase]");
+    if (phaseButton) {
+      await loadConstructionProcurement(phaseButton.dataset.constructionPhase || "", true);
+    }
+  });
+}
+
 function bindEstimator(input) {
   qs("#estimateMaterialsButton")?.addEventListener("click", () => {
     const type = qs("#estimateType")?.value || "wall";
@@ -1227,6 +1406,7 @@ async function init() {
   const suggestions = Array.from(document.querySelectorAll("[data-suggestion]"));
 
   bindDraftEditor();
+  bindConstructionActions();
   bindEstimator(input);
   bindQuickImport();
   const prefillLoaded = loadRequestPrefill();

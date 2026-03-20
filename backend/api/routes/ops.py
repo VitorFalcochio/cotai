@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 
 from ..deps import get_current_admin, get_supabase
 from ..services.supabase_service import SupabaseService
+from ...worker.utils.telemetry import telemetry
 
 router = APIRouter(prefix="/ops", tags=["ops"])
 
@@ -28,6 +29,11 @@ def get_operations_overview(
         return supabase.get_operations_snapshot()
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@router.get("/telemetry")
+def get_telemetry_snapshot(_: dict[str, Any] = Depends(get_current_admin)) -> dict[str, Any]:
+    return telemetry.snapshot()
 
 
 @router.post("/requests/{request_id}/reprocess")
