@@ -818,13 +818,42 @@ function renderMessageBody(row) {
   return renderQuoteResponseCard(row) || escapeHtml(String(row.content || "")).replace(/\n/g, "<br>");
 }
 
+function renderMessageAvatar(row) {
+  const role = String(row?.role || "");
+  if (role === "assistant") {
+    return `
+      <div class="chat-avatar chat-avatar-cota" aria-hidden="true">
+        <span class="chat-avatar-face">
+          <span class="chat-avatar-eye"></span>
+          <span class="chat-avatar-eye"></span>
+          <span class="chat-avatar-smile"></span>
+        </span>
+      </div>
+    `;
+  }
+  if (role === "user") {
+    return `
+      <div class="chat-avatar chat-avatar-user" aria-hidden="true">
+        <i class="bx bx-user"></i>
+      </div>
+    `;
+  }
+  return `
+    <div class="chat-avatar chat-avatar-system" aria-hidden="true">
+      <i class="bx bx-bell"></i>
+    </div>
+  `;
+}
+
 function renderMessage(row) {
   const tone = row.role === "user" ? "is-user" : row.role === "assistant" ? "is-assistant" : "is-system";
   return `
     <article class="chat-row ${tone}">
+      ${tone !== "is-user" ? renderMessageAvatar(row) : ""}
       <div class="chat-bubble ${tone}">
         <div class="chat-bubble-body">${renderMessageBody(row)}</div>
       </div>
+      ${tone === "is-user" ? renderMessageAvatar(row) : ""}
     </article>
   `;
 }
@@ -1266,8 +1295,21 @@ async function submitMessage({ input, submitButton }) {
       renderMessage({ role: "user", content: message }),
       `
         <article class="chat-row is-assistant is-pending">
+          <div class="chat-avatar chat-avatar-cota" aria-hidden="true">
+            <span class="chat-avatar-face">
+              <span class="chat-avatar-eye"></span>
+              <span class="chat-avatar-eye"></span>
+              <span class="chat-avatar-smile"></span>
+            </span>
+          </div>
           <div class="chat-bubble is-assistant">
-            <div class="chat-bubble-body">A Cota está analisando sua solicitação...</div>
+            <div class="chat-bubble-body">
+              <span class="chat-typing" aria-label="A Cota está analisando">
+                <span class="chat-typing-dot"></span>
+                <span class="chat-typing-dot"></span>
+                <span class="chat-typing-dot"></span>
+              </span>
+            </div>
           </div>
         </article>
       `
