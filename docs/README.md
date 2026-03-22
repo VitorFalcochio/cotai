@@ -2,6 +2,11 @@
 
 Hub inteligente de compras para construcao civil, evoluido sobre a base original de cotacao com frontend estatico, Supabase, FastAPI e worker Python.
 
+## Guias rapidos
+
+- Go-live MVP: [docs/GO_LIVE_CHECKLIST.md](C:/Users/vitin/Desktop/cotai/cotaiedit/docs/GO_LIVE_CHECKLIST.md)
+- Deploy: [docs/deploy.md](C:/Users/vitin/Desktop/cotai/cotaiedit/docs/deploy.md)
+
 ## Arquitetura atual
 
 - `frontend/`: app estatico em HTML/CSS/JS

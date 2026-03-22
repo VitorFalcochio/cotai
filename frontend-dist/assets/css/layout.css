@@ -637,20 +637,47 @@ body.sidebar-collapsed .sidebar,
 body.sidebar-collapsed .app-sidebar,
 body.sidebar-collapsed .dashboard-apex-sidebar {
   width: var(--sidebar-collapsed-width);
-  padding-inline: 10px;
-  gap: 18px;
+  padding-inline: 12px;
+  gap: 20px;
 }
 
 body.sidebar-collapsed .side-shell-head,
 body.sidebar-collapsed .sidebar-head {
+  display: grid;
+  justify-items: center;
   justify-content: center;
-  padding-bottom: 0;
+  gap: 12px;
+  padding-bottom: 2px;
 }
 
 body.sidebar-collapsed .side-collapse-btn {
-  position: absolute;
-  top: 0;
-  right: 0;
+  position: static;
+  margin: 0;
+  width: 38px;
+  min-width: 38px;
+  height: 38px;
+  min-height: 38px;
+}
+
+body.sidebar-collapsed .side-shell-head .brand,
+body.sidebar-collapsed .sidebar-head .brand,
+body.sidebar-collapsed .side-shell-head .dashboard-brand,
+body.sidebar-collapsed .sidebar-head .dashboard-brand {
+  flex: 0 0 auto;
+  justify-content: center;
+  width: 40px;
+  margin: 0;
+}
+
+body.sidebar-collapsed .brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+}
+
+body.sidebar-collapsed .dashboard-nav-group {
+  justify-items: center;
+  gap: 12px;
 }
 
 body.sidebar-collapsed .brand-copy,
@@ -675,23 +702,30 @@ body.sidebar-collapsed .dashboard-nav-title {
 body.sidebar-collapsed .app-nav,
 body.sidebar-collapsed .dashboard-subnav {
   justify-items: center;
+  gap: 10px;
 }
 
 body.sidebar-collapsed .side-link {
   justify-content: center;
-  width: 44px;
-  min-width: 44px;
-  min-height: 44px;
+  width: 46px;
+  min-width: 46px;
+  min-height: 46px;
   gap: 0;
   padding-inline: 0;
-  border-radius: 12px;
+  border-radius: 14px;
 }
 
 body.sidebar-collapsed .side-link .left {
-  width: auto;
+  width: 100%;
+  height: 100%;
   flex: 0 0 auto;
+  align-items: center;
   justify-content: center;
   gap: 0;
+}
+
+body.sidebar-collapsed .side-link .side-link-icon {
+  font-size: 1.24rem;
 }
 
 body.sidebar-collapsed .side-link .mini-badge {
@@ -701,32 +735,68 @@ body.sidebar-collapsed .side-link .mini-badge {
 body.sidebar-collapsed .side-link::after {
   content: attr(title);
   position: absolute;
-  left: calc(100% + 12px);
+  left: calc(100% + 14px);
   top: 50%;
-  transform: translateY(-50%) translateX(-4px);
+  transform: translateY(-50%) translateX(-8px) scale(0.98);
+  transform-origin: left center;
   opacity: 0;
-  padding: 7px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 10px;
-  background: rgba(7, 11, 10, 0.96);
-  color: #eef3f8;
-  font-size: 0.76rem;
+  padding: 9px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(12, 17, 15, 0.98), rgba(7, 11, 10, 0.98));
+  color: #f2f7fb;
+  font-size: 0.78rem;
   font-weight: 600;
+  letter-spacing: 0.01em;
   white-space: nowrap;
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.28);
+  box-shadow:
+    0 18px 34px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.02);
   pointer-events: none;
-  transition: opacity var(--transition-fast), transform var(--transition-fast);
+  z-index: 30;
+  transition:
+    opacity 160ms ease,
+    transform 180ms ease;
+}
+
+body.sidebar-collapsed .side-link::before {
+  content: "";
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 14, 13, 0.98);
+  transform: translateY(-50%) rotate(-45deg) translateX(-6px);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 29;
+  transition:
+    opacity 160ms ease,
+    transform 180ms ease;
+}
+
+body.sidebar-collapsed .side-link:hover::before,
+body.sidebar-collapsed .side-link:hover::after {
+  opacity: 1;
 }
 
 body.sidebar-collapsed .side-link:hover::after {
-  opacity: 1;
-  transform: translateY(-50%) translateX(0);
+  transform: translateY(-50%) translateX(0) scale(1);
+}
+
+body.sidebar-collapsed .side-link:hover::before {
+  transform: translateY(-50%) rotate(-45deg) translateX(0);
 }
 
 body.sidebar-collapsed .dashboard-sidebar-profile {
   grid-template-columns: 1fr;
   justify-items: center;
   padding-inline: 0;
+  gap: 10px;
 }
 
 .app-drawer-overlay {

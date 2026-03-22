@@ -7,6 +7,284 @@
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
   <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" />
   <link rel="stylesheet" href="../assets/css/apex.css" />
+  <style>
+    .projects-shell {
+      display: grid;
+      gap: 18px;
+    }
+
+    .projects-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 8px;
+    }
+
+    .projects-header h1 {
+      margin: 0 0 6px;
+      font-size: 1.75rem;
+      letter-spacing: -0.04em;
+    }
+
+    .projects-header p {
+      margin: 0;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .projects-minimal-stats {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: var(--text-muted);
+      font-size: 0.84rem;
+    }
+
+    .projects-minimal-stats span {
+      padding: 6px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .projects-board {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 22px;
+      background: rgba(14, 16, 20, 0.92);
+      overflow: hidden;
+    }
+
+    .projects-board-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .projects-search {
+      position: relative;
+      width: min(420px, 100%);
+    }
+
+    .projects-search i {
+      position: absolute;
+      top: 50%;
+      left: 14px;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      pointer-events: none;
+    }
+
+    .projects-search input {
+      width: 100%;
+      height: 46px;
+      padding: 0 14px 0 42px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-primary);
+      outline: none;
+    }
+
+    .projects-search input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .projects-toolbar-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .projects-toolbar-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 40px;
+      padding: 0 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-secondary);
+      font-size: 0.86rem;
+    }
+
+    .projects-toolbar-chip strong {
+      color: var(--text-primary);
+    }
+
+    .projects-table-wrap {
+      padding: 12px 16px 16px;
+    }
+
+    .projects-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .projects-table thead th {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      color: var(--text-secondary);
+      font-size: 0.77rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-align: left;
+      text-transform: uppercase;
+    }
+
+    .projects-table tbody tr {
+      transition: background-color var(--transition-base);
+    }
+
+    .projects-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .projects-table td {
+      padding: 18px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      vertical-align: middle;
+    }
+
+    .projects-col-index {
+      width: 56px;
+      color: var(--text-muted);
+    }
+
+    .projects-col-status {
+      width: 138px;
+    }
+
+    .projects-col-action {
+      width: 168px;
+    }
+
+    .projects-name-cell {
+      display: grid;
+      gap: 4px;
+    }
+
+    .projects-name-cell strong {
+      line-height: 1.45;
+      font-size: 1.02rem;
+    }
+
+    .projects-name-cell span,
+    .projects-inline-meta,
+    .projects-empty-cell {
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .projects-inline-meta {
+      font-size: 0.92rem;
+    }
+
+    .projects-status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 108px;
+      padding: 7px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-primary);
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .projects-status-pill.is-active {
+      border-color: rgba(25, 210, 107, 0.2);
+      background: rgba(25, 210, 107, 0.12);
+      color: #9df0bb;
+    }
+
+    .projects-status-pill.is-pending {
+      border-color: rgba(249, 191, 36, 0.2);
+      background: rgba(249, 191, 36, 0.12);
+      color: #ffd978;
+    }
+
+    .projects-status-pill.is-done {
+      border-color: rgba(47, 140, 255, 0.2);
+      background: rgba(47, 140, 255, 0.12);
+      color: #8ec5ff;
+    }
+
+    .projects-action-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 0 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      color: var(--text-primary);
+      text-decoration: none;
+      transition: background-color var(--transition-base), border-color var(--transition-base);
+    }
+
+    .projects-action-link:hover {
+      border-color: rgba(25, 210, 107, 0.18);
+      background: rgba(25, 210, 107, 0.06);
+    }
+
+    .projects-action-link.is-disabled {
+      opacity: 0.55;
+      pointer-events: none;
+    }
+
+    .projects-empty-cell {
+      padding: 24px 16px;
+    }
+
+    @media (max-width: 920px) {
+      .projects-header,
+      .projects-board-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .projects-search {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .projects-table thead {
+        display: none;
+      }
+
+      .projects-table,
+      .projects-table tbody,
+      .projects-table tr,
+      .projects-table td {
+        display: block;
+        width: 100%;
+      }
+
+      .projects-table tbody tr {
+        padding: 8px 0;
+      }
+
+      .projects-table td {
+        padding: 8px 12px;
+        border-bottom: 0;
+      }
+
+      .projects-col-index {
+        padding-top: 14px;
+      }
+    }
+  </style>
 </head>
 <body data-page="projects">
   <div class="app-layout dashboard-apex-layout">
@@ -14,73 +292,56 @@
     <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
 
     <main class="app-main dashboard-apex-main">
-      <header class="app-topbar dashboard-apex-topbar">
-        <div>
-          <h1 style="margin:0;">Projetos</h1>
-          <p style="margin:6px 0 0;">Obras salvas pela Cota com fase atual, custos e materiais acompanhados.</p>
+      <div class="projects-shell">
+        <header class="projects-header">
+          <div>
+            <h1>Projetos</h1>
+            <p>Projetos salvos do chat da Cota, com fase, materiais e custo consolidado em uma leitura simples.</p>
+          </div>
+          <a class="btn btn-primary" href="new-request.html">
+            <i class="bx bx-plus" aria-hidden="true"></i>
+            <span>Novo projeto via chat</span>
+          </a>
+        </header>
+
+        <div class="projects-minimal-stats">
+          <span><strong id="projectsMetricTotal">0</strong> projetos salvos</span>
+          <span><strong id="projectsMetricMaterials">0</strong> materiais monitorados</span>
+          <span><strong id="projectsMetricCost">R$ 0</strong> em custo salvo</span>
+          <span><strong id="projectsMetricActive">0</strong> em andamento</span>
         </div>
-        <div class="dashboard-topbar-actions">
-          <a class="btn btn-primary" href="new-request.html">Novo projeto via chat</a>
-        </div>
-      </header>
 
-      <p class="app-feedback hidden" id="projectsFeedback" role="alert"></p>
+        <p class="app-feedback hidden" id="projectsFeedback" role="alert"></p>
 
-      <section class="dashboard-metrics-grid">
-        <article class="dashboard-metric-card metric-green">
-          <div class="dashboard-metric-head">
-            <div><p>Projetos salvos</p><h3 id="projectsMetricTotal">0</h3></div>
-            <span class="dashboard-metric-icon"><i class="bx bx-briefcase-alt-2"></i></span>
-          </div>
-          <p class="dashboard-metric-trend">Base ativa da construtora</p>
-        </article>
-        <article class="dashboard-metric-card metric-cyan">
-          <div class="dashboard-metric-head">
-            <div><p>Materiais monitorados</p><h3 id="projectsMetricMaterials">0</h3></div>
-            <span class="dashboard-metric-icon"><i class="bx bx-cube-alt"></i></span>
-          </div>
-          <p class="dashboard-metric-trend">Itens registrados nos projetos</p>
-        </article>
-        <article class="dashboard-metric-card metric-blue">
-          <div class="dashboard-metric-head">
-            <div><p>Custo consolidado</p><h3 id="projectsMetricCost">R$ 0</h3></div>
-            <span class="dashboard-metric-icon"><i class="bx bx-line-chart"></i></span>
-          </div>
-          <p class="dashboard-metric-trend">Estimativas salvas pela Cota</p>
-        </article>
-        <article class="dashboard-metric-card metric-amber">
-          <div class="dashboard-metric-head">
-            <div><p>Projetos com fase ativa</p><h3 id="projectsMetricActive">0</h3></div>
-            <span class="dashboard-metric-icon"><i class="bx bx-layer"></i></span>
-          </div>
-          <p class="dashboard-metric-trend">Obras em andamento ou planejamento</p>
-        </article>
-      </section>
-
-      <section class="dashboard-core-grid">
-        <article class="dashboard-panel">
-          <div class="dashboard-panel-head">
-            <div>
-              <h2>Lista de projetos</h2>
-              <p>Selecione um projeto para ver fase atual, custos, materiais e historico.</p>
+        <section class="projects-board">
+          <div class="projects-board-toolbar">
+            <label class="projects-search" for="projectsSearch">
+              <i class="bx bx-search" aria-hidden="true"></i>
+              <input id="projectsSearch" type="search" placeholder="Filtrar projetos salvos..." />
+            </label>
+            <div class="projects-toolbar-meta">
+              <span class="projects-toolbar-chip">Origem: <strong>Chat da Cota</strong></span>
+              <span class="projects-toolbar-chip">Exibindo <strong id="projectsVisibleCount">0</strong></span>
             </div>
           </div>
-          <div class="entity-list" id="projectsList"></div>
-        </article>
 
-        <article class="dashboard-panel">
-          <div class="dashboard-panel-head">
-            <div>
-              <h2 id="projectDetailTitle">Selecione um projeto</h2>
-              <p id="projectDetailSubtitle">A Cota mostra aqui o resumo executivo da obra.</p>
-            </div>
-            <a class="btn btn-ghost hidden" id="projectResumeLink" href="new-request.html">Continuar conversa</a>
+          <div class="projects-table-wrap">
+            <table class="projects-table">
+              <thead>
+                <tr>
+                  <th class="projects-col-index">#</th>
+                  <th>Projeto</th>
+                  <th>Resumo</th>
+                  <th>Custo</th>
+                  <th class="projects-col-status">Status</th>
+                  <th class="projects-col-action">Acoes</th>
+                </tr>
+              </thead>
+              <tbody id="projectsList"></tbody>
+            </table>
           </div>
-          <div class="comparison-summary-grid" id="projectDetailSummary"></div>
-          <div class="dashboard-status-list" id="projectDetailTimeline"></div>
-          <div class="entity-list" id="projectDetailMaterials"></div>
-        </article>
-      </section>
+        </section>
+      </div>
     </main>
   </div>
 

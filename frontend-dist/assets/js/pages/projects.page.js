@@ -1,10 +1,10 @@
 import { LOGIN_PATH } from "../config.js";
 import { handleSessionExpired, isSessionExpiredError, requireAuth, signOut } from "../auth.js";
-import { getProject, listProjects } from "../chatApi.js";
-import { formatDateTime, initSidebar, qs, runPageBoot, setHTML, setText, showFeedback } from "../ui.js";
+import { listProjects } from "../chatApi.js";
+import { initSidebar, qs, runPageBoot, setHTML, setText, showFeedback } from "../ui.js";
 
 let projectRows = [];
-let selectedProjectId = "";
+let visibleRows = [];
 
 function handlePageError(error, fallback = "Nao foi possivel carregar os projetos.") {
   if (isSessionExpiredError(error)) {
@@ -36,96 +36,117 @@ function formatCurrencyBRL(value) {
   return amount.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+function toDisplayLabel(value, fallback) {
+  const normalized = String(value || "").trim();
+  if (!normalized) return fallback;
+  return normalized
+    .replaceAll("_", " ")
+    .replace(/\s+/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function getStatusTone(value) {
+  const normalized = String(value || "").trim().toLowerCase();
+  if (["active", "in_progress", "ongoing", "em andamento"].includes(normalized)) return "is-active";
+  if (["done", "completed", "complete", "finished", "concluido"].includes(normalized)) return "is-done";
+  if (["paused", "pending", "planning", "draft", "planejamento"].includes(normalized)) return "is-pending";
+  return "";
+}
+
+function getStatusLabel(row) {
+  return toDisplayLabel(row.status_label || row.status || row.current_phase_label, "Planejamento");
+}
+
+function getProjectMetaLine(project) {
+  const parts = [
+    project.location_label || "Local a definir",
+    project.area_label || "Area pendente",
+    project.current_phase_label || "Planejamento",
+  ].filter(Boolean);
+  return parts.join(" - ");
+}
+
+function getSearchText(row) {
+  return [
+    row.name,
+    row.project_label,
+    row.location_label,
+    row.area_label,
+    row.current_phase_label,
+    row.status,
+    row.estimated_total_display,
+  ].join(" ").toLowerCase();
+}
+
+function renderAction(row) {
+  if (!row.source_thread_id) {
+    return '<span class="projects-action-link is-disabled">Sem conversa</span>';
+  }
+
+  return `
+    <a class="projects-action-link" href="new-request.html" data-thread-id="${escapeHtml(row.source_thread_id)}">
+      <i class="bx bx-message-square-detail" aria-hidden="true"></i>
+      <span>Abrir conversa</span>
+    </a>
+  `;
+}
+
+function renderEmptyTableRow(title, message) {
+  return `
+    <tr>
+      <td colspan="6" class="projects-empty-cell">
+        <strong>${escapeHtml(title)}</strong><br />
+        <span>${escapeHtml(message)}</span>
+      </td>
+    </tr>
+  `;
+}
+
 function renderProjectList(rows) {
   if (!rows.length) {
-    return '<article class="entity-list-item"><div class="entity-list-copy"><p>Nenhum projeto salvo</p><strong>Salve um projeto no chat da Cota para ele aparecer aqui.</strong></div><span class="app-badge is-muted">INFO</span></article>';
+    return renderEmptyTableRow("Nenhum projeto encontrado", "Salve um projeto no chat da Cota ou ajuste o filtro para encontrar uma obra.");
   }
 
-  return rows.map((row) => `
-    <article class="entity-list-item ${selectedProjectId === row.id ? "is-selected" : ""}" data-project-id="${row.id}">
-      <div class="entity-list-copy">
-        <p>${escapeHtml(row.project_label || "Obra")}</p>
-        <strong>${escapeHtml(row.name || "Projeto sem nome")}</strong>
-        <span>${escapeHtml(row.location_label || "-")} · ${escapeHtml(row.area_label || "Pendente")} · ${escapeHtml(row.current_phase_label || "Planejamento")}</span>
-      </div>
-      <div class="table-entity-meta">
-        <strong>${escapeHtml(row.estimated_total_display || "Sem custo consolidado")}</strong>
-        <small>${row.material_count || 0} material(is) · ${row.request_count || 0} pedido(s)</small>
-      </div>
-    </article>
-  `).join("");
+  return rows.map((row, index) => {
+    const statusLabel = getStatusLabel(row);
+    const statusTone = getStatusTone(row.status || row.current_phase_label);
+    const summaryLine = `${Number(row.material_count || 0)} materiais - ${Number(row.request_count || 0)} pedidos`;
+    const costLabel = row.estimated_total_display || "Sem custo consolidado";
+
+    return `
+      <tr>
+        <td class="projects-col-index">${index + 1}</td>
+        <td>
+          <div class="projects-name-cell">
+            <strong>${escapeHtml(row.name || "Projeto sem nome")}</strong>
+            <span>${escapeHtml(row.project_label || "Projeto salvo no chat")}</span>
+          </div>
+        </td>
+        <td class="projects-inline-meta">${escapeHtml(getProjectMetaLine(row))}<br />${escapeHtml(summaryLine)}</td>
+        <td>${escapeHtml(costLabel)}</td>
+        <td class="projects-col-status"><span class="projects-status-pill ${statusTone}">${escapeHtml(statusLabel)}</span></td>
+        <td class="projects-col-action">${renderAction(row)}</td>
+      </tr>
+    `;
+  }).join("");
 }
 
-function renderProjectSummary(project) {
-  return [
-    { label: "Tipo", value: project.project_label || project.project_type || "Obra" },
-    { label: "Area", value: project.area_label || "Pendente" },
-    { label: "Fase atual", value: project.current_phase_label || "Planejamento" },
-    { label: "Custo salvo", value: project.estimated_total_display || "Sem custo consolidado" },
-    { label: "Pedidos", value: String(project.request_count || 0) },
-    { label: "Materiais", value: String(project.material_count || 0) },
-  ].map((item) => `<article class="comparison-summary-card"><span>${escapeHtml(item.label)}</span><strong>${escapeHtml(item.value)}</strong></article>`).join("");
+function updateVisibleCount() {
+  setText("#projectsVisibleCount", String(visibleRows.length));
 }
 
-function renderTimeline(events) {
-  if (!events?.length) {
-    return '<article class="entity-list-item"><div class="entity-list-copy"><p>Sem eventos ainda</p><strong>O historico operacional vai aparecer aqui conforme a obra evoluir.</strong></div><span class="app-badge is-muted">INFO</span></article>';
-  }
-  return events.slice(0, 8).map((event) => `
-    <article class="entity-list-item">
-      <div class="entity-list-copy">
-        <p>${escapeHtml(event.event_type || "evento")}</p>
-        <strong>${escapeHtml(event.note || event.stage_label || event.material_name || "Atualizacao registrada")}</strong>
-        <span>${formatDateTime(event.created_at)}${event.supplier_name ? ` · ${escapeHtml(event.supplier_name)}` : ""}</span>
-      </div>
-      <span class="app-badge ${event.impact_level === "warning" ? "is-warning" : event.impact_level === "success" ? "is-success" : "is-muted"}">${escapeHtml(event.impact_level || "info")}</span>
-    </article>
-  `).join("");
+function renderVisibleProjects() {
+  setHTML("#projectsList", renderProjectList(visibleRows));
+  updateVisibleCount();
 }
 
-function renderMaterials(materials) {
-  if (!materials?.length) {
-    return '<article class="entity-list-item"><div class="entity-list-copy"><p>Sem materiais</p><strong>A lista de materiais vai aparecer aqui quando a Cota montar ou atualizar a obra.</strong></div><span class="app-badge is-muted">INFO</span></article>';
-  }
-  return materials.slice(0, 12).map((item) => `
-    <article class="entity-list-item">
-      <div class="entity-list-copy">
-        <p>${escapeHtml(item.status || "pendente")}</p>
-        <strong>${escapeHtml(item.material_name || "Material")}</strong>
-        <span>Estimado: ${escapeHtml(String(item.estimated_qty ?? "-"))} · Pendente: ${escapeHtml(String(item.pending_qty ?? "-"))}</span>
-      </div>
-      <span class="app-badge is-muted">${escapeHtml(item.supplier_name || item.last_event_type || "obra")}</span>
-    </article>
-  `).join("");
-}
+function applyFilter() {
+  const query = String(qs("#projectsSearch")?.value || "").trim().toLowerCase();
+  visibleRows = query
+    ? projectRows.filter((row) => getSearchText(row).includes(query))
+    : [...projectRows];
 
-async function selectProject(projectId) {
-  selectedProjectId = projectId;
-  setHTML("#projectsList", renderProjectList(projectRows));
-
-  try {
-    const payload = await getProject(projectId);
-    const project = payload.project || {};
-    setText("#projectDetailTitle", project.name || "Projeto");
-    setText("#projectDetailSubtitle", `${project.location_label || "-"} · ${project.area_label || "Pendente"} · ${project.current_phase_label || "Planejamento"}`);
-    setHTML("#projectDetailSummary", renderProjectSummary(project));
-    setHTML("#projectDetailTimeline", renderTimeline(payload.events || []));
-    setHTML("#projectDetailMaterials", renderMaterials(payload.materials || []));
-
-    const resumeLink = qs("#projectResumeLink");
-    if (resumeLink) {
-      const threadId = project.source_thread_id;
-      resumeLink.classList.toggle("hidden", !threadId);
-      if (threadId) {
-        resumeLink.href = "new-request.html";
-        resumeLink.onclick = () => {
-          sessionStorage.setItem("cotai_active_chat_thread", threadId);
-        };
-      }
-    }
-  } catch (error) {
-    handlePageError(error, "Nao foi possivel carregar o detalhe do projeto.");
-  }
+  renderVisibleProjects();
 }
 
 async function init() {
@@ -140,23 +161,31 @@ async function init() {
 
   const payload = await listProjects();
   projectRows = Array.isArray(payload.projects) ? payload.projects : [];
+  visibleRows = [...projectRows];
 
   setText("#projectsMetricTotal", String(projectRows.length));
   setText("#projectsMetricMaterials", String(projectRows.reduce((sum, row) => sum + Number(row.material_count || 0), 0)));
   setText("#projectsMetricCost", formatCurrencyBRL(projectRows.reduce((sum, row) => sum + parseCurrencyToNumber(row.estimated_total_display), 0)));
-  setText("#projectsMetricActive", String(projectRows.filter((row) => String(row.status || "").toLowerCase() === "active").length));
-  setHTML("#projectsList", renderProjectList(projectRows));
+  setText(
+    "#projectsMetricActive",
+    String(
+      projectRows.filter((row) => {
+        const normalized = String(row.status || row.current_phase_label || "").trim().toLowerCase();
+        return ["active", "in_progress", "ongoing", "planning", "planejamento", "em andamento"].includes(normalized);
+      }).length
+    )
+  );
 
-  const projectIdFromUrl = new URLSearchParams(window.location.search).get("projectId");
-  const initialProjectId = projectIdFromUrl || projectRows[0]?.id || "";
-  if (initialProjectId) {
-    await selectProject(initialProjectId);
-  }
+  renderVisibleProjects();
 
-  qs("#projectsList")?.addEventListener("click", async (event) => {
-    const card = event.target.closest("[data-project-id]");
-    if (!card) return;
-    await selectProject(card.dataset.projectId || "");
+  qs("#projectsSearch")?.addEventListener("input", () => {
+    applyFilter();
+  });
+
+  qs("#projectsList")?.addEventListener("click", (event) => {
+    const actionLink = event.target.closest("[data-thread-id]");
+    if (!actionLink) return;
+    sessionStorage.setItem("cotai_active_chat_thread", actionLink.dataset.threadId || "");
   });
 }
 

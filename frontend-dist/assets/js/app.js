@@ -16,15 +16,9 @@
   const BOXICONS_STYLESHEET_ID = "cotai-boxicons-stylesheet";
   const SIDEBAR_ICON_MAP = {
     dashboard: "bx-grid-alt",
-    analytics: "bx-bar-chart-alt-2",
-    alerts: "bx-bell",
     new: "bx-bot",
+    projects: "bx-briefcase-alt-2",
     requests: "bx-receipt",
-    approvals: "bx-check-shield",
-    comparisons: "bx-git-compare",
-    suppliers: "bx-store-alt",
-    materials: "bx-cube-alt",
-    "price-book": "bx-line-chart",
     plans: "bx-layer",
     settings: "bx-cog"
   };
@@ -33,6 +27,21 @@
     sidebarCollapse: "bx-chevrons-left",
     newSupplierBtn: "bx-plus",
     newMaterialBtn: "bx-plus"
+  };
+
+  const getStoredSettingsSnapshot = () => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.settings);
+      return raw ? JSON.parse(raw) : {};
+    } catch (_) {
+      return {};
+    }
+  };
+
+  const getStoredCompanyLabel = () => {
+    const settings = getStoredSettingsSnapshot();
+    const company = String(settings?.company || "").trim();
+    return company || "Cotai";
   };
 
   const getClientSidebarMarkup = () => `
@@ -50,38 +59,20 @@
     </div>
 
     <div class="dashboard-nav-group">
-      <p class="dashboard-nav-title">Overview</p>
+      <p class="dashboard-nav-title">Fluxo principal</p>
       <nav class="app-nav" id="appNav">
         <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
         <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard"><span class="left"><span class="nav-label">Dashboard</span></span></a>
-        <a class="side-link" data-nav="analytics" href="analytics.html" title="Analytics"><span class="left"><span class="nav-label">Analytics</span></span></a>
-        <a class="side-link" data-nav="alerts" href="alerts.html" title="Alertas"><span class="left"><span class="nav-label">Alertas</span></span></a>
-      </nav>
-    </div>
-
-    <div class="dashboard-nav-group">
-      <p class="dashboard-nav-title">Procurement</p>
-      <nav class="app-nav">
+        <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotacao"><span class="left"><span class="nav-label">Cota</span></span><span class="mini-badge">IA</span></a>
+        <a class="side-link" data-nav="projects" href="projects.html" title="Projetos"><span class="left"><span class="nav-label">Projetos</span></span></a>
         <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span></a>
-        <a class="side-link" data-nav="approvals" href="approvals.html" title="Aprovacoes"><span class="left"><span class="nav-label">Aprovacoes</span></span></a>
-        <a class="side-link" data-nav="comparisons" href="comparisons.html" title="Comparativos"><span class="left"><span class="nav-label">Comparativos</span></span></a>
-      </nav>
-    </div>
-
-    <div class="dashboard-nav-group">
-      <p class="dashboard-nav-title">Base</p>
-      <nav class="app-nav">
-        <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores"><span class="left"><span class="nav-label">Fornecedores</span></span></a>
-        <a class="side-link" data-nav="materials" href="materials.html" title="Materiais"><span class="left"><span class="nav-label">Materiais</span></span></a>
-        <a class="side-link" data-nav="price-book" href="price-book.html" title="Tabela de precos"><span class="left"><span class="nav-label">Tabela de precos</span></span></a>
-      </nav>
-    </div>
-
-    <div class="dashboard-nav-group">
-      <p class="dashboard-nav-title">Commerce</p>
-      <nav class="app-nav dashboard-subnav">
-        <a class="side-link" data-nav="new" href="new-request.html" title="Cota"><span class="left"><span class="nav-label">Cota</span></span><span class="mini-badge">IA</span></a>
         ${BILLING_ENABLED || PLAN_SELECTION_ENABLED ? '<a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span></a>' : ""}
+      </nav>
+    </div>
+
+    <div class="dashboard-nav-group">
+      <p class="dashboard-nav-title">Conta</p>
+      <nav class="app-nav">
         <a class="side-link" data-nav="settings" href="settings.html" title="Configuracoes"><span class="left"><span class="nav-label">Configuracoes</span></span></a>
       </nav>
     </div>
@@ -91,7 +82,7 @@
     <div class="dashboard-sidebar-profile">
       <div class="dashboard-avatar">CO</div>
       <div>
-        <strong>Cotai</strong>
+        <strong id="legacyCompanyNameSide">${getStoredCompanyLabel()}</strong>
         <span>Equipe de compras</span>
       </div>
       <a class="dashboard-profile-link" href="settings.html" aria-label="Abrir perfil"><i class="bx bx-log-in-circle" aria-hidden="true"></i></a>
@@ -256,7 +247,23 @@
         whatsapp: "",
         email: "",
         city: "",
-        notifications: true
+        state: "",
+        defaultDeadline: "48h",
+        approvalLimit: "",
+        defaultChannel: "whatsapp",
+        purchaseRegion: "",
+        currency: "BRL",
+        measureStandard: "metric",
+        notifications: true,
+        materialAlerts: true,
+        autoProjectTracking: true,
+        weeklyDigest: false,
+        sessionPolicy: "24h",
+        historyRetention: "180d",
+        exportFormat: "xlsx",
+        teamAccess: "time",
+        compactView: false,
+        openChatContext: true
       });
     }
   };
@@ -856,6 +863,10 @@
 
     const form = $('#settingsForm');
     const status = $('#settingsStatus');
+    const searchInput = $('#settingsSearch');
+    const sections = $$('[data-settings-section]');
+    const emptyState = $('#settingsSearchEmpty');
+    const searchResults = $('#settingsSearchResults');
     if (!form) return;
 
     const current = storage.get(STORAGE_KEYS.settings, {});
@@ -864,8 +875,269 @@
     setField('#setWhatsapp', current.whatsapp || '');
     setField('#setEmail', current.email || '');
     setField('#setCity', current.city || '');
+    setField('#setState', current.state || '');
+    setField('#setDefaultDeadline', current.defaultDeadline || '48h');
+    setField('#setApprovalLimit', current.approvalLimit || '');
+    setField('#setDefaultChannel', current.defaultChannel || 'whatsapp');
+    setField('#setPurchaseRegion', current.purchaseRegion || '');
+    setField('#setCurrency', current.currency || 'BRL');
+    setField('#setMeasureStandard', current.measureStandard || 'metric');
+    setField('#setSessionPolicy', current.sessionPolicy || '24h');
+    setField('#setHistoryRetention', current.historyRetention || '180d');
+    setField('#setExportFormat', current.exportFormat || 'xlsx');
+    setField('#setTeamAccess', current.teamAccess || 'time');
     const notif = $('#setNotifications');
     if (notif) notif.checked = Boolean(current.notifications);
+    const materialAlerts = $('#setMaterialAlerts');
+    if (materialAlerts) materialAlerts.checked = Boolean(current.materialAlerts);
+    const autoProjectTracking = $('#setAutoProjectTracking');
+    if (autoProjectTracking) autoProjectTracking.checked = Boolean(current.autoProjectTracking);
+    const weeklyDigest = $('#setWeeklyDigest');
+    if (weeklyDigest) weeklyDigest.checked = Boolean(current.weeklyDigest);
+    const compactView = $('#setCompactView');
+    if (compactView) compactView.checked = Boolean(current.compactView);
+    const openChatContext = $('#setOpenChatContext');
+    if (openChatContext) openChatContext.checked = Boolean(current.openChatContext);
+
+    const normalizeSearch = (value) => String(value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+
+    const settingsSearchItems = [
+      {
+        label: 'Identidade e contato',
+        subtitle: 'Empresa, responsavel, WhatsApp, e-mail e localidade',
+        target: '#settingsIdentity',
+        group: 'Conta',
+        icon: 'bx-id-card',
+        tag: 'Identidade',
+        accent: 'green',
+        hint: 'Atualize os dados usados nos registros e resumos'
+      },
+      {
+        label: 'Regras de compra',
+        subtitle: 'Prazo padrao, aprovacao, canal preferencial, moeda e medidas',
+        target: '#settingsOperations',
+        group: 'Operacao',
+        icon: 'bx-briefcase-alt-2',
+        tag: 'Operacao',
+        accent: 'blue',
+        hint: 'Define como a Cota conduz pedidos e cotacoes'
+      },
+      {
+        label: 'Automacao da Cota',
+        subtitle: 'Notificacoes, alertas, tracking automatico e resumo semanal',
+        target: '#settingsAutomation',
+        group: 'Automacao',
+        icon: 'bx-bot',
+        tag: 'Automacao',
+        accent: 'amber',
+        hint: 'Controle o nivel de automacao e acompanhamento'
+      },
+      {
+        label: 'Sistema e dados',
+        subtitle: 'Sessao, retencao, exportacao, compartilhamento e contexto do chat',
+        target: '#settingsSystem',
+        group: 'Sistema',
+        icon: 'bx-cog',
+        tag: 'Sistema',
+        accent: 'slate',
+        hint: 'Ajustes de experiencia, acesso e historico'
+      },
+      {
+        label: 'Salvar configuracoes',
+        subtitle: 'Aplicar as preferencias atuais nesta conta',
+        target: '#settingsSubmit',
+        group: 'Acao',
+        icon: 'bx-save',
+        tag: 'Salvar',
+        accent: 'green',
+        hint: 'Confirme e grave as preferencias atuais'
+      }
+    ].map((item) => ({
+      ...item,
+      searchText: normalizeSearch(`${item.label} ${item.subtitle} ${item.group} ${item.tag} ${item.hint}`)
+    }));
+
+    let activeResultIndex = 0;
+    let spotlightTimer = null;
+
+    const getResultButtons = () => $$('.dashboard-search-item', searchResults || document);
+
+    const syncActiveResult = () => {
+      getResultButtons().forEach((button, index) => {
+        button.classList.toggle('is-active', index === activeResultIndex);
+      });
+    };
+
+    const closeSearchResults = () => {
+      searchResults?.classList.add('hidden');
+      activeResultIndex = 0;
+    };
+
+    const openSearchResults = () => {
+      searchResults?.classList.remove('hidden');
+    };
+
+    const renderSearchResults = (items) => {
+      if (!items.length) {
+        return '<div class="dashboard-search-empty">Nenhuma configuracao encontrada para essa busca.</div>';
+      }
+
+      const grouped = items.reduce((accumulator, item) => {
+        const bucket = accumulator.get(item.group) || [];
+        bucket.push(item);
+        accumulator.set(item.group, bucket);
+        return accumulator;
+      }, new Map());
+
+      return [...grouped.entries()]
+        .map(
+          ([group, entries]) => `
+            <section class="dashboard-search-group">
+              <div class="dashboard-search-group-label" data-count="${entries.length}">${group}</div>
+              ${entries
+                .map(
+                  (item, index) => `
+                    <button class="dashboard-search-item${index === 0 ? ' is-active' : ''}" type="button" data-settings-target="${item.target}" data-accent="${item.accent}">
+                      <span class="dashboard-search-item-icon"><i class="bx ${item.icon}" aria-hidden="true"></i></span>
+                      <span class="dashboard-search-item-copy">
+                        <strong>${item.label}</strong>
+                        <span>${item.subtitle}</span>
+                        <span class="settings-search-meta">
+                          <span>${item.hint}</span>
+                          <span class="settings-search-meta-key">Enter abre</span>
+                        </span>
+                      </span>
+                      <span class="dashboard-search-item-tag">${item.tag}</span>
+                    </button>
+                  `
+                )
+                .join('')}
+            </section>
+          `
+        )
+        .join('') + `
+          <div class="settings-search-footer">
+            <span><strong>Spotlight ativo</strong> para navegar pelas preferencias da conta.</span>
+            <span>Use ↑ ↓ para navegar e Esc para fechar.</span>
+          </div>
+        `;
+    };
+
+    const scrollToSettingsTarget = (selector) => {
+      if (!selector) return;
+      const target = $(selector);
+      if (!target) return;
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      sections.forEach((section) => section.classList.remove('is-spotlighted'));
+      target.classList.add('is-spotlighted');
+      if (spotlightTimer) window.clearTimeout(spotlightTimer);
+      spotlightTimer = window.setTimeout(() => {
+        target.classList.remove('is-spotlighted');
+      }, 2400);
+    };
+
+    const bindSearchResultButtons = () => {
+      getResultButtons().forEach((button) => {
+        button.addEventListener('click', () => {
+          const selector = button.dataset.settingsTarget;
+          if (!selector) return;
+          scrollToSettingsTarget(selector);
+          closeSearchResults();
+        });
+      });
+    };
+
+    const applySettingsSearch = () => {
+      const query = normalizeSearch(searchInput?.value || '');
+      let visibleCount = 0;
+
+      sections.forEach((section) => {
+        const haystack = normalizeSearch(section.getAttribute('data-settings-search') || section.textContent || '');
+        const shouldShow = !query || haystack.includes(query);
+        section.classList.toggle('hidden', !shouldShow);
+        if (shouldShow) visibleCount += 1;
+      });
+
+      if (emptyState) {
+        emptyState.classList.toggle('hidden', visibleCount > 0);
+      }
+    };
+
+    const runSettingsSearch = () => {
+      const query = normalizeSearch(searchInput?.value || '');
+      const matched = query
+        ? settingsSearchItems.filter((item) => item.searchText.includes(query)).slice(0, 6)
+        : settingsSearchItems.slice(0, 6);
+
+      if (searchResults) {
+        searchResults.innerHTML = renderSearchResults(matched);
+        activeResultIndex = 0;
+        syncActiveResult();
+        bindSearchResultButtons();
+        openSearchResults();
+      }
+
+      applySettingsSearch();
+    };
+
+    searchInput?.addEventListener('focus', runSettingsSearch);
+    searchInput?.addEventListener('input', runSettingsSearch);
+    searchInput?.addEventListener('keydown', (event) => {
+      const buttons = getResultButtons();
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+        runSettingsSearch();
+        return;
+      }
+      if (!buttons.length) return;
+
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        activeResultIndex = (activeResultIndex + 1) % buttons.length;
+        syncActiveResult();
+        return;
+      }
+
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        activeResultIndex = (activeResultIndex - 1 + buttons.length) % buttons.length;
+        syncActiveResult();
+        return;
+      }
+
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        buttons[activeResultIndex]?.click();
+        return;
+      }
+
+      if (event.key === 'Escape') {
+        closeSearchResults();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        searchInput?.focus();
+        searchInput?.select();
+        runSettingsSearch();
+      }
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!searchResults || searchResults.classList.contains('hidden')) return;
+      if (searchResults.contains(event.target) || searchInput?.contains(event.target)) return;
+      closeSearchResults();
+    });
+
+    applySettingsSearch();
 
     form.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -876,9 +1148,29 @@
         whatsapp: String(data.get('whatsapp') || '').trim(),
         email: String(data.get('email') || '').trim(),
         city: String(data.get('city') || '').trim(),
-        notifications: data.get('notifications') === 'on'
+        state: String(data.get('state') || '').trim(),
+        defaultDeadline: String(data.get('defaultDeadline') || '48h').trim(),
+        approvalLimit: String(data.get('approvalLimit') || '').trim(),
+        defaultChannel: String(data.get('defaultChannel') || 'whatsapp').trim(),
+        purchaseRegion: String(data.get('purchaseRegion') || '').trim(),
+        currency: String(data.get('currency') || 'BRL').trim(),
+        measureStandard: String(data.get('measureStandard') || 'metric').trim(),
+        notifications: data.get('notifications') === 'on',
+        materialAlerts: data.get('materialAlerts') === 'on',
+        autoProjectTracking: data.get('autoProjectTracking') === 'on',
+        weeklyDigest: data.get('weeklyDigest') === 'on',
+        sessionPolicy: String(data.get('sessionPolicy') || '24h').trim(),
+        historyRetention: String(data.get('historyRetention') || '180d').trim(),
+        exportFormat: String(data.get('exportFormat') || 'xlsx').trim(),
+        teamAccess: String(data.get('teamAccess') || 'time').trim(),
+        compactView: data.get('compactView') === 'on',
+        openChatContext: data.get('openChatContext') === 'on'
       };
       storage.set(STORAGE_KEYS.settings, payload);
+      const companyLabel = $('#legacyCompanyNameSide');
+      if (companyLabel) {
+        companyLabel.textContent = payload.company || 'Cotai';
+      }
       if (status) {
         status.textContent = 'Configurações salvas com sucesso.';
       }

@@ -476,7 +476,7 @@ function initDashboardSearch(overview) {
 
 function renderRecentRequests(rows) {
   if (!rows.length) {
-    return '<tr><td colspan="4" class="app-empty">Nenhum pedido recente encontrado.</td></tr>';
+    return '<tr><td colspan="4" class="app-empty">Nenhum pedido recente ainda. Abra a Cota para criar a primeira cotacao e acompanhar a fila por aqui.</td></tr>';
   }
 
   return rows
@@ -539,7 +539,7 @@ function renderStatusList(rows) {
 
 function renderTopMaterials(items) {
   if (!items.length) {
-    return '<article class="entity-list-item"><div class="entity-list-copy"><p>Sem demanda recente</p><strong>Os materiais mais cotados vao aparecer aqui.</strong></div><span class="app-badge is-muted">INFO</span></article>';
+    return '<article class="entity-list-item"><div class="entity-list-copy"><p>Sem demanda recente</p><strong>Os materiais entram aqui assim que os primeiros pedidos ou projetos forem registrados.</strong></div><span class="app-badge is-muted">INFO</span></article>';
   }
 
   return items
@@ -580,7 +580,7 @@ function renderActivity(rows) {
     });
 
   if (!items.length) {
-    return '<article class="dashboard-status-item"><header><strong>Sem atividade recente</strong><span class="app-badge is-muted">INFO</span></header><p>As atualizacoes do fluxo de cotacao vao aparecer aqui.</p></article>';
+    return '<article class="dashboard-status-item"><header><strong>Sem atividade recente</strong><span class="app-badge is-muted">INFO</span></header><p>Quando a equipe iniciar pedidos ou retomar projetos salvos, a linha do tempo operacional aparece aqui.</p></article>';
   }
 
   return items

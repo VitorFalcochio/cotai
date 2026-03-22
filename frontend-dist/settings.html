@@ -6,6 +6,464 @@
   <title>Cotai | Configuracoes</title>
   <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
   <link rel="stylesheet" href="./assets/css/apex.css" />
+  <style>
+    .settings-shell {
+      position: relative;
+      display: grid;
+      gap: 18px;
+    }
+
+    .settings-shell::before {
+      content: "";
+      position: absolute;
+      inset: -8px 0 auto;
+      height: 220px;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at top left, rgba(25, 210, 107, 0.12), transparent 26%),
+        radial-gradient(circle at top right, rgba(47, 140, 255, 0.08), transparent 24%);
+      filter: blur(10px);
+      opacity: 0.92;
+    }
+
+    .settings-intro {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 10px;
+      max-width: 860px;
+    }
+
+    .settings-intro h1 {
+      margin: 0;
+      font-size: clamp(2rem, 3.6vw, 3rem);
+      line-height: 1;
+      letter-spacing: -0.06em;
+    }
+
+    .settings-intro p {
+      margin: 0;
+      color: var(--text-secondary);
+      line-height: 1.75;
+    }
+
+    .settings-workspace {
+      position: relative;
+      z-index: 1;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 28px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.016)),
+        rgba(9, 13, 12, 0.9);
+      box-shadow:
+        0 18px 50px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      overflow: hidden;
+    }
+
+    .settings-toolbar {
+      display: grid;
+      gap: 16px;
+      padding: 22px 24px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .settings-toolbar-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .settings-search-shell {
+      display: grid;
+      gap: 10px;
+      flex: 1;
+      min-width: min(520px, 100%);
+    }
+
+    .settings-search-caption {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 0 4px;
+      color: var(--text-secondary);
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+    }
+
+    .settings-search-caption strong {
+      color: #eaf4ec;
+      font-size: 0.8rem;
+      letter-spacing: 0;
+    }
+
+    .settings-search-caption span:last-child {
+      color: #7f8d9c;
+    }
+
+    .settings-toolbar-copy {
+      display: grid;
+      gap: 6px;
+    }
+
+    .settings-toolbar-copy strong {
+      font-size: 1.08rem;
+      letter-spacing: -0.03em;
+    }
+
+    .settings-toolbar-copy span {
+      color: var(--text-secondary);
+      line-height: 1.6;
+      font-size: 0.92rem;
+    }
+
+    .settings-workspace .dashboard-search-shell {
+      max-width: 560px;
+    }
+
+    .settings-workspace .dashboard-search {
+      border-color: rgba(255, 255, 255, 0.08);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.012)),
+        rgba(8, 12, 11, 0.92);
+      box-shadow:
+        0 14px 34px rgba(0, 0, 0, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    .settings-workspace .dashboard-search:focus-within {
+      border-color: rgba(25, 210, 107, 0.22);
+      box-shadow:
+        0 0 0 4px rgba(25, 210, 107, 0.06),
+        0 20px 40px rgba(0, 0, 0, 0.24);
+    }
+
+    .settings-workspace .dashboard-search-results {
+      width: min(560px, calc(100vw - 32px));
+      border-color: rgba(255, 255, 255, 0.1);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015)),
+        rgba(7, 11, 10, 0.97);
+      box-shadow:
+        0 28px 80px rgba(0, 0, 0, 0.42),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .settings-workspace .dashboard-search-group {
+      padding: 12px;
+    }
+
+    .settings-workspace .dashboard-search-group-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 12px;
+    }
+
+    .settings-workspace .dashboard-search-group-label::after {
+      content: attr(data-count);
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      color: #8190a0;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .settings-workspace .dashboard-search-item {
+      position: relative;
+      padding: 14px 12px;
+      border: 1px solid transparent;
+    }
+
+    .settings-workspace .dashboard-search-item::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      opacity: 0;
+      transition: opacity var(--transition-base);
+      pointer-events: none;
+    }
+
+    .settings-workspace .dashboard-search-item:hover::after,
+    .settings-workspace .dashboard-search-item.is-active::after {
+      opacity: 1;
+    }
+
+    .settings-workspace .dashboard-search-item[data-accent="green"] .dashboard-search-item-icon {
+      background: linear-gradient(180deg, rgba(25, 210, 107, 0.18), rgba(25, 210, 107, 0.08));
+      color: #7ef0a8;
+    }
+
+    .settings-workspace .dashboard-search-item[data-accent="blue"] .dashboard-search-item-icon {
+      background: linear-gradient(180deg, rgba(47, 140, 255, 0.18), rgba(47, 140, 255, 0.08));
+      color: #85beff;
+    }
+
+    .settings-workspace .dashboard-search-item[data-accent="amber"] .dashboard-search-item-icon {
+      background: linear-gradient(180deg, rgba(255, 183, 77, 0.18), rgba(255, 183, 77, 0.08));
+      color: #ffd27b;
+    }
+
+    .settings-workspace .dashboard-search-item[data-accent="slate"] .dashboard-search-item-icon {
+      background: linear-gradient(180deg, rgba(148, 163, 184, 0.16), rgba(148, 163, 184, 0.08));
+      color: #d9e2ea;
+    }
+
+    .settings-search-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 2px;
+      color: #7e8b99;
+      font-size: 0.76rem;
+      line-height: 1.4;
+    }
+
+    .settings-search-meta-key {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      color: #d7e0e8;
+      font-weight: 700;
+    }
+
+    .settings-search-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      color: #7e8b99;
+      font-size: 0.76rem;
+    }
+
+    .settings-search-footer strong {
+      color: #e9f2ea;
+      font-weight: 700;
+    }
+
+    .settings-anchor-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .settings-anchor {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 13px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-secondary);
+      font-size: 0.84rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: border-color var(--transition-base), background-color var(--transition-base), color var(--transition-base);
+    }
+
+    .settings-anchor:hover {
+      border-color: rgba(25, 210, 107, 0.18);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-primary);
+    }
+
+    .settings-form-flow {
+      display: grid;
+    }
+
+    .settings-block {
+      position: relative;
+      padding: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      scroll-margin-top: 24px;
+      transition:
+        background-color 0.45s ease,
+        box-shadow 0.45s ease,
+        border-color 0.45s ease,
+        transform 0.45s ease;
+    }
+
+    .settings-block:first-child {
+      border-top: 0;
+    }
+
+    .settings-block.is-spotlighted {
+      border-color: rgba(25, 210, 107, 0.18);
+      background:
+        linear-gradient(180deg, rgba(25, 210, 107, 0.08), rgba(25, 210, 107, 0.02)),
+        rgba(255, 255, 255, 0.01);
+      box-shadow:
+        inset 0 0 0 1px rgba(25, 210, 107, 0.12),
+        0 18px 36px rgba(7, 18, 12, 0.24);
+      transform: translateY(-2px);
+    }
+
+    .settings-block.is-spotlighted::after {
+      content: "";
+      position: absolute;
+      inset: 14px 18px auto;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(25, 210, 107, 0.55), rgba(25, 210, 107, 0));
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .settings-block-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .settings-block-head h2 {
+      margin-bottom: 8px;
+      font-size: 1.28rem;
+      letter-spacing: -0.03em;
+    }
+
+    .settings-block-head p:last-child,
+    .settings-hint,
+    .settings-note {
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    .settings-block-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .settings-stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .settings-block .form-row label {
+      margin-bottom: 8px;
+      color: #d9e2ea;
+      font-weight: 600;
+    }
+
+    .settings-block input,
+    .settings-block select,
+    .settings-block textarea {
+      border-color: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.025);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+    }
+
+    .settings-block input:focus,
+    .settings-block select:focus,
+    .settings-block textarea:focus {
+      border-color: rgba(25, 210, 107, 0.3);
+      box-shadow:
+        0 0 0 3px rgba(25, 210, 107, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.02);
+    }
+
+    .settings-check-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .settings-check {
+      display: grid;
+      gap: 6px;
+      padding: 16px 18px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.018);
+      transition:
+        border-color var(--transition-base),
+        background-color var(--transition-base);
+    }
+
+    .settings-check:hover {
+      border-color: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.028);
+    }
+
+    .settings-check label {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: #f1f6fa;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .settings-check input {
+      margin: 0;
+      accent-color: #19d26b;
+    }
+
+    .settings-note {
+      margin: 4px 0 0;
+      font-size: 0.9rem;
+    }
+
+    .settings-empty {
+      padding: 28px 24px 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    .settings-empty.hidden {
+      display: none;
+    }
+
+    .settings-submit-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    #settingsStatus {
+      margin: 0;
+      color: var(--text-secondary);
+    }
+
+    @media (max-width: 860px) {
+      .settings-search-shell {
+        min-width: 100%;
+      }
+
+      .settings-block-head,
+      .settings-submit-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
 </head>
 <body data-page="settings">
   <div class="app-shell app-layout dashboard-apex-layout">
@@ -17,75 +475,274 @@
         <div>
           <p class="eyebrow">Conta</p>
           <h1>Configuracoes</h1>
-          <p>Ajustes essenciais da operacao.</p>
+          <p>Ajustes do sistema para sua operacao com a Cota.</p>
         </div>
         <div class="app-topbar-actions">
           <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
         </div>
       </header>
 
-      <form id="settingsForm" class="section-stack">
-        <section class="insight-grid insight-grid-2">
-          <article class="card form-section-card">
-            <div class="filter-shell-head">
-              <div>
-                <p class="eyebrow">Empresa</p>
-                <h2>Identidade</h2>
+        <form id="settingsForm" class="settings-workspace">
+          <div class="settings-toolbar">
+            <div class="settings-toolbar-top">
+              <div class="settings-search-shell">
+                <div class="dashboard-search-shell">
+                  <label class="dashboard-search" for="settingsSearch">
+                    <i class="bx bx-search" aria-hidden="true"></i>
+                    <input id="settingsSearch" type="search" placeholder="Buscar configuracoes, regras, alertas ou preferencias..." />
+                    <span class="dashboard-search-shortcut">Ctrl K</span>
+                  </label>
+                  <div class="dashboard-search-results hidden" id="settingsSearchResults" role="listbox" aria-label="Resultados da busca"></div>
+                </div>
+                <div class="settings-search-caption">
+                  <strong>Spotlight de configuracoes</strong>
+                  <span>Abra secoes rapidamente por prazo, chat, alertas, exportacao ou contexto.</span>
+                </div>
+              </div>
+              <div class="settings-toolbar-copy">
+                <strong>Painel de preferencias</strong>
+                <span>Pesquise por termos como prazo, aprovacao, notificacao, exportacao ou chat.</span>
               </div>
             </div>
-            <div class="app-grid-2">
-              <div class="form-row">
-                <label for="setCompany">Empresa</label>
-                <input id="setCompany" type="text" name="company" required />
-              </div>
-              <div class="form-row">
-                <label for="setResponsible">Responsavel</label>
-                <input id="setResponsible" type="text" name="responsible" />
-              </div>
-            </div>
-          </article>
 
-          <article class="card form-section-card">
-            <div class="filter-shell-head">
-              <div>
-                <p class="eyebrow">Contato</p>
-                <h2>Canais</h2>
-              </div>
-            </div>
-            <div class="app-grid-2">
-              <div class="form-row">
-                <label for="setWhatsapp">WhatsApp</label>
-                <input id="setWhatsapp" type="text" name="whatsapp" />
-              </div>
-              <div class="form-row">
-                <label for="setEmail">E-mail</label>
-                <input id="setEmail" type="email" name="email" />
-              </div>
-            </div>
-            <div class="form-row">
-              <label for="setCity">Cidade-base</label>
-              <input id="setCity" type="text" name="city" />
-            </div>
-          </article>
-        </section>
-
-        <article class="card form-section-card">
-          <div class="filter-shell-head">
-            <div>
-              <p class="eyebrow">Alertas</p>
-              <h2>Preferencias</h2>
+            <div class="settings-anchor-row">
+              <a class="settings-anchor" href="#settingsIdentity">Identidade</a>
+              <a class="settings-anchor" href="#settingsOperations">Operacao</a>
+              <a class="settings-anchor" href="#settingsAutomation">Automacao</a>
+              <a class="settings-anchor" href="#settingsSystem">Sistema</a>
+              <a class="settings-anchor" href="#settingsSubmit">Salvar</a>
             </div>
           </div>
-          <label class="app-check" for="setNotifications">
-            <input id="setNotifications" type="checkbox" name="notifications" />
-            Receber notificacoes sobre atualizacoes de status dos pedidos
-          </label>
-          <div class="app-inline-actions">
-            <button class="btn btn-primary" type="submit">Salvar configuracoes</button>
+
+          <div class="settings-form-flow">
+            <section class="settings-block" id="settingsIdentity" data-settings-section data-settings-search="empresa identidade contato responsavel whatsapp email cidade estado">
+              <div class="settings-block-head">
+                <div>
+                  <p class="eyebrow">Empresa</p>
+                  <h2>Identidade e contato</h2>
+                  <p>Dados-base que aparecem nas interacoes, registros e resumos executivos da operacao.</p>
+                </div>
+                <span class="settings-block-tag">Identidade</span>
+              </div>
+              <div class="settings-stack">
+                <div class="app-grid-2">
+                  <div class="form-row">
+                    <label for="setCompany">Empresa</label>
+                    <input id="setCompany" type="text" name="company" required />
+                  </div>
+                  <div class="form-row">
+                    <label for="setResponsible">Responsavel</label>
+                    <input id="setResponsible" type="text" name="responsible" />
+                  </div>
+                </div>
+                <div class="app-grid-2">
+                  <div class="form-row">
+                    <label for="setWhatsapp">WhatsApp</label>
+                    <input id="setWhatsapp" type="text" name="whatsapp" />
+                  </div>
+                  <div class="form-row">
+                    <label for="setEmail">E-mail</label>
+                    <input id="setEmail" type="email" name="email" />
+                  </div>
+                </div>
+                <div class="app-grid-2">
+                  <div class="form-row">
+                    <label for="setCity">Cidade-base</label>
+                    <input id="setCity" type="text" name="city" />
+                  </div>
+                  <div class="form-row">
+                    <label for="setState">Estado</label>
+                    <input id="setState" type="text" name="state" placeholder="Ex.: SP" />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="settings-block" id="settingsOperations" data-settings-section data-settings-search="operacao compras prazo cotacao aprovacao limite fornecedores canal regiao moeda medidas">
+              <div class="settings-block-head">
+                <div>
+                  <p class="eyebrow">Operacao</p>
+                  <h2>Regras de compra</h2>
+                  <p>Parametros que orientam o comportamento da Cota na montagem de pedidos e priorizacao da fila.</p>
+                </div>
+                <span class="settings-block-tag">Operacao</span>
+              </div>
+              <div class="settings-stack">
+                <div class="app-grid-2">
+                  <div class="form-row">
+                    <label for="setDefaultDeadline">Prazo padrao de cotacao</label>
+                    <select id="setDefaultDeadline" name="defaultDeadline">
+                      <option value="24h">24 horas</option>
+                      <option value="48h">48 horas</option>
+                      <option value="72h">72 horas</option>
+                      <option value="5d">5 dias</option>
+                    </select>
+                  </div>
+                  <div class="form-row">
+                    <label for="setApprovalLimit">Limite de aprovacao manual</label>
+                    <input id="setApprovalLimit" type="text" name="approvalLimit" placeholder="Ex.: R$ 15.000" />
+                  </div>
+                </div>
+                <div class="app-grid-2">
+                  <div class="form-row">
+                    <label for="setDefaultChannel">Canal preferencial com fornecedores</label>
+                    <select id="setDefaultChannel" name="defaultChannel">
+                      <option value="whatsapp">WhatsApp</option>
+                      <option value="email">E-mail</option>
+                      <option value="telefone">Telefone</option>
+                    </select>
+                  </div>
+                  <div class="form-row">
+                    <label for="setPurchaseRegion">Regiao principal de compra</label>
+                    <input id="setPurchaseRegion" type="text" name="purchaseRegion" placeholder="Ex.: Interior de SP" />
+                  </div>
+                </div>
+                <div class="app-grid-2">
+                  <div class="form-row">
+                    <label for="setCurrency">Moeda padrao</label>
+                    <select id="setCurrency" name="currency">
+                      <option value="BRL">Real brasileiro (BRL)</option>
+                      <option value="USD">Dolar americano (USD)</option>
+                    </select>
+                  </div>
+                  <div class="form-row">
+                    <label for="setMeasureStandard">Padrao de medidas</label>
+                    <select id="setMeasureStandard" name="measureStandard">
+                      <option value="metric">Metrico</option>
+                      <option value="mixed">Misto</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="settings-block" id="settingsAutomation" data-settings-section data-settings-search="automacao notificacoes alertas materiais projeto tracking resumo semanal digest chat">
+              <div class="settings-block-head">
+                <div>
+                  <p class="eyebrow">Automacao</p>
+                  <h2>Comportamento da Cota</h2>
+                  <p>Defina quanto o sistema automatiza no acompanhamento dos projetos e pedidos salvos.</p>
+                </div>
+                <span class="settings-block-tag">Automacao</span>
+              </div>
+              <div class="settings-check-grid">
+                <div class="settings-check">
+                  <label for="setNotifications">
+                    <input id="setNotifications" type="checkbox" name="notifications" />
+                    Receber notificacoes sobre atualizacoes de status dos pedidos
+                  </label>
+                  <p class="settings-note">Avisos relevantes sobre fila, resposta de fornecedor e mudancas de fase.</p>
+                </div>
+                <div class="settings-check">
+                  <label for="setMaterialAlerts">
+                    <input id="setMaterialAlerts" type="checkbox" name="materialAlerts" />
+                    Alertar quando houver materiais pendentes ou sem consolidacao de custo
+                  </label>
+                  <p class="settings-note">Util para identificar rapidamente projetos salvos que ainda exigem atencao operacional.</p>
+                </div>
+                <div class="settings-check">
+                  <label for="setAutoProjectTracking">
+                    <input id="setAutoProjectTracking" type="checkbox" name="autoProjectTracking" />
+                    Atualizar automaticamente o acompanhamento dos projetos salvos do chat
+                  </label>
+                  <p class="settings-note">Mantem fase, materiais e historico sincronizados quando houver nova interacao com a Cota.</p>
+                </div>
+                <div class="settings-check">
+                  <label for="setWeeklyDigest">
+                    <input id="setWeeklyDigest" type="checkbox" name="weeklyDigest" />
+                    Receber resumo semanal da operacao
+                  </label>
+                  <p class="settings-note">Uma leitura consolidada da semana para acompanhar carteira, custos e pendencias sem ruido.</p>
+                </div>
+              </div>
+            </section>
+
+            <section class="settings-block" id="settingsSystem" data-settings-section data-settings-search="sistema sessao retencao historico exportacao compartilhamento acesso equipe compacto visualizacao contexto">
+              <div class="settings-block-head">
+                <div>
+                  <p class="eyebrow">Sistema</p>
+                  <h2>Experiencia, seguranca e dados</h2>
+                  <p>Preferencias para uso do painel, compartilhamento interno e retencao de historico.</p>
+                </div>
+                <span class="settings-block-tag">Sistema</span>
+              </div>
+              <div class="settings-stack">
+                <div class="app-grid-2">
+                  <div class="form-row">
+                    <label for="setSessionPolicy">Politica de sessao</label>
+                    <select id="setSessionPolicy" name="sessionPolicy">
+                      <option value="8h">Encerrar apos 8 horas</option>
+                      <option value="24h">Encerrar apos 24 horas</option>
+                      <option value="7d">Manter por 7 dias</option>
+                    </select>
+                  </div>
+                  <div class="form-row">
+                    <label for="setHistoryRetention">Retencao de historico</label>
+                    <select id="setHistoryRetention" name="historyRetention">
+                      <option value="90d">90 dias</option>
+                      <option value="180d">180 dias</option>
+                      <option value="365d">365 dias</option>
+                      <option value="forever">Indefinido</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="app-grid-2">
+                  <div class="form-row">
+                    <label for="setExportFormat">Formato padrao de exportacao</label>
+                    <select id="setExportFormat" name="exportFormat">
+                      <option value="xlsx">Planilha (.xlsx)</option>
+                      <option value="csv">CSV</option>
+                      <option value="pdf">PDF</option>
+                    </select>
+                  </div>
+                  <div class="form-row">
+                    <label for="setTeamAccess">Compartilhamento interno</label>
+                    <select id="setTeamAccess" name="teamAccess">
+                      <option value="restrito">Restrito</option>
+                      <option value="time">Time de compras</option>
+                      <option value="empresa">Toda a empresa</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="settings-check-grid">
+                  <div class="settings-check">
+                    <label for="setCompactView">
+                      <input id="setCompactView" type="checkbox" name="compactView" />
+                      Usar visualizacao compacta por padrao
+                    </label>
+                    <p class="settings-note">Boa escolha para times com alto volume operacional e acompanhamento intenso da fila.</p>
+                  </div>
+                  <div class="settings-check">
+                    <label for="setOpenChatContext">
+                      <input id="setOpenChatContext" type="checkbox" name="openChatContext" />
+                      Sempre abrir a conversa da Cota com o contexto do projeto ativo
+                    </label>
+                    <p class="settings-note">Melhora a retomada de projetos salvos e reduz perda de contexto quando o time volta ao chat.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="settings-block" id="settingsSubmit" data-settings-section data-settings-search="salvar aplicar configuracoes preferencias">
+              <div class="settings-submit-row">
+                <div>
+                  <p class="eyebrow">Salvar</p>
+                  <h2>Aplicar configuracoes</h2>
+                  <p class="settings-hint">As preferencias ficam salvas localmente nesta conta para manter consistencia entre telas, projetos e retomadas da Cota.</p>
+                </div>
+                <div class="app-inline-actions">
+                  <button class="btn btn-primary" type="submit">Salvar configuracoes</button>
+                  <p id="settingsStatus" class="muted"></p>
+                </div>
+              </div>
+            </section>
           </div>
-          <p id="settingsStatus" class="muted"></p>
-        </article>
-      </form>
+
+          <div class="settings-empty hidden" id="settingsSearchEmpty">
+            Nenhuma configuracao encontrada para essa busca. Tente termos como "prazo", "chat", "alerta" ou "exportacao".
+          </div>
+        </form>
+      </div>
     </main>
   </div>
   <script src="./assets/js/app.js"></script>

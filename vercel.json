@@ -1,4 +1,35 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "node scripts/write-runtime-config.mjs && node scripts/build-frontend-dist.mjs",
-  "outputDirectory": "frontend-dist"
+  "outputDirectory": "frontend-dist",
+  "cleanUrls": false,
+  "trailingSlash": false,
+  "headers": [
+    {
+      "source": "/assets/js/runtime-config.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, proxy-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        }
+      ]
+    }
+  ]
 }

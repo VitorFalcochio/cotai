@@ -114,7 +114,7 @@ function getRequestAttentionMeta(row) {
 
 function renderRows(rows) {
   if (!rows.length) {
-    return '<tr><td colspan="6" class="app-empty">Nenhum pedido encontrado com os filtros atuais.</td></tr>';
+    return '<tr><td colspan="6" class="app-empty">Nenhum pedido encontrado. Ajuste os filtros ou crie uma nova cotacao pela Cota para iniciar a fila.</td></tr>';
   }
 
   return rows

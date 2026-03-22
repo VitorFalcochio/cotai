@@ -1,0 +1,13 @@
+{
+  "name": "cotai-frontend-static",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": "20.x"
+  },
+  "scripts": {
+    "build": "node scripts/write-runtime-config.mjs && node scripts/build-frontend-dist.mjs",
+    "vercel-build": "node scripts/write-runtime-config.mjs && node scripts/build-frontend-dist.mjs"
+  }
+}
