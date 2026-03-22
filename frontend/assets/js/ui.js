@@ -692,7 +692,20 @@ export function initSidebar() {
 export function initLandingMotion() {
   const header = document.querySelector(".header");
   const animatedSections = [...document.querySelectorAll("[data-animate]")];
+  const heroShell = document.querySelector(".hero-shell");
+  const parallaxNodes = [...document.querySelectorAll("[data-parallax]")];
+  const scrollZoomNodes = [...document.querySelectorAll("[data-scroll-zoom]")];
+  const storyDrives = [...document.querySelectorAll("[data-story-drive]")];
+  const editorialDrives = [...document.querySelectorAll("[data-editorial-drive]")];
+  const sceneSections = [...document.querySelectorAll("[data-scene-section]")];
+  const maskedHeadings = [...document.querySelectorAll(
+    ".hero-copy h1, .ai-copy h2, .light-title, .story-screen h3, .story-step-card h3, .section-title, .future-title, .final-cta-shell h2"
+  )];
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  maskedHeadings.forEach((heading) => {
+    heading.setAttribute("data-mask-reveal", "");
+  });
 
   if (header) {
     let ticking = false;
@@ -708,6 +721,184 @@ export function initLandingMotion() {
       ticking = true;
       window.requestAnimationFrame(updateHeaderState);
     }, { passive: true });
+  }
+
+  if (heroShell && !reduceMotion) {
+    const updateHeroSpotlight = (event) => {
+      const rect = heroShell.getBoundingClientRect();
+      const relativeX = ((event.clientX - rect.left) / rect.width) * 100;
+      const relativeY = ((event.clientY - rect.top) / rect.height) * 100;
+
+      heroShell.style.setProperty("--hero-spotlight-x", `${Math.max(0, Math.min(100, relativeX)).toFixed(2)}%`);
+      heroShell.style.setProperty("--hero-spotlight-y", `${Math.max(0, Math.min(100, relativeY)).toFixed(2)}%`);
+    };
+
+    const resetHeroSpotlight = () => {
+      heroShell.style.setProperty("--hero-spotlight-x", "50%");
+      heroShell.style.setProperty("--hero-spotlight-y", "24%");
+    };
+
+    heroShell.addEventListener("pointermove", updateHeroSpotlight, { passive: true });
+    heroShell.addEventListener("pointerleave", resetHeroSpotlight, { passive: true });
+  }
+
+  if (parallaxNodes.length && !reduceMotion) {
+    let parallaxTicking = false;
+
+    const updateParallax = () => {
+      const viewportHeight = window.innerHeight || 1;
+
+      parallaxNodes.forEach((node) => {
+        const strength = Number(node.getAttribute("data-parallax")) || 10;
+        const rect = node.getBoundingClientRect();
+        const progress = ((rect.top + rect.height * 0.5) - viewportHeight * 0.5) / viewportHeight;
+        const offset = Math.max(-1, Math.min(1, progress)) * strength;
+        const rotation = Math.max(-1, Math.min(1, progress)) * -1.5;
+        node.style.transform = `translate3d(0, ${offset.toFixed(2)}px, 0) rotate(${rotation.toFixed(2)}deg)`;
+      });
+
+      parallaxTicking = false;
+    };
+
+    updateParallax();
+
+    window.addEventListener("scroll", () => {
+      if (parallaxTicking) return;
+      parallaxTicking = true;
+      window.requestAnimationFrame(updateParallax);
+    }, { passive: true });
+
+    window.addEventListener("resize", updateParallax, { passive: true });
+  }
+
+  if (scrollZoomNodes.length && !reduceMotion) {
+    let scrollZoomTicking = false;
+
+    const updateScrollZoom = () => {
+      const viewportHeight = window.innerHeight || 1;
+
+      scrollZoomNodes.forEach((node) => {
+        const rect = node.getBoundingClientRect();
+        const center = rect.top + rect.height * 0.5;
+        const distanceFromCenter = (center - viewportHeight * 0.5) / viewportHeight;
+        const clamped = Math.max(-1, Math.min(1, distanceFromCenter));
+        const scaleOffset = (1 - Math.abs(clamped)) * 0.055;
+        const translateY = clamped * 34;
+        const opacity = 0.52 + (1 - Math.abs(clamped)) * 0.48;
+
+        node.style.setProperty("--scroll-zoom-scale-offset", scaleOffset.toFixed(4));
+        node.style.setProperty("--scroll-zoom-y", `${translateY.toFixed(2)}px`);
+        node.style.setProperty("--scroll-zoom-opacity", opacity.toFixed(3));
+      });
+
+      scrollZoomTicking = false;
+    };
+
+    updateScrollZoom();
+
+    window.addEventListener("scroll", () => {
+      if (scrollZoomTicking) return;
+      scrollZoomTicking = true;
+      window.requestAnimationFrame(updateScrollZoom);
+    }, { passive: true });
+
+    window.addEventListener("resize", updateScrollZoom, { passive: true });
+  }
+
+  if (storyDrives.length) {
+    storyDrives.forEach((drive) => {
+      const steps = [...drive.querySelectorAll("[data-story-step]")];
+      if (!steps.length) return;
+
+      const setActiveStep = (index) => {
+        drive.setAttribute("data-active-step", String(index));
+        steps.forEach((step, stepIndex) => {
+          step.classList.toggle("is-active", stepIndex === index);
+        });
+      };
+
+      setActiveStep(0);
+
+      if (reduceMotion || !("IntersectionObserver" in window)) {
+        return;
+      }
+
+      const storyObserver = new IntersectionObserver((entries) => {
+        const visibleEntries = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+        if (!visibleEntries.length) return;
+
+        const activeIndex = Number(visibleEntries[0].target.getAttribute("data-story-step")) || 0;
+        setActiveStep(activeIndex);
+      }, {
+        threshold: [0.35, 0.55, 0.75],
+        rootMargin: "-10% 0px -25% 0px"
+      });
+
+      steps.forEach((step) => storyObserver.observe(step));
+    });
+  }
+
+  if (editorialDrives.length) {
+    editorialDrives.forEach((drive) => {
+      const steps = [...drive.querySelectorAll("[data-editorial-step]")];
+      if (!steps.length) return;
+
+      const setActiveSlide = (index) => {
+        drive.setAttribute("data-active-slide", String(index));
+      };
+
+      setActiveSlide(0);
+
+      if (reduceMotion || !("IntersectionObserver" in window)) {
+        return;
+      }
+
+      const editorialObserver = new IntersectionObserver((entries) => {
+        const visibleEntries = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+        if (!visibleEntries.length) return;
+
+        const activeIndex = Number(visibleEntries[0].target.getAttribute("data-editorial-step")) || 0;
+        setActiveSlide(activeIndex);
+      }, {
+        threshold: [0.3, 0.55, 0.8],
+        rootMargin: "-8% 0px -12% 0px"
+      });
+
+      steps.forEach((step) => editorialObserver.observe(step));
+    });
+  }
+
+  if (sceneSections.length) {
+    const setScene = (scene) => {
+      if (!document.body?.classList.contains("landing-page")) return;
+      document.body.dataset.scene = scene || "hero";
+    };
+
+    setScene(document.body?.dataset.scene || "hero");
+
+    if (!reduceMotion && "IntersectionObserver" in window) {
+      const sceneObserver = new IntersectionObserver((entries) => {
+        const visibleEntries = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+        if (!visibleEntries.length) return;
+
+        const activeScene = visibleEntries[0].target.getAttribute("data-scene-section") || "hero";
+        setScene(activeScene);
+      }, {
+        threshold: [0.2, 0.4, 0.65],
+        rootMargin: "-12% 0px -18% 0px"
+      });
+
+      sceneSections.forEach((section) => sceneObserver.observe(section));
+    }
   }
 
   if (!animatedSections.length) return;

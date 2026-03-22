@@ -18,6 +18,15 @@ class SupplierReviewPayload(BaseModel):
     comment: str = Field(default="", max_length=1000)
 
 
+class ProjectExecutionEventPayload(BaseModel):
+    event_type: str = Field(min_length=3, max_length=50)
+    material_name: str | None = Field(default=None, max_length=200)
+    quantity: float | None = Field(default=None, ge=0)
+    stage_label: str | None = Field(default=None, max_length=120)
+    supplier_name: str | None = Field(default=None, max_length=160)
+    note: str | None = Field(default=None, max_length=500)
+
+
 @router.get("/{request_id}/status")
 def get_request_status(
     request_id: str,
@@ -51,5 +60,22 @@ def submit_supplier_review(
 ) -> dict:
     try:
         return quote_service.submit_supplier_review(request_id=request_id, actor=actor, payload=payload.model_dump())
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/{request_id}/execution-event")
+def register_project_execution_event(
+    request_id: str,
+    payload: ProjectExecutionEventPayload,
+    actor: dict = Depends(get_current_actor),
+    quote_service: QuoteService = Depends(get_quote_service),
+) -> dict:
+    try:
+        return quote_service.register_project_execution_event(
+            request_id=request_id,
+            actor=actor,
+            payload=payload.model_dump(),
+        )
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=400, detail=str(exc)) from exc

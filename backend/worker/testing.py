@@ -45,6 +45,7 @@ class InMemorySupabase:
     projects: dict[str, dict[str, Any]] = field(default_factory=dict)
     project_materials: list[dict[str, Any]] = field(default_factory=list)
     price_history: list[dict[str, Any]] = field(default_factory=list)
+    project_events: list[dict[str, Any]] = field(default_factory=list)
     _request_counter: int = 0
     _quote_counter: int = 0
     _thread_counter: int = 0
@@ -558,6 +559,9 @@ class InMemorySupabase:
             "results": results,
             "items": self.get_request_items(request_id),
             "comparison": self.build_quote_comparison(results),
+            "project_materials": self.get_project_materials(request_row.get("project_id")),
+            "price_history": self.get_price_history(request_id=request_id),
+            "project_events": self.get_project_events(request_row.get("project_id")),
         }
 
     def table_exists(self, table: str) -> bool:
@@ -675,6 +679,140 @@ class InMemorySupabase:
 
     def record_price_history(self, rows: list[dict[str, Any]]) -> None:
         self.price_history.extend(rows)
+
+    def get_project_materials(self, project_id: str | None) -> list[dict[str, Any]]:
+        if not project_id:
+            return []
+        return [row for row in self.project_materials if row.get("project_id") == project_id]
+
+    def get_price_history(self, *, request_id: str | None = None, limit: int = 100) -> list[dict[str, Any]]:
+        if not request_id:
+            return []
+        rows = [row for row in self.price_history if row.get("request_id") == request_id]
+        return rows[:limit]
+
+    def get_project_events(self, project_id: str | None, limit: int = 50) -> list[dict[str, Any]]:
+        if not project_id:
+            return []
+        rows = [row for row in self.project_events if row.get("project_id") == project_id]
+        return rows[:limit]
+
+    def record_project_event(
+        self,
+        *,
+        project_id: str,
+        request_id: str | None,
+        created_by_user_id: str | None,
+        event_type: str,
+        material_name: str | None = None,
+        quantity: float | None = None,
+        stage_label: str | None = None,
+        supplier_name: str | None = None,
+        note: str | None = None,
+        impact_level: str = "info",
+    ) -> dict[str, Any] | None:
+        row = {
+            "id": f"project-event-{len(self.project_events) + 1}",
+            "project_id": project_id,
+            "request_id": request_id,
+            "event_type": event_type,
+            "material_name": material_name,
+            "quantity": quantity,
+            "stage_label": stage_label,
+            "supplier_name": supplier_name,
+            "note": note,
+            "impact_level": impact_level,
+            "created_by_user_id": created_by_user_id,
+        }
+        self.project_events.append(row)
+        return row
+
+    def apply_project_execution_event(
+        self,
+        *,
+        request_id: str,
+        actor: dict[str, Any],
+        event_type: str,
+        material_name: str | None = None,
+        quantity: float | None = None,
+        stage_label: str | None = None,
+        supplier_name: str | None = None,
+        note: str | None = None,
+    ) -> dict[str, Any]:
+        request_row = self.get_request_by_id(request_id)
+        if not request_row:
+            raise RuntimeError("Request not found.")
+        project_id = request_row.get("project_id")
+        if not project_id:
+            raise RuntimeError("Este pedido ainda nao esta vinculado a um projeto.")
+
+        material_row = None
+        if material_name:
+            material_row = next(
+                (
+                    row
+                    for row in self.project_materials
+                    if row.get("project_id") == project_id and row.get("material_name") == material_name
+                ),
+                None,
+            )
+        qty = float(quantity or 0)
+        if event_type in {"material_received", "material_consumed", "purchase_executed"} and material_name and not material_row:
+            material_row = {
+                "project_id": project_id,
+                "request_id": request_id,
+                "material_name": material_name,
+                "estimated_qty": quantity,
+                "purchased_qty": 0.0,
+                "received_qty": 0.0,
+                "consumed_qty": 0.0,
+                "pending_qty": quantity,
+                "status": "pending",
+            }
+            self.project_materials.append(material_row)
+
+        if material_row:
+            material_row["purchased_qty"] = float(material_row.get("purchased_qty") or 0)
+            material_row["received_qty"] = float(material_row.get("received_qty") or 0)
+            material_row["consumed_qty"] = float(material_row.get("consumed_qty") or 0)
+            material_row["pending_qty"] = float(material_row.get("pending_qty") or 0)
+            if event_type == "purchase_executed":
+                material_row["purchased_qty"] += qty
+                material_row["pending_qty"] = max(0.0, material_row["pending_qty"] - qty)
+                material_row["status"] = "purchased" if material_row["pending_qty"] <= 0 else "quoted"
+            elif event_type == "material_received":
+                material_row["received_qty"] += qty
+                material_row["status"] = "received"
+            elif event_type == "material_consumed":
+                material_row["consumed_qty"] += qty
+                material_row["status"] = "in_use"
+            elif event_type == "supplier_delay":
+                material_row["status"] = "delayed"
+            elif event_type == "stage_completed":
+                material_row["status"] = "done"
+            material_row["supplier_name"] = supplier_name or material_row.get("supplier_name")
+            material_row["last_event_type"] = event_type
+            material_row["last_event_note"] = note
+
+        if event_type == "stage_completed":
+            project = self.projects.get(project_id)
+            if project:
+                project["stage"] = stage_label or "execution"
+
+        impact_level = "warning" if event_type == "supplier_delay" else "success" if event_type == "stage_completed" else "info"
+        event = self.record_project_event(
+            project_id=project_id,
+            request_id=request_id,
+            created_by_user_id=actor.get("user", {}).get("id"),
+            event_type=event_type,
+            material_name=material_name,
+            quantity=quantity,
+            stage_label=stage_label,
+            supplier_name=supplier_name,
+            note=note,
+            impact_level=impact_level,
+        )
+        return {"ok": True, "event": event, "message": "Evento operacional registrado na obra."}
 
     def create_admin_audit_log(
         self,

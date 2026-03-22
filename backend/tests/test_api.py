@@ -33,7 +33,11 @@ class ApiTests(unittest.TestCase):
 
         def override_chat_service():
             parser = RequestParserService(self.ai)
-            return ChatService(self.supabase, parser)
+            return ChatService(
+                self.supabase,
+                parser,
+                ConstructionModeService(load_settings(), FakeConstructionSearchService()),
+            )
 
         def override_quote_service():
             return QuoteService(self.supabase)
@@ -241,7 +245,9 @@ class ApiTests(unittest.TestCase):
                 return "Sem itens", "empty"
 
         app.dependency_overrides[deps.get_chat_service] = lambda: ChatService(
-            self.supabase, RequestParserService(EmptyAIService())
+            self.supabase,
+            RequestParserService(EmptyAIService()),
+            ConstructionModeService(load_settings(), FakeConstructionSearchService()),
         )
         response = self.client.post(
             "/chat/message",
@@ -251,7 +257,124 @@ class ApiTests(unittest.TestCase):
         payload = response.json()
         self.assertEqual(payload["thread"]["status"], "DRAFT")
         self.assertEqual(payload["detected_items"], [])
-        self.assertIn("Nao consegui identificar", payload["messages"][-1]["content"])
+        self.assertIn("Posso te ajudar a planejar a obra", payload["messages"][-1]["content"])
+
+    def test_chat_message_for_construction_scope_returns_guided_construction_answer(self) -> None:
+        class EmptyAIService:
+            def extract_items(self, text: str):
+                return [], "empty"
+
+            def build_confirmation_message(self, items):
+                return "Sem itens", "empty"
+
+        app.dependency_overrides[deps.get_chat_service] = lambda: ChatService(
+            self.supabase,
+            RequestParserService(EmptyAIService()),
+            ConstructionModeService(load_settings(), FakeConstructionSearchService()),
+        )
+        response = self.client.post(
+            "/chat/message",
+            json={"message": "Como devo comecar uma casa de 120 m2?"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(payload["thread"]["status"], "DRAFT")
+        self.assertEqual(payload["detected_items"], [])
+        self.assertIn("IA de construcao civil", payload["messages"][-1]["content"])
+        self.assertIn("Montei a leitura inicial para casa de 120.0 m2.", payload["messages"][-1]["content"])
+        self.assertIn("construction_preview", payload["messages"][-1]["metadata"])
+        self.assertIn("brain", payload["messages"][-1]["metadata"]["construction_preview"])
+
+    def test_chat_message_keeps_construction_context_for_refinement_follow_up(self) -> None:
+        class EmptyAIService:
+            def extract_items(self, text: str):
+                return [], "empty"
+
+            def build_confirmation_message(self, items):
+                return "Sem itens", "empty"
+
+        app.dependency_overrides[deps.get_chat_service] = lambda: ChatService(
+            self.supabase,
+            RequestParserService(EmptyAIService()),
+            ConstructionModeService(load_settings(), FakeConstructionSearchService()),
+        )
+        first = self.client.post(
+            "/chat/message",
+            json={"message": "Como devo comecar uma casa de 120 m2?"},
+        ).json()
+
+        follow_up = self.client.post(
+            "/chat/message",
+            json={"thread_id": first["thread"]["id"], "message": "Em Campinas com radier"},
+        )
+
+        self.assertEqual(follow_up.status_code, 200)
+        payload = follow_up.json()
+        self.assertIn("Campinas", payload["messages"][-1]["content"])
+        self.assertIn("radier", payload["messages"][-1]["content"].lower())
+        self.assertTrue(payload["conversation_memory"])
+        self.assertTrue(payload["notifications"])
+
+    def test_chat_message_can_transform_construction_context_into_procurement_draft(self) -> None:
+        class EmptyAIService:
+            def extract_items(self, text: str):
+                return [], "empty"
+
+            def build_confirmation_message(self, items):
+                return "Sem itens", "empty"
+
+        app.dependency_overrides[deps.get_chat_service] = lambda: ChatService(
+            self.supabase,
+            RequestParserService(EmptyAIService()),
+            ConstructionModeService(load_settings(), FakeConstructionSearchService()),
+        )
+        first = self.client.post(
+            "/chat/message",
+            json={"message": "Como devo comecar uma casa de 120 m2 em Campinas com radier?"},
+        ).json()
+
+        second = self.client.post(
+            "/chat/message",
+            json={"thread_id": first["thread"]["id"], "message": "Monte a lista de compra da fundacao"},
+        )
+
+        self.assertEqual(second.status_code, 200)
+        payload = second.json()
+        self.assertEqual(payload["thread"]["status"], "AWAITING_CONFIRMATION")
+        self.assertTrue(payload["detected_items"])
+        self.assertIn("lista inicial de compra", payload["messages"][-1]["content"].lower())
+        self.assertIn("fundacao", payload["messages"][-1]["content"].lower())
+        self.assertIn("construction_preview", payload["messages"][-1]["metadata"])
+        self.assertIn("brain", payload["messages"][-1]["metadata"]["construction_preview"])
+
+    def test_chat_message_surfaces_conflict_when_core_context_changes(self) -> None:
+        class EmptyAIService:
+            def extract_items(self, text: str):
+                return [], "empty"
+
+            def build_confirmation_message(self, items):
+                return "Sem itens", "empty"
+
+        app.dependency_overrides[deps.get_chat_service] = lambda: ChatService(
+            self.supabase,
+            RequestParserService(EmptyAIService()),
+            ConstructionModeService(load_settings(), FakeConstructionSearchService()),
+        )
+        first = self.client.post(
+            "/chat/message",
+            json={"message": "Como devo comecar uma casa de 120 m2 em Campinas?"},
+        ).json()
+
+        second = self.client.post(
+            "/chat/message",
+            json={"thread_id": first["thread"]["id"], "message": "Agora considere 90 m2 em Rio Preto"},
+        )
+
+        self.assertEqual(second.status_code, 200)
+        payload = second.json()
+        self.assertTrue(payload["conversation_memory"].get("conflicts"))
+        self.assertTrue(any("antes" in item["message"] for item in payload["notifications"]))
 
     def test_confirm_thread_is_idempotent_after_request_creation(self) -> None:
         first = self.client.post(
@@ -309,6 +432,35 @@ class ApiTests(unittest.TestCase):
         payload = response.json()
         self.assertEqual(payload["request_id"], request_row["id"])
         self.assertEqual(payload["status"], "PENDING_QUOTE")
+        self.assertIn("project_materials", payload)
+
+    def test_request_execution_event_endpoint_updates_project_state(self) -> None:
+        thread = self.supabase.create_chat_thread(user_id="user-1", company_id="company-1", title="Teste")
+        request_row = self.supabase.create_internal_request(
+            company_id="company-1",
+            user_id="user-1",
+            thread_id=thread["id"],
+            customer_name="Cotai Teste",
+            notes="teste",
+            items=[{"name": "cimento", "normalized_name": "cimento", "quantity": 20.0, "unit": "saco", "raw": "20 sacos cimento"}],
+        )
+
+        event = self.client.post(
+            f"/requests/{request_row['id']}/execution-event",
+            json={
+                "event_type": "material_received",
+                "material_name": "cimento",
+                "quantity": 10,
+                "note": "Primeira carga recebida na obra",
+            },
+        )
+
+        self.assertEqual(event.status_code, 200)
+        status_response = self.client.get(f"/requests/{request_row['id']}/status")
+        self.assertEqual(status_response.status_code, 200)
+        payload = status_response.json()
+        self.assertTrue(payload["project_events"])
+        self.assertEqual(payload["project_events"][0]["event_type"], "material_received")
 
     def test_ops_overview_endpoint(self) -> None:
         response = self.client.get("/ops/overview")
@@ -364,6 +516,21 @@ class ApiTests(unittest.TestCase):
         self.assertTrue(procurement_payload["phase_packages"])
         self.assertEqual(procurement_payload["selected_phase_key"], "foundation")
         self.assertTrue(procurement_payload["live_quotes"])
+
+    def test_chat_keeps_project_statement_in_construction_mode_even_with_item_extraction_noise(self) -> None:
+        response = self.client.post(
+            "/chat/message",
+            json={"message": "Quero construir uma casa com 600m2"},
+        )
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        assistant_messages = [row for row in payload["messages"] if row["role"] == "assistant"]
+        self.assertTrue(assistant_messages)
+        latest = assistant_messages[-1]
+        self.assertEqual(latest["metadata"]["kind"], "construction_guidance")
+        self.assertIn("IA de construcao civil", latest["content"])
+        self.assertEqual(payload["thread"]["status"], "DRAFT")
+        self.assertTrue(payload["conversation_memory"])
 
     def test_telemetry_endpoint_exposes_recent_cota_flow(self) -> None:
         self.client.post("/modo-construcao/analisar", json={"query": "Quero construir uma casa de 90 m2 em Campinas"})

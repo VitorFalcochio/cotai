@@ -25,6 +25,7 @@
         <div class="dashboard-topbar-actions">
           <a class="btn btn-primary" href="new-request.html"><i class="bx bx-plus" aria-hidden="true"></i><span>Nova cotacao</span></a>
           <a class="btn btn-ghost hidden" id="adminShortcut" href="admin-dashboard.html">Admin</a>
+          <button class="icon-btn dashboard-customize-trigger" id="dashboardCustomizeToggle" type="button" aria-label="Personalizar painel" aria-expanded="false" aria-haspopup="dialog"><i class="bx bx-palette" aria-hidden="true"></i></button>
           <button class="icon-btn dashboard-bell" id="dashboardNotificationsToggle" type="button" aria-label="Notificacoes" aria-expanded="false" aria-haspopup="dialog"><i class="bx bx-bell" aria-hidden="true"></i><span class="dashboard-bell-dot" id="dashboardBellDot"></span></button>
           <button class="dashboard-user-chip" id="dashboardLogoutButton" type="button" aria-label="Sair"><span id="dashboardUserChip"></span></button>
         </div>
@@ -42,6 +43,51 @@
         </div>
         <div class="dashboard-notifications-list" id="dashboardNotificationsList"></div>
       </div>
+
+      <section class="dashboard-customize-panel hidden" id="dashboardCustomizePanel" role="dialog" aria-label="Personalizar painel">
+        <div class="dashboard-customize-head">
+          <div>
+            <strong>Personalizar</strong>
+            <span>Cor, fundo da Cota e ritmo visual do painel.</span>
+          </div>
+          <button class="icon-btn dashboard-customize-close" id="dashboardCustomizeClose" type="button" aria-label="Fechar personalizacao"><i class="bx bx-x" aria-hidden="true"></i></button>
+        </div>
+        <section class="dashboard-customize-section">
+          <h3>Tema</h3>
+          <div class="dashboard-customize-grid theme-grid">
+            <button class="dashboard-customize-option" type="button" data-theme-choice="system"><i class="bx bx-laptop" aria-hidden="true"></i><span>Sistema</span></button>
+            <button class="dashboard-customize-option" type="button" data-theme-choice="dark"><i class="bx bx-moon" aria-hidden="true"></i><span>Escuro</span></button>
+            <button class="dashboard-customize-option" type="button" data-theme-choice="light"><i class="bx bx-sun" aria-hidden="true"></i><span>Claro</span></button>
+          </div>
+        </section>
+        <section class="dashboard-customize-section">
+          <h3>Cor</h3>
+          <div class="dashboard-customize-grid color-grid">
+            <button class="dashboard-customize-option" type="button" data-accent-choice="emerald" data-swatch="#19d26b"><span class="swatch" aria-hidden="true"></span><span>Verde</span></button>
+            <button class="dashboard-customize-option" type="button" data-accent-choice="blue" data-swatch="#2f8cff"><span class="swatch" aria-hidden="true"></span><span>Azul</span></button>
+            <button class="dashboard-customize-option" type="button" data-accent-choice="violet" data-swatch="#7c5cff"><span class="swatch" aria-hidden="true"></span><span>Violeta</span></button>
+            <button class="dashboard-customize-option" type="button" data-accent-choice="rose" data-swatch="#e14f9f"><span class="swatch" aria-hidden="true"></span><span>Rose</span></button>
+            <button class="dashboard-customize-option" type="button" data-accent-choice="orange" data-swatch="#f97316"><span class="swatch" aria-hidden="true"></span><span>Laranja</span></button>
+            <button class="dashboard-customize-option" type="button" data-accent-choice="slate" data-swatch="#94a3b8"><span class="swatch" aria-hidden="true"></span><span>Slate</span></button>
+          </div>
+        </section>
+        <section class="dashboard-customize-section">
+          <h3>Fundo da Cota</h3>
+          <div class="dashboard-customize-grid theme-grid">
+            <button class="dashboard-customize-option" type="button" data-chat-background-choice="glow"><i class="bx bx-bot" aria-hidden="true"></i><span>Glow</span></button>
+            <button class="dashboard-customize-option" type="button" data-chat-background-choice="grid"><i class="bx bx-grid-alt" aria-hidden="true"></i><span>Grade</span></button>
+            <button class="dashboard-customize-option" type="button" data-chat-background-choice="plain"><i class="bx bx-minus" aria-hidden="true"></i><span>Limpo</span></button>
+          </div>
+        </section>
+        <section class="dashboard-customize-section">
+          <h3>Densidade</h3>
+          <div class="dashboard-customize-grid density-grid">
+            <button class="dashboard-customize-option" type="button" data-density-choice="compact"><i class="bx bx-collapse-alt" aria-hidden="true"></i><span>Compacta</span></button>
+            <button class="dashboard-customize-option" type="button" data-density-choice="comfortable"><i class="bx bx-layout" aria-hidden="true"></i><span>Confortavel</span></button>
+            <button class="dashboard-customize-option" type="button" data-density-choice="spacious"><i class="bx bx-expand-alt" aria-hidden="true"></i><span>Ampla</span></button>
+          </div>
+        </section>
+      </section>
 
       <section class="dashboard-heading">
         <div>

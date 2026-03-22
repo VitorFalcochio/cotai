@@ -9,6 +9,9 @@ from ..worker.config import Settings, load_settings
 from ..worker.services.ai_service import AIService
 from ..worker.services.search_service import SearchService
 from .services.chat_service import ChatService
+from .services.construction_brain_service import ConstructionBrainService
+from .services.construction_execution_insight_service import ConstructionExecutionInsightService
+from .services.conversation_intelligence_service import ConversationIntelligenceService
 from .services.construction_mode_service import ConstructionModeService
 from .services.dynamic_quote_service import DynamicQuoteService
 from .services.dynamic_search_engine import SearchEngine
@@ -40,6 +43,18 @@ def get_search_cache() -> SearchCacheService:
 
 def get_request_parser(ai_service: AIService = Depends(get_ai_service)) -> RequestParserService:
     return RequestParserService(ai_service)
+
+
+def get_conversation_intelligence_service() -> ConversationIntelligenceService:
+    return ConversationIntelligenceService()
+
+
+def get_construction_brain_service() -> ConstructionBrainService:
+    return ConstructionBrainService()
+
+
+def get_construction_execution_insight_service() -> ConstructionExecutionInsightService:
+    return ConstructionExecutionInsightService()
 
 
 def get_material_extractor(
@@ -82,8 +97,19 @@ def get_dynamic_quote_service(
 def get_chat_service(
     supabase: SupabaseService = Depends(get_supabase),
     parser: RequestParserService = Depends(get_request_parser),
+    construction_service: ConstructionModeService = Depends(get_construction_mode_service),
+    intelligence_service: ConversationIntelligenceService = Depends(get_conversation_intelligence_service),
+    brain_service: ConstructionBrainService = Depends(get_construction_brain_service),
+    execution_insight_service: ConstructionExecutionInsightService = Depends(get_construction_execution_insight_service),
 ) -> ChatService:
-    return ChatService(supabase, parser)
+    return ChatService(
+        supabase,
+        parser,
+        construction_service,
+        intelligence_service,
+        brain_service,
+        execution_insight_service,
+    )
 
 
 def get_quote_service(supabase: SupabaseService = Depends(get_supabase)) -> QuoteService:

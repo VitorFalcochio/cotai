@@ -26,6 +26,21 @@ const STATUS_LABELS = {
   DRAFT: "Rascunho"
 };
 
+const CHAT_BACKGROUND_STORAGE_KEY = "cotai_chat_background_preference";
+
+function getStoredChatBackgroundPreference() {
+  const stored = String(window.localStorage.getItem(CHAT_BACKGROUND_STORAGE_KEY) || "glow").trim().toLowerCase();
+  return ["glow", "grid", "plain"].includes(stored) ? stored : "glow";
+}
+
+function setChatBackgroundPreference(backgroundPreference) {
+  const nextPreference = ["glow", "grid", "plain"].includes(backgroundPreference) ? backgroundPreference : "glow";
+  window.localStorage.setItem(CHAT_BACKGROUND_STORAGE_KEY, nextPreference);
+  document.documentElement.dataset.chatBackground = nextPreference;
+  document.body?.setAttribute("data-chat-background", nextPreference);
+  return nextPreference;
+}
+
 function badgeClass(status) {
   const value = String(status || "").toUpperCase();
   if (value === "DONE") return "is-success";
@@ -194,6 +209,7 @@ function syncCustomizerState() {
   const themePreference = document.documentElement.dataset.themePreference || "system";
   const accentPreference = document.documentElement.dataset.accent || "emerald";
   const densityPreference = document.documentElement.dataset.density || "comfortable";
+  const backgroundPreference = document.documentElement.dataset.chatBackground || getStoredChatBackgroundPreference();
 
   document.querySelectorAll("[data-theme-choice]").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.themeChoice === themePreference);
@@ -209,6 +225,10 @@ function syncCustomizerState() {
 
   document.querySelectorAll("[data-density-choice]").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.densityChoice === densityPreference);
+  });
+
+  document.querySelectorAll("[data-chat-background-choice]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.chatBackgroundChoice === backgroundPreference);
   });
 }
 
@@ -259,6 +279,13 @@ function initCustomizer() {
   panel.querySelectorAll("[data-density-choice]").forEach((button) => {
     button.addEventListener("click", () => {
       setDensityPreference(button.dataset.densityChoice);
+      syncCustomizerState();
+    });
+  });
+
+  panel.querySelectorAll("[data-chat-background-choice]").forEach((button) => {
+    button.addEventListener("click", () => {
+      setChatBackgroundPreference(button.dataset.chatBackgroundChoice);
       syncCustomizerState();
     });
   });
@@ -637,6 +664,7 @@ async function init() {
   if (!session) return;
 
   initSidebar();
+  setChatBackgroundPreference(getStoredChatBackgroundPreference());
 
   const companyLabel = getCompanyDisplayName(session.user);
   const companyInitials = getInitials(companyLabel);

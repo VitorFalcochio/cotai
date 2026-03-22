@@ -790,6 +790,204 @@ class SupabaseService:
         except Exception:
             return
 
+    def get_project_materials(self, project_id: str | None) -> list[dict[str, Any]]:
+        if not project_id or not self.table_exists("project_materials"):
+            return []
+        return self._list(
+            "project_materials",
+            {
+                "select": "*",
+                "project_id": f"eq.{project_id}",
+                "limit": 200,
+            },
+        )
+
+    def get_price_history(self, *, request_id: str | None = None, limit: int = 100) -> list[dict[str, Any]]:
+        if not request_id or not self.table_exists("price_history"):
+            return []
+        return self._list(
+            "price_history",
+            {
+                "select": "*",
+                "request_id": f"eq.{request_id}",
+                "order": "captured_at.asc",
+                "limit": limit,
+            },
+        )
+
+    def get_project_events(self, project_id: str | None, limit: int = 50) -> list[dict[str, Any]]:
+        if not project_id or not self.table_exists("project_events"):
+            return []
+        return self._list(
+            "project_events",
+            {
+                "select": "*",
+                "project_id": f"eq.{project_id}",
+                "order": "created_at.desc",
+                "limit": limit,
+            },
+        )
+
+    def record_project_event(
+        self,
+        *,
+        project_id: str,
+        request_id: str | None,
+        created_by_user_id: str | None,
+        event_type: str,
+        material_name: str | None = None,
+        quantity: float | None = None,
+        stage_label: str | None = None,
+        supplier_name: str | None = None,
+        note: str | None = None,
+        impact_level: str = "info",
+    ) -> dict[str, Any] | None:
+        if not project_id or not self.table_exists("project_events"):
+            return None
+        rows = self._insert_rows(
+            "project_events",
+            {
+                "project_id": project_id,
+                "request_id": request_id,
+                "event_type": event_type,
+                "material_name": material_name,
+                "quantity": quantity,
+                "stage_label": stage_label,
+                "supplier_name": supplier_name,
+                "note": note,
+                "impact_level": impact_level,
+                "created_by_user_id": created_by_user_id,
+                "created_at": utc_now_iso(),
+            },
+        )
+        return rows[0] if rows else None
+
+    def apply_project_execution_event(
+        self,
+        *,
+        request_id: str,
+        actor: dict[str, Any],
+        event_type: str,
+        material_name: str | None = None,
+        quantity: float | None = None,
+        stage_label: str | None = None,
+        supplier_name: str | None = None,
+        note: str | None = None,
+    ) -> dict[str, Any]:
+        request_row = self.get_request_by_id(request_id)
+        if not request_row:
+            raise RuntimeError("Request not found.")
+        project_id = request_row.get("project_id")
+        if not project_id:
+            raise RuntimeError("Este pedido ainda nao esta vinculado a um projeto.")
+
+        impact_level = "info"
+        if event_type == "supplier_delay":
+            impact_level = "warning"
+        elif event_type == "stage_completed":
+            impact_level = "success"
+
+        material_row = None
+        if material_name:
+            material_row = self._maybe_single(
+                "project_materials",
+                {"select": "*", "project_id": f"eq.{project_id}", "material_name": f"eq.{material_name}"},
+            )
+
+        if event_type in {"material_received", "material_consumed", "purchase_executed"} and material_name and not material_row:
+            payload = {
+                "project_id": project_id,
+                "request_id": request_id,
+                "material_name": material_name,
+                "estimated_qty": quantity,
+                "purchased_qty": 0,
+                "received_qty": 0,
+                "consumed_qty": 0,
+                "pending_qty": quantity,
+                "status": "pending",
+                "supplier_name": supplier_name,
+                "last_event_type": event_type,
+                "last_event_note": note,
+                "last_event_at": utc_now_iso(),
+                "created_at": utc_now_iso(),
+                "updated_at": utc_now_iso(),
+            }
+            rows = self._insert_rows("project_materials", payload)
+            material_row = rows[0] if rows else None
+
+        if material_row:
+            purchased_qty = float(material_row.get("purchased_qty") or 0)
+            received_qty = float(material_row.get("received_qty") or 0)
+            consumed_qty = float(material_row.get("consumed_qty") or 0)
+            pending_qty = float(material_row.get("pending_qty") or 0)
+            qty = float(quantity or 0)
+
+            if event_type == "purchase_executed":
+                purchased_qty += qty
+                pending_qty = max(0.0, pending_qty - qty)
+            elif event_type == "material_received":
+                received_qty += qty
+            elif event_type == "material_consumed":
+                consumed_qty += qty
+
+            status = str(material_row.get("status") or "pending")
+            if event_type == "supplier_delay":
+                status = "delayed"
+            elif event_type == "stage_completed":
+                status = "done"
+            elif pending_qty <= 0 and purchased_qty > 0:
+                status = "purchased"
+            elif received_qty > 0:
+                status = "received"
+            elif purchased_qty > 0:
+                status = "quoted"
+
+            self._request(
+                "PATCH",
+                self._table_url("project_materials"),
+                params={"id": f"eq.{material_row['id']}"},
+                headers=self._headers(prefer="return=minimal"),
+                json={
+                    "purchased_qty": purchased_qty,
+                    "received_qty": received_qty,
+                    "consumed_qty": consumed_qty,
+                    "pending_qty": pending_qty,
+                    "status": status,
+                    "supplier_name": supplier_name or material_row.get("supplier_name"),
+                    "last_event_type": event_type,
+                    "last_event_note": note,
+                    "last_event_at": utc_now_iso(),
+                    "updated_at": utc_now_iso(),
+                },
+            ).raise_for_status()
+
+        if event_type == "stage_completed" and self.table_exists("projects"):
+            self._request(
+                "PATCH",
+                self._table_url("projects"),
+                params={"id": f"eq.{project_id}"},
+                headers=self._headers(prefer="return=minimal"),
+                json={"stage": stage_label or "execution", "updated_at": utc_now_iso()},
+            ).raise_for_status()
+
+        event_row = self.record_project_event(
+            project_id=project_id,
+            request_id=request_id,
+            created_by_user_id=actor.get("user", {}).get("id"),
+            event_type=event_type,
+            material_name=material_name,
+            quantity=quantity,
+            stage_label=stage_label,
+            supplier_name=supplier_name,
+            note=note,
+            impact_level=impact_level,
+        )
+        return {
+            "ok": True,
+            "event": event_row,
+            "message": "Evento operacional registrado na obra.",
+        }
+
     def create_internal_request(
         self,
         *,
@@ -1357,12 +1555,18 @@ class SupabaseService:
         latest_quote = self.get_latest_quote_execution(request_id)
         results = self.get_quote_results(request_id)
         comparison = self.build_quote_comparison(results)
+        project_materials = self.get_project_materials(request_row.get("project_id"))
+        price_history = self.get_price_history(request_id=str(request_id))
+        project_events = self.get_project_events(request_row.get("project_id"))
         return {
             "request": request_row,
             "latest_quote": latest_quote,
             "results": results,
             "items": self.get_request_items(request_id),
             "comparison": comparison,
+            "project_materials": project_materials,
+            "price_history": price_history,
+            "project_events": project_events,
         }
 
     def reprocess_request_as_admin(self, request_id: str, actor: dict[str, Any], reason: str) -> dict[str, Any]:

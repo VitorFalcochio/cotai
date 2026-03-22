@@ -119,6 +119,13 @@ export function getRequestResults(requestId) {
   return apiFetch(`/requests/${requestId}/results`);
 }
 
+export function registerExecutionEvent(requestId, payload) {
+  return apiFetch(`/requests/${requestId}/execution-event`, {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
 export function getOperationsOverview() {
   return apiFetch("/ops/overview");
 }

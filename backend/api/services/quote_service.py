@@ -25,6 +25,10 @@ class QuoteService:
             "approval_status": request_row.get("approval_status"),
             "duplicate_of_request_id": request_row.get("duplicate_of_request_id"),
             "latest_quote": latest_quote,
+            "project_materials": payload.get("project_materials", []),
+            "price_history": payload.get("price_history", []),
+            "project_events": payload.get("project_events", []),
+            "comparison": payload.get("comparison", {}),
         }
 
     def get_request_results(self, request_id: str) -> dict[str, Any]:
@@ -35,7 +39,22 @@ class QuoteService:
             "results": payload["results"],
             "items": payload.get("items", []),
             "comparison": payload.get("comparison", {}),
+            "project_materials": payload.get("project_materials", []),
+            "price_history": payload.get("price_history", []),
+            "project_events": payload.get("project_events", []),
         }
+
+    def register_project_execution_event(self, request_id: str, actor: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
+        return self.supabase.apply_project_execution_event(
+            request_id=request_id,
+            actor=actor,
+            event_type=payload["event_type"],
+            material_name=payload.get("material_name"),
+            quantity=payload.get("quantity"),
+            stage_label=payload.get("stage_label"),
+            supplier_name=payload.get("supplier_name"),
+            note=payload.get("note"),
+        )
 
     def submit_supplier_review(self, request_id: str, actor: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
         request_row = self.supabase.get_request_by_id(request_id)

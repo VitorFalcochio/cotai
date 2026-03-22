@@ -8,6 +8,7 @@ import {
   getApiHealth,
   getChatThread,
   getRequestStatus,
+  registerExecutionEvent,
   quoteMaterials,
   sendChatMessage,
   updateChatDraft
@@ -37,6 +38,9 @@ let latestDynamicPreview = null;
 let latestConstructionPreview = null;
 let latestConstructionContext = null;
 let latestConstructionQuery = "";
+let liveConstructionBrain = null;
+let selectedExecutionEventType = "material_received";
+const CHAT_BACKGROUND_STORAGE_KEY = "cotai_chat_background_preference";
 
 const STATUS_LABELS = {
   DRAFT: "Rascunho",
@@ -48,6 +52,56 @@ const STATUS_LABELS = {
   ERROR: "Erro"
 };
 
+const EXECUTION_EVENT_CONFIG = {
+  material_received: {
+    label: "Material chegou",
+    referenceLabel: "Material",
+    referencePlaceholder: "Ex.: Cimento CP II 50kg",
+    quantityPlaceholder: "Qtd recebida",
+    notePlaceholder: "Ex.: descarga concluida"
+  },
+  material_consumed: {
+    label: "Material consumido",
+    referenceLabel: "Material",
+    referencePlaceholder: "Ex.: Areia media",
+    quantityPlaceholder: "Qtd consumida",
+    notePlaceholder: "Ex.: usado na concretagem"
+  },
+  stage_completed: {
+    label: "Etapa concluida",
+    referenceLabel: "Etapa",
+    referencePlaceholder: "Ex.: Fundacao",
+    quantityPlaceholder: "",
+    notePlaceholder: "Ex.: liberada para estrutura"
+  },
+  supplier_delay: {
+    label: "Fornecedor atrasou",
+    referenceLabel: "Fornecedor",
+    referencePlaceholder: "Ex.: Deposito Sao Jose",
+    quantityPlaceholder: "",
+    notePlaceholder: "Ex.: entrega adiada para sexta"
+  },
+  purchase_executed: {
+    label: "Compra executada",
+    referenceLabel: "Fornecedor",
+    referencePlaceholder: "Ex.: Casa do Construtor",
+    quantityPlaceholder: "",
+    notePlaceholder: "Ex.: pedido aprovado e emitido"
+  }
+};
+
+function getStoredChatBackgroundPreference() {
+  const value = String(window.localStorage.getItem(CHAT_BACKGROUND_STORAGE_KEY) || "glow").trim().toLowerCase();
+  return ["glow", "grid", "plain"].includes(value) ? value : "glow";
+}
+
+function applyChatBackgroundPreference(backgroundPreference = getStoredChatBackgroundPreference()) {
+  const value = ["glow", "grid", "plain"].includes(backgroundPreference) ? backgroundPreference : "glow";
+  document.documentElement.dataset.chatBackground = value;
+  document.body?.setAttribute("data-chat-background", value);
+  return value;
+}
+
 function setChatAvailability(isAvailable) {
   const input = qs("#chatComposerInput");
   const submitButton = qs("#chatComposerSubmit");
@@ -58,7 +112,7 @@ function setChatAvailability(isAvailable) {
   if (input) {
     input.disabled = !isAvailable;
     input.placeholder = isAvailable
-      ? "Descreva os materiais, as quantidades, o local de entrega e as observações"
+      ? "Descreva a obra, a etapa ou os materiais. Ex.: como comecar uma casa de 120 m2?"
       : "A API do chatbot está offline no momento.";
   }
   if (submitButton) submitButton.disabled = !isAvailable;
@@ -67,6 +121,60 @@ function setChatAvailability(isAvailable) {
   suggestions.forEach((button) => {
     button.disabled = !isAvailable;
   });
+  const executionSubmit = qs("#chatExecutionSubmit");
+  if (executionSubmit) {
+    executionSubmit.disabled = !isAvailable || !activeRequestId;
+  }
+}
+
+function updateExecutionPanelState() {
+  const panel = qs("#chatExecutionPanel");
+  const hint = qs("#chatExecutionHint");
+  const submitButton = qs("#chatExecutionSubmit");
+  const referenceInput = qs("#chatExecutionReference");
+  const quantityInput = qs("#chatExecutionQuantity");
+  const noteInput = qs("#chatExecutionNote");
+  const config = EXECUTION_EVENT_CONFIG[selectedExecutionEventType] || EXECUTION_EVENT_CONFIG.material_received;
+  const isRequestActive = Boolean(activeRequestId);
+
+  document.querySelectorAll("[data-execution-type]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.executionType === selectedExecutionEventType);
+  });
+
+  if (hint) {
+    hint.textContent = isRequestActive
+      ? `${config.label} de forma rapida`
+      : "Disponivel apos confirmar o pedido";
+  }
+
+  if (panel) {
+    panel.classList.toggle("is-disabled", !isRequestActive);
+    if (!isRequestActive) panel.open = false;
+  }
+
+  if (referenceInput) {
+    referenceInput.placeholder = config.referencePlaceholder;
+    referenceInput.setAttribute("aria-label", config.referenceLabel);
+    referenceInput.disabled = !isRequestActive;
+  }
+
+  if (quantityInput) {
+    const showQuantity = Boolean(config.quantityPlaceholder);
+    quantityInput.placeholder = config.quantityPlaceholder || "Qtd";
+    quantityInput.disabled = !isRequestActive || !showQuantity;
+    quantityInput.classList.toggle("hidden", !showQuantity);
+    if (!showQuantity) quantityInput.value = "";
+  }
+
+  if (noteInput) {
+    noteInput.placeholder = config.notePlaceholder;
+    noteInput.disabled = !isRequestActive;
+  }
+
+  if (submitButton) {
+    submitButton.textContent = config.label;
+    submitButton.disabled = !isRequestActive;
+  }
 }
 
 function badgeClass(status) {
@@ -136,8 +244,22 @@ function parseCurrencyLine(value) {
   return match ? match[0] : String(value || "").trim();
 }
 
+function normalizeMessageContent(value) {
+  const text = String(value || "").trim();
+  if (!text.startsWith("{") || !text.endsWith("}")) return text;
+  try {
+    const payload = JSON.parse(text);
+    if (payload && typeof payload.message === "string" && payload.message.trim()) {
+      return payload.message.trim();
+    }
+  } catch (_) {
+    return text;
+  }
+  return text;
+}
+
 function parseQuoteResponse(content) {
-  const text = String(content || "").trim();
+  const text = normalizeMessageContent(content);
   if (!text.startsWith("Cotacao encontrada")) return null;
 
   const totalMatch = text.match(/Total estimado do pedido:\s*(R\$\s*[\d.,]+)/i);
@@ -448,6 +570,69 @@ function shouldContinueConstructionFlow(message) {
   return /(padrao|economico|medio|alto|cidade|regiao|cobertura|telha|laje|fibrocimento|metalica|fundacao|sapata|radier|estaca|bloco|quarto|banheiro|pavimento|m2|metro|reforma|muro|calcada|contrapiso)/.test(text);
 }
 
+function renderConstructionBrain(payload) {
+  const brain = payload?.brain || {};
+  const technical = brain?.technical || {};
+  const operational = brain?.operational || {};
+  const financial = brain?.financial || {};
+  const predictive = brain?.predictive || {};
+  if (!Object.keys(brain).length) return "";
+
+  const learnedFacts = Array.isArray(technical?.learned_facts) ? technical.learned_facts : [];
+  const blockers = Array.isArray(operational?.blockers) ? operational.blockers : [];
+  const risks = Array.isArray(predictive?.risks) ? predictive.risks : [];
+  const nextSevenDays = Array.isArray(predictive?.next_7_days) ? predictive.next_7_days : [];
+
+  return `
+    <section class="chat-quote-card chat-brain-card">
+      <div class="chat-quote-card-head">
+        <strong>Cerebro da obra</strong>
+        <span class="app-badge is-info">4 fases</span>
+      </div>
+      <div class="chat-brain-grid">
+        <article class="chat-brain-panel">
+          <h4>Memoria tecnica</h4>
+          <p>${escapeHtml(technical?.project_label || "Obra")}</p>
+          <p>${escapeHtml(technical?.area_label || "Area pendente")}</p>
+          <p>${escapeHtml(technical?.location_label || "Local pendente")}</p>
+          <p>${escapeHtml(technical?.readiness_label || "Escopo em leitura")}</p>
+          ${learnedFacts.length ? `<p>${escapeHtml(learnedFacts.map((item) => `${item.label}: ${item.value}`).join(" | "))}</p>` : ""}
+        </article>
+        <article class="chat-brain-panel">
+          <h4>Decisao operacional</h4>
+          <p>${escapeHtml(operational?.next_action_label || "Sem proximo passo")}</p>
+          ${operational?.selected_phase_label ? `<p>Fase: ${escapeHtml(operational.selected_phase_label)}</p>` : ""}
+          <p>${escapeHtml(operational?.purchase_window_label || "Sem janela sugerida")}</p>
+          ${operational?.tracked_materials ? `<p>Materiais rastreados: ${escapeHtml(String(operational.tracked_materials))}</p>` : ""}
+          ${operational?.pending_materials ? `<p>Pendentes: ${escapeHtml(String(operational.pending_materials))}</p>` : ""}
+          ${operational?.completed_stage_count ? `<p>Etapas concluidas: ${escapeHtml(String(operational.completed_stage_count))}</p>` : ""}
+          ${blockers.length ? `<p>${escapeHtml(blockers.slice(0, 2).join(" | "))}</p>` : ""}
+        </article>
+        <article class="chat-brain-panel">
+          <h4>Financeiro</h4>
+          <p>Total: ${escapeHtml(financial?.estimated_total_display || "Sem total")}</p>
+          <p>Meta: ${escapeHtml(financial?.budget_target_display || "Nao informado")}</p>
+          <p>Status: ${escapeHtml(financial?.budget_health || "Sem leitura")}</p>
+          ${financial?.variance_display ? `<p>Desvio: ${escapeHtml(financial.variance_display)}</p>` : ""}
+          ${financial?.potential_savings_display ? `<p>Economia potencial: ${escapeHtml(financial.potential_savings_display)}</p>` : ""}
+          ${financial?.price_variation_label ? `<p>Variacao recente: ${escapeHtml(financial.price_variation_label)}</p>` : ""}
+          <p>${escapeHtml(String(financial?.pricing_coverage_pct ?? 0))}% de cobertura</p>
+        </article>
+        <article class="chat-brain-panel">
+          <h4>Visao preditiva</h4>
+          <p>Risco ${escapeHtml(predictive?.risk_level || "baixo")}</p>
+          ${predictive?.best_supplier_label ? `<p>Fornecedor lider: ${escapeHtml(predictive.best_supplier_label)}</p>` : ""}
+          ${predictive?.latest_stage_label ? `<p>Ultima etapa: ${escapeHtml(predictive.latest_stage_label)}</p>` : ""}
+          ${predictive?.supplier_delay_count ? `<p>Atrasos de fornecedor: ${escapeHtml(String(predictive.supplier_delay_count))}</p>` : ""}
+          ${predictive?.latest_event_note ? `<p>${escapeHtml(predictive.latest_event_note)}</p>` : ""}
+          ${risks.length ? `<p>${escapeHtml(risks.slice(0, 2).join(" | "))}</p>` : ""}
+          ${nextSevenDays.length ? `<p>${escapeHtml(nextSevenDays.slice(0, 2).join(" | "))}</p>` : ""}
+        </article>
+      </div>
+    </section>
+  `;
+}
+
 function renderConstructionPreview(payload) {
   if (String(payload?.mode || "").toLowerCase() === "construction_procurement") {
     const purchaseList = Array.isArray(payload?.purchase_list) ? payload.purchase_list : [];
@@ -558,6 +743,7 @@ function renderConstructionPreview(payload) {
             `
             : ""
         }
+        ${renderConstructionBrain(payload)}
         <p class="chat-quote-note"><i class="bx bx-info-circle" aria-hidden="true"></i>${escapeHtml(payload?.message || "A Cota preparou a compra da obra.")}</p>
       </div>
     `;
@@ -759,6 +945,7 @@ function renderConstructionPreview(payload) {
               : ""
           }
         </div>
+        ${renderConstructionBrain(payload)}
         ${assumptions.map((item) => `<p class="chat-quote-note"><i class="bx bx-info-circle" aria-hidden="true"></i>${escapeHtml(item)}</p>`).join("")}
         ${nextQuestions.map((item) => `<p class="chat-quote-note"><i class="bx bx-help-circle" aria-hidden="true"></i>${escapeHtml(item)}</p>`).join("")}
         <p class="chat-quote-note"><i class="bx bx-shield-quarter" aria-hidden="true"></i>${escapeHtml(payload?.summary?.disclaimer || "Valide a previsao com o projeto executivo antes da compra.")}</p>
@@ -815,7 +1002,32 @@ function renderConstructionPreview(payload) {
 }
 
 function renderMessageBody(row) {
-  return renderQuoteResponseCard(row) || escapeHtml(String(row.content || "")).replace(/\n/g, "<br>");
+  const previewPayload = row?.metadata?.construction_preview
+    ? {
+        ...row.metadata.construction_preview,
+        brain: liveConstructionBrain || row.metadata.construction_preview?.brain,
+      }
+    : null;
+  const persistedConstructionPreview = row?.metadata?.construction_preview
+    ? renderConstructionPreview(previewPayload)
+    : "";
+  const quoteCard = renderQuoteResponseCard(row);
+  const body = escapeHtml(normalizeMessageContent(row.content)).replace(/\n/g, "<br>");
+  return quoteCard || `${body}${
+    persistedConstructionPreview
+      ? `
+        <details class="chat-inline-preview" data-construction-preview="persisted">
+          <summary class="chat-inline-preview-toggle">
+            <span>Ver estimativa da obra</span>
+            <i class="bx bx-chevron-down" aria-hidden="true"></i>
+          </summary>
+          <div class="chat-inline-preview-body">
+            ${persistedConstructionPreview}
+          </div>
+        </details>
+      `
+      : ""
+  }`;
 }
 
 function renderMessageAvatar(row) {
@@ -1109,6 +1321,7 @@ function renderThread(payload) {
   activeThreadId = payload.thread.id;
   sessionStorage.setItem(THREAD_STORAGE_KEY, activeThreadId);
   activeRequestId = payload.request?.id || "";
+  liveConstructionBrain = payload?.construction_brain || null;
   lastKnownRequestStatus = String(payload.request?.status || payload.thread?.status || "").toUpperCase();
   quoteRenderContext = {
     requestId: String(payload.request?.id || payload.latest_quote?.request_id || ""),
@@ -1119,7 +1332,7 @@ function renderThread(payload) {
   if (list) {
     list.innerHTML = payload.messages.length
       ? payload.messages.map(renderMessage).join("")
-      : '<div class="chat-empty"><div class="chat-empty-copy"><strong>Descreva os materiais e as quantidades para iniciar a cotação.</strong></div></div>';
+      : '<div class="chat-empty"><div class="chat-empty-copy"><strong>Descreva a obra, a etapa ou os materiais para a Cota te orientar.</strong></div></div>';
     list.scrollTop = list.scrollHeight;
   }
   setChatStage(Boolean(payload.messages.length));
@@ -1134,6 +1347,7 @@ function renderThread(payload) {
   injectDynamicPreviewIntoLatestAssistant();
 
   updateSidebar(payload);
+  updateExecutionPanelState();
   managePolling();
 }
 
@@ -1199,6 +1413,54 @@ async function loadConstructionPreview(message, payload) {
   }
 }
 
+function buildDraftItemsFromConstructionPreview(payload) {
+  if (!payload || String(payload.status || "").toLowerCase() !== "ok") return [];
+
+  const selectedPhaseKey = String(payload.selected_phase_key || "").trim();
+  const phasePackages = Array.isArray(payload.phase_packages) ? payload.phase_packages : [];
+  const selectedPhase = selectedPhaseKey
+    ? phasePackages.find((phase) => String(phase?.key || "").trim() === selectedPhaseKey)
+    : null;
+  const sourceItems = Array.isArray(selectedPhase?.items) && selectedPhase.items.length
+    ? selectedPhase.items
+    : Array.isArray(payload.purchase_list)
+      ? payload.purchase_list
+      : [];
+
+  return sourceItems
+    .map((item) => {
+      const name = String(item?.material || "").trim();
+      if (!name) return null;
+      const quantityNumber = Number(item?.quantity);
+      const quantity = Number.isFinite(quantityNumber) ? quantityNumber : null;
+      const unit = String(item?.unit || "un").trim() || "un";
+      const quantityLabel = quantity === null ? "" : `${quantity} ${unit}`.trim();
+      return {
+        name,
+        normalized_name: name,
+        quantity,
+        unit,
+        raw: quantityLabel ? `${quantityLabel} ${name}` : name,
+      };
+    })
+    .filter(Boolean);
+}
+
+async function syncConstructionDraftFromPreview(payload) {
+  if (!activeThreadId) return;
+  const items = buildDraftItemsFromConstructionPreview(payload);
+  if (!items.length) return;
+
+  const nextDraft = {
+    ...currentDraft,
+    title: currentDraft.title || payload?.summary?.title || "",
+    items,
+    notes: currentDraft.notes || latestConstructionQuery || payload?.message || "",
+  };
+  const threadPayload = await updateChatDraft(activeThreadId, nextDraft);
+  renderThread(threadPayload);
+}
+
 async function loadConstructionProcurement(selectedPhase = "", includeLiveQuotes = false) {
   if (!latestConstructionQuery) return;
   try {
@@ -1209,6 +1471,7 @@ async function loadConstructionProcurement(selectedPhase = "", includeLiveQuotes
       include_live_quotes: includeLiveQuotes
     });
     injectDynamicPreviewIntoLatestAssistant();
+    await syncConstructionDraftFromPreview(latestConstructionPreview);
   } catch (_) {
     // Procurement preview is additive only; the main chat flow should not fail because of it.
   }
@@ -1370,6 +1633,83 @@ function bindConstructionActions() {
   });
 }
 
+async function submitExecutionEvent() {
+  if (!activeRequestId) {
+    showFeedback("#newRequestFeedback", "Confirme o pedido antes de registrar eventos da obra.");
+    return;
+  }
+
+  const config = EXECUTION_EVENT_CONFIG[selectedExecutionEventType] || EXECUTION_EVENT_CONFIG.material_received;
+  const reference = String(qs("#chatExecutionReference")?.value || "").trim();
+  const note = String(qs("#chatExecutionNote")?.value || "").trim();
+  const quantityRaw = qs("#chatExecutionQuantity")?.value || "";
+  const quantity = quantityRaw ? Number(quantityRaw) : null;
+  const submitButton = qs("#chatExecutionSubmit");
+
+  if (!reference) {
+    showFeedback("#newRequestFeedback", `Informe ${config.referenceLabel.toLowerCase()} para registrar o evento.`);
+    return;
+  }
+
+  if (config.quantityPlaceholder && !(quantity > 0)) {
+    showFeedback("#newRequestFeedback", "Informe uma quantidade valida para continuar.");
+    return;
+  }
+
+  const payload = {
+    event_type: selectedExecutionEventType,
+    note: note || undefined
+  };
+
+  if (selectedExecutionEventType === "material_received" || selectedExecutionEventType === "material_consumed") {
+    payload.material_name = reference;
+    payload.quantity = quantity;
+  } else if (selectedExecutionEventType === "stage_completed") {
+    payload.stage_label = reference;
+  } else {
+    payload.supplier_name = reference;
+  }
+
+  setLoading(submitButton, true, config.label, "Registrando...");
+  try {
+    await registerExecutionEvent(activeRequestId, payload);
+    qs("#chatExecutionReference").value = "";
+    qs("#chatExecutionQuantity").value = "";
+    qs("#chatExecutionNote").value = "";
+    showFeedback("#newRequestFeedback", `${config.label} registrada na obra.`, false);
+    if (activeThreadId) {
+      await loadThread(activeThreadId);
+    }
+  } catch (error) {
+    showFeedback("#newRequestFeedback", error.message || "Nao foi possivel registrar o evento da obra.");
+  } finally {
+    setLoading(submitButton, false, config.label);
+  }
+}
+
+function bindExecutionEventPanel() {
+  const panel = qs("#chatExecutionPanel");
+  const submitButton = qs("#chatExecutionSubmit");
+
+  panel?.addEventListener("toggle", () => {
+    if (panel.open && !activeRequestId) {
+      showFeedback("#newRequestFeedback", "Esse atalho fica disponivel depois que o pedido vira obra ativa.");
+      panel.open = false;
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    const typeButton = event.target.closest("[data-execution-type]");
+    if (!typeButton) return;
+    selectedExecutionEventType = typeButton.dataset.executionType || "material_received";
+    updateExecutionPanelState();
+  });
+
+  submitButton?.addEventListener("click", async () => {
+    await submitExecutionEvent();
+  });
+}
+
 function bindEstimator(input) {
   qs("#estimateMaterialsButton")?.addEventListener("click", () => {
     const type = qs("#estimateType")?.value || "wall";
@@ -1441,6 +1781,7 @@ function loadRequestPrefill() {
 
 async function init() {
   initSidebar();
+  applyChatBackgroundPreference();
   const form = qs("#chatComposerForm");
   const input = qs("#chatComposerInput");
   const submitButton = qs("#chatComposerSubmit");
@@ -1449,8 +1790,10 @@ async function init() {
 
   bindDraftEditor();
   bindConstructionActions();
+  bindExecutionEventPanel();
   bindEstimator(input);
   bindQuickImport();
+  updateExecutionPanelState();
   const prefillLoaded = loadRequestPrefill();
 
   suggestions.forEach((button) => {
