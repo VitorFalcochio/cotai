@@ -12,6 +12,7 @@ from ..worker.utils.logger import log_event
 from ..worker.utils.telemetry import telemetry
 from .routes.chat import router as chat_router
 from .routes.ops import router as ops_router
+from .routes.projects import router as projects_router
 from .routes.quote_engine import router as quote_router
 from .routes.requests import router as requests_router
 
@@ -70,5 +71,6 @@ def health() -> dict[str, str]:
 
 app.include_router(chat_router)
 app.include_router(ops_router)
+app.include_router(projects_router)
 app.include_router(quote_router)
 app.include_router(requests_router)

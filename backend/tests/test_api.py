@@ -11,6 +11,7 @@ from backend.api.services.chat_service import ChatService
 from backend.api.services.construction_mode_service import ConstructionModeService
 from backend.api.services.dynamic_quote_service import DynamicQuoteService
 from backend.api.services.parametric_budget_service import ParametricBudgetService
+from backend.api.services.project_service import ProjectService
 from backend.api.services.quote_service import QuoteService
 from backend.api.services.request_parser import RequestParserService
 from backend.worker.config import load_settings
@@ -56,6 +57,7 @@ class ApiTests(unittest.TestCase):
                 self.supabase,
                 parser,
                 ConstructionModeService(load_settings(), FakeConstructionSearchService()),
+                project_service=ProjectService(self.supabase),
             )
 
         def override_quote_service():
@@ -536,6 +538,137 @@ class ApiTests(unittest.TestCase):
         self.assertIn("IA de construcao civil", latest["content"])
         self.assertEqual(payload["thread"]["status"], "DRAFT")
         self.assertTrue(payload["conversation_memory"])
+
+    def test_chat_treats_building_request_without_area_as_construction_guidance(self) -> None:
+        response = self.client.post(
+            "/chat/message",
+            json={"message": "Quero fazer um predio com 4 andares"},
+        )
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        assistant_messages = [row for row in payload["messages"] if row["role"] == "assistant"]
+        self.assertTrue(assistant_messages)
+        latest = assistant_messages[-1]
+        self.assertEqual(latest["metadata"]["kind"], "construction_guidance")
+        self.assertIn("Para eu te orientar melhor agora", latest["content"])
+        self.assertEqual(payload["construction_context"]["project_type"], "building")
+        self.assertEqual(payload["construction_context"]["floors"], 4)
+
+    def test_can_save_project_from_chat_and_list_it(self) -> None:
+        first = self.client.post(
+            "/chat/message",
+            json={"message": "Quero construir uma casa de 120 m2 em Campinas"},
+        )
+        self.assertEqual(first.status_code, 200)
+        thread_id = first.json()["thread"]["id"]
+
+        saved = self.client.post(
+            "/projects/from-thread",
+            json={"thread_id": thread_id, "name": "Residencial Campinas"},
+        )
+        self.assertEqual(saved.status_code, 200)
+        saved_payload = saved.json()
+        self.assertEqual(saved_payload["project"]["name"], "Residencial Campinas")
+        self.assertEqual(saved_payload["project"]["project_type"], "house")
+
+        listed = self.client.get("/projects")
+        self.assertEqual(listed.status_code, 200)
+        projects = listed.json()["projects"]
+        self.assertTrue(any(row["name"] == "Residencial Campinas" for row in projects))
+
+        detail = self.client.get(f"/projects/{saved_payload['project']['id']}")
+        self.assertEqual(detail.status_code, 200)
+        self.assertEqual(detail.json()["project"]["name"], "Residencial Campinas")
+
+    def test_chat_can_save_project_conversationally_after_user_confirms(self) -> None:
+        first = self.client.post(
+            "/chat/message",
+            json={"message": "Quero construir uma casa de 120 m2 em Campinas"},
+        )
+        self.assertEqual(first.status_code, 200)
+        payload = first.json()
+        thread_id = payload["thread"]["id"]
+        assistant_messages = [row for row in payload["messages"] if row["role"] == "assistant"]
+        self.assertIn("Quer que eu salve esta obra como projeto?", assistant_messages[-1]["content"])
+
+        confirm = self.client.post(
+            "/chat/message",
+            json={"thread_id": thread_id, "message": "sim"},
+        )
+        self.assertEqual(confirm.status_code, 200)
+        confirm_payload = confirm.json()
+        assistant_messages = [row for row in confirm_payload["messages"] if row["role"] == "assistant"]
+        self.assertIn("Qual nome voce quer dar para este projeto?", assistant_messages[-1]["content"])
+
+        named = self.client.post(
+            "/chat/message",
+            json={"thread_id": thread_id, "message": "Residencial Campinas"},
+        )
+        self.assertEqual(named.status_code, 200)
+        named_payload = named.json()
+        self.assertEqual(named_payload["project"]["name"], "Residencial Campinas")
+        assistant_messages = [row for row in named_payload["messages"] if row["role"] == "assistant"]
+        self.assertIn("Projeto Residencial Campinas salvo", assistant_messages[-1]["content"])
+
+    def test_chat_accepts_more_natural_project_save_replies_and_suggested_name(self) -> None:
+        first = self.client.post(
+            "/chat/message",
+            json={"message": "Quero construir uma casa de 120 m2 em Campinas"},
+        )
+        self.assertEqual(first.status_code, 200)
+        thread_id = first.json()["thread"]["id"]
+
+        confirm = self.client.post(
+            "/chat/message",
+            json={"thread_id": thread_id, "message": "pode salvar"},
+        )
+        self.assertEqual(confirm.status_code, 200)
+        assistant_messages = [row for row in confirm.json()["messages"] if row["role"] == "assistant"]
+        self.assertIn("Se quiser, pode usar", assistant_messages[-1]["content"])
+
+        suggested = self.client.post(
+            "/chat/message",
+            json={"thread_id": thread_id, "message": "pode ser"},
+        )
+        self.assertEqual(suggested.status_code, 200)
+        self.assertIsNotNone(suggested.json()["project"])
+
+    def test_chat_accepts_decline_project_save_with_natural_reply(self) -> None:
+        first = self.client.post(
+            "/chat/message",
+            json={"message": "Quero construir uma casa de 120 m2 em Campinas"},
+        )
+        self.assertEqual(first.status_code, 200)
+        thread_id = first.json()["thread"]["id"]
+
+        declined = self.client.post(
+            "/chat/message",
+            json={"thread_id": thread_id, "message": "deixa pra depois"},
+        )
+        self.assertEqual(declined.status_code, 200)
+        payload = declined.json()
+        self.assertIsNone(payload["project"])
+        assistant_messages = [row for row in payload["messages"] if row["role"] == "assistant"]
+        self.assertIn("Quando quiser salvar essa obra depois", assistant_messages[-1]["content"])
+
+    def test_chat_can_save_project_when_user_sends_yes_and_name_together(self) -> None:
+        first = self.client.post(
+            "/chat/message",
+            json={"message": "Quero construir uma casa de 120 m2 em Campinas"},
+        )
+        self.assertEqual(first.status_code, 200)
+        thread_id = first.json()["thread"]["id"]
+
+        combined = self.client.post(
+            "/chat/message",
+            json={"thread_id": thread_id, "message": "sim, pode salvar como Residencial Primavera"},
+        )
+
+        self.assertEqual(combined.status_code, 200)
+        payload = combined.json()
+        self.assertEqual(payload["project"]["name"], "Residencial Primavera")
+        assistant_messages = [row for row in payload["messages"] if row["role"] == "assistant"]
+        self.assertIn("Projeto Residencial Primavera salvo", assistant_messages[-1]["content"])
 
     def test_telemetry_endpoint_exposes_recent_cota_flow(self) -> None:
         self.client.post("/modo-construcao/analisar", json={"query": "Quero construir uma casa de 90 m2 em Campinas"})

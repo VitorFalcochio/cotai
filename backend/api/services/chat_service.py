@@ -2,11 +2,14 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from typing import Any
+import re
+import unicodedata
 
 from .construction_brain_service import ConstructionBrainService
 from .construction_execution_insight_service import ConstructionExecutionInsightService
 from .conversation_intelligence_service import ConversationIntelligenceService
 from .construction_mode_service import ConstructionModeService
+from .project_service import ProjectService
 from .request_parser import RequestParserService
 from .supabase_service import SupabaseService
 
@@ -20,6 +23,7 @@ class ChatService:
         intelligence_service: ConversationIntelligenceService | None = None,
         brain_service: ConstructionBrainService | None = None,
         execution_insight_service: ConstructionExecutionInsightService | None = None,
+        project_service: ProjectService | None = None,
     ) -> None:
         self.supabase = supabase
         self.parser = parser
@@ -27,6 +31,7 @@ class ChatService:
         self.intelligence_service = intelligence_service or ConversationIntelligenceService()
         self.brain_service = brain_service or ConstructionBrainService()
         self.execution_insight_service = execution_insight_service or ConstructionExecutionInsightService()
+        self.project_service = project_service
 
     def handle_message(self, *, actor: dict[str, Any], thread_id: str | None, message: str) -> dict[str, Any]:
         profile = actor["profile"]
@@ -38,6 +43,16 @@ class ChatService:
         thread = self._reset_thread_for_new_quote_cycle(thread)
         metadata = thread.get("metadata") or {}
         self.supabase.insert_chat_message(thread["id"], "user", message, {"kind": "prompt"})
+
+        project_save_payload = self._handle_project_save_reply(
+            actor=actor,
+            thread=thread,
+            metadata=metadata,
+            message=message,
+        )
+        if project_save_payload is not None:
+            return project_save_payload
+
         parsed = self.parser.parse_user_message(message)
         intent = self.intelligence_service.classify_intent(
             message=message,
@@ -166,9 +181,21 @@ class ChatService:
             latest_message=message,
             execution_data=None,
         )
-        assistant_text = self._build_construction_guidance_message(analysis, memory=memory, procurement=procurement)
+        offer_project_save = self._should_offer_project_save(
+            metadata=metadata,
+            analysis=analysis,
+            procurement=procurement,
+        )
         conversation = analysis.get("conversation") or {}
         project = analysis.get("project") or {}
+        suggested_project_name = self._suggest_project_name(project, metadata)
+        assistant_text = self._build_construction_guidance_message(
+            analysis,
+            memory=memory,
+            procurement=procurement,
+            offer_project_save=offer_project_save,
+            suggested_project_name=suggested_project_name,
+        )
         preview_payload = {**(procurement or analysis), "brain": brain}
         updated_metadata = {
             **metadata,
@@ -178,6 +205,9 @@ class ChatService:
             "construction_query": project.get("raw_text") or message,
             "construction_mode": analysis.get("mode"),
             "construction_status": analysis.get("status"),
+            "awaiting_project_save_confirmation": offer_project_save,
+            "awaiting_project_name": False,
+            "suggested_project_name": suggested_project_name if offer_project_save else metadata.get("suggested_project_name"),
             "pending_items": pending_items,
             "draft_saved_at": datetime.now(UTC).isoformat(),
             "last_user_message": message,
@@ -217,6 +247,8 @@ class ChatService:
         *,
         memory: dict[str, Any] | None = None,
         procurement: dict[str, Any] | None = None,
+        offer_project_save: bool = False,
+        suggested_project_name: str | None = None,
     ) -> str:
         status = str(analysis.get("status") or "").lower()
         project = analysis.get("project") or {}
@@ -239,6 +271,8 @@ class ChatService:
             if next_questions:
                 lines.append("Para eu te orientar melhor agora:")
                 lines.extend(f"- {question}" for question in next_questions[:3])
+            if offer_project_save:
+                lines.append("Se quiser, eu tambem posso salvar esta obra como projeto assim que fecharmos o escopo.")
             return "\n".join(lines)
 
         if procurement:
@@ -267,6 +301,8 @@ class ChatService:
                     for conflict in conflicts[:2]
                 )
             lines.append("Revise os itens no rascunho e confirme quando quiser que eu siga para cotacao.")
+            if offer_project_save:
+                lines.append("Se quiser salvar isso como projeto, me responda sim.")
             return "\n".join(lines)
 
         title = f"Montei a leitura inicial para {project_label}"
@@ -322,8 +358,251 @@ class ChatService:
             lines.extend(f"- {question}" for question in next_questions[:3])
         else:
             lines.append("O escopo principal ja esta bem fechado para seguir para lista de compra por fase.")
+        if offer_project_save:
+            lines.append("Quer que eu salve esta obra como projeto?")
+            if suggested_project_name:
+                lines.append(f"Se quiser, eu posso sugerir o nome {suggested_project_name}.")
+            lines.append("Se sim, me responda sim ou pode salvar.")
         lines.append("Se quiser, eu continuo daqui e transformo a obra em etapas e lista inicial de materiais.")
         return "\n".join(lines)
+
+    def _handle_project_save_reply(
+        self,
+        *,
+        actor: dict[str, Any],
+        thread: dict[str, Any],
+        metadata: dict[str, Any],
+        message: str,
+    ) -> dict[str, Any] | None:
+        if metadata.get("project_id"):
+            return None
+        normalized = self._normalize_chat_reply(message)
+        if metadata.get("awaiting_project_name"):
+            if not self.project_service:
+                return None
+            if normalized in {"pode ser", "usa esse", "usa esse nome", "sugestao", "sugestao sim", "sugestao ok"} and metadata.get("suggested_project_name"):
+                project_name = str(metadata.get("suggested_project_name") or "").strip()
+            else:
+                project_name = message.strip()
+            if len(project_name) < 2:
+                self.supabase.insert_chat_message(
+                    thread["id"],
+                    "assistant",
+                    self._build_project_name_retry_message(metadata),
+                    {"kind": "project_name_retry"},
+                )
+                return self.get_thread_payload(actor, thread["id"])
+            self.supabase.update_chat_thread(
+                thread["id"],
+                {
+                    "metadata": {
+                        **metadata,
+                        "awaiting_project_name": False,
+                        "awaiting_project_save_confirmation": False,
+                    }
+                },
+            )
+            self.project_service.save_project_from_thread(actor=actor, thread_id=thread["id"], name=project_name)
+            return self.get_thread_payload(actor, thread["id"])
+
+        if not metadata.get("awaiting_project_save_confirmation"):
+            return None
+
+        inline_project_name = self._extract_project_name_from_save_reply(message, normalized, metadata)
+        if inline_project_name and self.project_service:
+            self.supabase.update_chat_thread(
+                thread["id"],
+                {
+                    "metadata": {
+                        **metadata,
+                        "awaiting_project_save_confirmation": False,
+                        "awaiting_project_name": False,
+                    }
+                },
+            )
+            self.project_service.save_project_from_thread(actor=actor, thread_id=thread["id"], name=inline_project_name)
+            return self.get_thread_payload(actor, thread["id"])
+
+        if self._is_project_save_yes_reply(normalized):
+            suggestion = str(metadata.get("suggested_project_name") or "").strip()
+            prompt = "Perfeito. Qual nome voce quer dar para este projeto?"
+            if suggestion:
+                prompt += f" Se quiser, pode usar {suggestion}."
+            self.supabase.insert_chat_message(
+                thread["id"],
+                "assistant",
+                prompt,
+                {"kind": "project_name_prompt"},
+            )
+            self.supabase.update_chat_thread(
+                thread["id"],
+                {
+                    "metadata": {
+                        **metadata,
+                        "awaiting_project_save_confirmation": False,
+                        "awaiting_project_name": True,
+                    }
+                },
+            )
+            return self.get_thread_payload(actor, thread["id"])
+
+        if self._is_project_save_no_reply(normalized):
+            self.supabase.insert_chat_message(
+                thread["id"],
+                "assistant",
+                "Sem problema. Quando quiser salvar essa obra depois, eu continuo daqui.",
+                {"kind": "project_save_declined"},
+            )
+            self.supabase.update_chat_thread(
+                thread["id"],
+                {
+                    "metadata": {
+                        **metadata,
+                        "awaiting_project_save_confirmation": False,
+                        "awaiting_project_name": False,
+                        "suggested_project_name": None,
+                    }
+                },
+            )
+            return self.get_thread_payload(actor, thread["id"])
+        return None
+
+    def _should_offer_project_save(
+        self,
+        *,
+        metadata: dict[str, Any],
+        analysis: dict[str, Any],
+        procurement: dict[str, Any] | None,
+    ) -> bool:
+        if metadata.get("project_id") or metadata.get("awaiting_project_name"):
+            return False
+        status = str(analysis.get("status") or "").lower()
+        if status != "ok":
+            return False
+        conversation = analysis.get("conversation") or {}
+        answered_fields = list(conversation.get("answered_fields") or [])
+        next_questions = list(analysis.get("next_questions") or [])
+        confidence = ((metadata.get("construction_memory") or {}).get("confidence") or {}).get("score")
+        summary = analysis.get("summary") or {}
+        if procurement:
+            return True
+        if not next_questions and len(answered_fields) >= 4:
+            return True
+        if len(answered_fields) >= 5:
+            return True
+        if confidence is not None and float(confidence) >= 78 and summary.get("estimated_total_cost_display"):
+            return True
+        return False
+
+    def _normalize_chat_reply(self, value: str) -> str:
+        normalized = unicodedata.normalize("NFD", str(value or "").strip().lower())
+        normalized = "".join(char for char in normalized if unicodedata.category(char) != "Mn")
+        normalized = re.sub(r"[^\w\s]", " ", normalized)
+        return " ".join(normalized.split())
+
+    def _is_project_save_yes_reply(self, normalized: str) -> bool:
+        yes_replies = self._project_save_yes_replies()
+        if normalized in yes_replies:
+            return True
+        return any(
+            normalized.startswith(prefix)
+            for prefix in (
+                "sim ",
+                "quero ",
+                "pode salvar",
+                "salva ",
+                "vamos salvar",
+                "fecha ",
+            )
+        )
+
+    def _is_project_save_no_reply(self, normalized: str) -> bool:
+        no_replies = self._project_save_no_replies()
+        if normalized in no_replies:
+            return True
+        return any(
+            normalized.startswith(prefix)
+            for prefix in (
+                "nao ",
+                "agora nao",
+                "deixa pra depois",
+                "deixa para depois",
+            )
+        )
+
+    def _extract_project_name_from_save_reply(
+        self,
+        message: str,
+        normalized: str,
+        metadata: dict[str, Any],
+    ) -> str | None:
+        if not self._is_project_save_yes_reply(normalized):
+            return None
+
+        suggestion = str(metadata.get("suggested_project_name") or "").strip()
+        patterns = (
+            r"\b(?:salva(?:r)?|salve)\s+(?:como|com(?:\s+o)?\s+nome)\s+(.+)$",
+            r"\b(?:nome|chama|pode chamar)\s+(?:de\s+)?(.+)$",
+        )
+        for pattern in patterns:
+            match = re.search(pattern, message, flags=re.IGNORECASE)
+            if not match:
+                continue
+            candidate = match.group(1).strip(" .,:;!?\"'")
+            if candidate:
+                return candidate
+
+        if normalized in {"pode ser", "usa esse", "usa esse nome", "sugestao", "sugestao sim", "sugestao ok"} and suggestion:
+            return suggestion
+        return None
+
+    def _project_save_yes_replies(self) -> set[str]:
+        return {
+            "sim",
+            "s",
+            "quero",
+            "quero sim",
+            "pode",
+            "pode salvar",
+            "salvar",
+            "salva",
+            "salva ai",
+            "salva isso",
+            "vamos salvar",
+            "pode ser",
+            "fecha",
+        }
+
+    def _project_save_no_replies(self) -> set[str]:
+        return {
+            "nao",
+            "n",
+            "nao agora",
+            "agora nao",
+            "depois",
+            "deixa pra depois",
+            "deixa para depois",
+            "ainda nao",
+            "agora nao precisa",
+        }
+
+    def _suggest_project_name(self, project: dict[str, Any], metadata: dict[str, Any]) -> str | None:
+        project_label = str(project.get("project_label") or project.get("project_type") or "Projeto").strip()
+        location = str(project.get("location") or "").strip()
+        area = project.get("area_m2")
+        suggestion = project_label.title()
+        if location:
+            suggestion += f" - {location.title()}"
+        if area:
+            suggestion += f" {int(area) if float(area).is_integer() else area}m2"
+        fallback = str(metadata.get("project_name") or metadata.get("construction_query") or "").strip()
+        return suggestion if suggestion and suggestion.lower() != "projeto" else (fallback[:80] or None)
+
+    def _build_project_name_retry_message(self, metadata: dict[str, Any]) -> str:
+        suggestion = str(metadata.get("suggested_project_name") or "").strip()
+        if suggestion:
+            return f"Me passe um nome um pouco mais claro para o projeto. Se quiser, pode usar {suggestion}."
+        return "Me passe um nome um pouco mais claro para o projeto, por exemplo Residencial Primavera."
 
     def _build_general_guidance_message(self, metadata: dict[str, Any]) -> str:
         construction_context = (metadata.get("construction_memory") or {}).get("context") or metadata.get("construction_context") or {}
@@ -374,7 +653,7 @@ class ChatService:
             items=items,
             delivery_mode=(overrides or {}).get("delivery_mode") or metadata.get("delivery_mode"),
             delivery_location=(overrides or {}).get("delivery_location") or metadata.get("delivery_location"),
-            project_name=(overrides or {}).get("project_name") or thread.get("title"),
+            project_name=(overrides or {}).get("project_name") or metadata.get("project_name") or thread.get("title"),
             priority=request_defaults["priority"],
             sla_due_at=request_defaults["sla_due_at"],
             approval_required=request_defaults["approval_required"],
@@ -446,6 +725,7 @@ class ChatService:
         plan_usage = self.supabase.get_company_plan_context(actor["profile"]["company_id"], profile=actor["profile"])
         if thread.get("request_id"):
             request_payload = self.supabase.get_request_status_payload(thread["request_id"])
+        project_payload = self.supabase.get_project((metadata.get("project_id") or (request_payload["request"].get("project_id") if request_payload else None)))
         live_construction_brain = self._build_live_construction_brain(metadata, request_payload)
         return {
             "thread": thread,
@@ -471,6 +751,7 @@ class ChatService:
             "construction_context": metadata.get("construction_context") or {},
             "conversation_memory": metadata.get("construction_memory") or {},
             "construction_brain": live_construction_brain or metadata.get("construction_brain") or {},
+            "project": project_payload,
             "plan_usage": plan_usage,
         }
 

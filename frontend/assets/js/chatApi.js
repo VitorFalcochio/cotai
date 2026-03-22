@@ -125,6 +125,21 @@ export function getRequestResults(requestId) {
   return apiFetch(`/requests/${requestId}/results`);
 }
 
+export function listProjects() {
+  return apiFetch("/projects");
+}
+
+export function getProject(projectId) {
+  return apiFetch(`/projects/${projectId}`);
+}
+
+export function saveProjectFromThread(threadId, name) {
+  return apiFetch("/projects/from-thread", {
+    method: "POST",
+    body: JSON.stringify({ thread_id: threadId, name })
+  });
+}
+
 export function registerExecutionEvent(requestId, payload) {
   return apiFetch(`/requests/${requestId}/execution-event`, {
     method: "POST",

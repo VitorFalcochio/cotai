@@ -9,6 +9,7 @@ import {
   getChatThread,
   getRequestStatus,
   registerExecutionEvent,
+  saveProjectFromThread,
   quoteMaterials,
   sendChatMessage,
   updateChatDraft
@@ -39,6 +40,7 @@ let latestConstructionPreview = null;
 let latestConstructionContext = null;
 let latestConstructionQuery = "";
 let liveConstructionBrain = null;
+let currentProject = null;
 let selectedExecutionEventType = "material_received";
 const CHAT_BACKGROUND_STORAGE_KEY = "cotai_chat_background_preference";
 
@@ -125,7 +127,7 @@ function setChatAvailability(isAvailable) {
   if (input) {
     input.disabled = !isAvailable;
     input.placeholder = isAvailable
-      ? "Descreva a obra, a etapa ou os materiais. Ex.: como comecar uma casa de 120 m2?"
+      ? "Descreva a obra como falaria para um orcamentista. Ex.: quero fazer um predio com 4 andares."
       : "A API do chatbot está offline no momento.";
   }
   if (submitButton) submitButton.disabled = !isAvailable;
@@ -1335,6 +1337,7 @@ function renderThread(payload) {
   sessionStorage.setItem(THREAD_STORAGE_KEY, activeThreadId);
   activeRequestId = payload.request?.id || "";
   liveConstructionBrain = payload?.construction_brain || null;
+  currentProject = payload?.project || null;
   lastKnownRequestStatus = String(payload.request?.status || payload.thread?.status || "").toUpperCase();
   quoteRenderContext = {
     requestId: String(payload.request?.id || payload.latest_quote?.request_id || ""),
@@ -1345,7 +1348,7 @@ function renderThread(payload) {
   if (list) {
     list.innerHTML = payload.messages.length
       ? payload.messages.map(renderMessage).join("")
-      : '<div class="chat-empty"><div class="chat-empty-copy"><strong>Descreva a obra, a etapa ou os materiais para a Cota te orientar.</strong></div></div>';
+      : '<div class="chat-empty"><div class="chat-empty-copy"><strong>Descreva a obra como em um bate-papo e a Cota coleta os dados tecnicos para voce.</strong></div></div>';
     list.scrollTop = list.scrollHeight;
   }
   setChatStage(Boolean(payload.messages.length));
@@ -1359,10 +1362,50 @@ function renderThread(payload) {
   }
   injectDynamicPreviewIntoLatestAssistant();
   surfaceThreadFeedback(payload);
+  updateProjectSavePanel(payload);
 
   updateSidebar(payload);
   updateExecutionPanelState();
   managePolling();
+}
+
+function updateProjectSavePanel(payload) {
+  const panel = qs("#chatProjectSavePanel");
+  const title = qs("#chatProjectSaveTitle");
+  const meta = qs("#chatProjectSaveMeta");
+  const input = qs("#chatProjectNameInput");
+  const button = qs("#chatProjectSaveButton");
+  const openLink = qs("#chatProjectOpenLink");
+  if (!panel || !title || !meta || !input || !button || !openLink) return;
+
+  const constructionContext = payload?.construction_context || {};
+  const hasConstructionContext = Boolean(constructionContext && Object.keys(constructionContext).length);
+  if (!hasConstructionContext) {
+    panel.classList.add("hidden");
+    return;
+  }
+
+  panel.classList.remove("hidden");
+  if (currentProject?.id) {
+    title.textContent = `Projeto salvo: ${currentProject.name || "Projeto"}`;
+    meta.textContent = "Acompanhe fase atual, materiais e custos consolidados na aba Projetos.";
+    input.classList.add("hidden");
+    button.classList.add("hidden");
+    openLink.classList.remove("hidden");
+    openLink.href = `projects.html?projectId=${encodeURIComponent(currentProject.id)}`;
+    return;
+  }
+
+  const projectType = String(constructionContext.project_label || constructionContext.project_type || "obra");
+  const area = constructionContext.area_m2 ? `${constructionContext.area_m2} m2` : "area pendente";
+  title.textContent = "Quer salvar este projeto?";
+  meta.textContent = `A Cota ja tem contexto suficiente para criar o projeto da ${projectType} com ${area}.`;
+  input.classList.remove("hidden");
+  button.classList.remove("hidden");
+  openLink.classList.add("hidden");
+  if (!input.value.trim()) {
+    input.value = payload?.thread?.title || `${projectType} em estudo`;
+  }
 }
 
 function surfaceThreadFeedback(payload) {
@@ -1644,6 +1687,35 @@ async function submitMessage({ input, submitButton }) {
   }
 }
 
+async function saveCurrentProject() {
+  if (!activeThreadId) {
+    showFeedback("#newRequestFeedback", "Converse com a Cota antes de salvar um projeto.");
+    return;
+  }
+  const input = qs("#chatProjectNameInput");
+  const button = qs("#chatProjectSaveButton");
+  const name = String(input?.value || "").trim();
+  if (!name) {
+    showFeedback("#newRequestFeedback", "Digite um nome para o projeto.");
+    input?.focus();
+    return;
+  }
+
+  setLoading(button, true, "Salvar projeto", "Salvando...");
+  try {
+    const payload = await saveProjectFromThread(activeThreadId, name);
+    currentProject = payload?.project || null;
+    if (activeThreadId) {
+      await loadThread(activeThreadId);
+    }
+    showFeedback("#newRequestFeedback", `Projeto ${name} salvo com sucesso.`, false);
+  } catch (error) {
+    showFeedback("#newRequestFeedback", error.message || "Nao foi possivel salvar o projeto.");
+  } finally {
+    setLoading(button, false, "Salvar projeto");
+  }
+}
+
 function bindDraftEditor() {
   qs("#draftAddItemButton")?.addEventListener("click", () => {
     currentDraft.items = [...(currentDraft.items || []), { name: "", normalized_name: "", quantity: null, unit: "un", raw: "" }];
@@ -1894,6 +1966,16 @@ async function init() {
 
   qs("#chatSaveDraftButton")?.addEventListener("click", async () => {
     await saveDraft(true);
+  });
+
+  qs("#chatProjectSaveButton")?.addEventListener("click", async () => {
+    await saveCurrentProject();
+  });
+
+  qs("#chatProjectNameInput")?.addEventListener("keydown", async (event) => {
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    await saveCurrentProject();
   });
 
   confirmButton?.addEventListener("click", async () => {

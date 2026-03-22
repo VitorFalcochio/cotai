@@ -17,6 +17,7 @@ from .services.dynamic_quote_service import DynamicQuoteService
 from .services.dynamic_search_engine import SearchEngine
 from .services.material_extraction_service import MaterialExtractionService
 from .services.parametric_budget_service import ParametricBudgetService
+from .services.project_service import ProjectService
 from .services.quote_service import QuoteService
 from .services.request_parser import RequestParserService
 from .services.search_cache_service import SearchCacheService
@@ -79,8 +80,9 @@ def get_parametric_budget_service() -> ParametricBudgetService:
 def get_construction_mode_service(
     settings: Settings = Depends(get_settings),
     fallback_search: SearchService = Depends(get_historical_search_service),
+    ai_service: AIService = Depends(get_ai_service),
 ) -> ConstructionModeService:
-    return ConstructionModeService(settings, fallback_search)
+    return ConstructionModeService(settings, fallback_search, ai_service)
 
 
 def get_dynamic_quote_service(
@@ -94,6 +96,10 @@ def get_dynamic_quote_service(
     return DynamicQuoteService(settings, extractor, search_engine, cache, budget_service, fallback_search)
 
 
+def get_project_service(supabase: SupabaseService = Depends(get_supabase)) -> ProjectService:
+    return ProjectService(supabase)
+
+
 def get_chat_service(
     supabase: SupabaseService = Depends(get_supabase),
     parser: RequestParserService = Depends(get_request_parser),
@@ -101,6 +107,7 @@ def get_chat_service(
     intelligence_service: ConversationIntelligenceService = Depends(get_conversation_intelligence_service),
     brain_service: ConstructionBrainService = Depends(get_construction_brain_service),
     execution_insight_service: ConstructionExecutionInsightService = Depends(get_construction_execution_insight_service),
+    project_service: ProjectService = Depends(get_project_service),
 ) -> ChatService:
     return ChatService(
         supabase,
@@ -109,6 +116,7 @@ def get_chat_service(
         intelligence_service,
         brain_service,
         execution_insight_service,
+        project_service,
     )
 
 

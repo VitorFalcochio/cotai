@@ -31,9 +31,11 @@
                 </span>
                 <h1 id="chatThreadTitle">Converse com a Cota, sua IA da construcao civil</h1>
                 <p class="quote-chat-home-subtitle">
-                  A Cota atua como engenheira comercial e mestre de obra assistidos por dados. Voce pode pedir orientacao para comecar uma obra, receber previsao por fase, montar lista inicial de compra ou cotar materiais com prazo e entrega.
+                  A Cota interpreta o que o cliente fala em linguagem natural, faz perguntas tecnicas para fechar o escopo da obra e transforma isso em previsao por fase, lista de compra e cotacao automatica com base no catalog.json.
                 </p>
                 <div class="quote-chat-suggestions" aria-label="Exemplos de pedido">
+                  <button class="quote-chat-suggestion" type="button" data-suggestion="Quero fazer um predio com 4 andares.">Predio com 4 andares</button>
+                  <button class="quote-chat-suggestion" type="button" data-suggestion="Quero construir um galpao de 900 m2 em Campinas.">Galpao de 900 m2</button>
                   <button class="quote-chat-suggestion" type="button" data-suggestion="Quero cotar 12 sacos de cimento cp-ii 50kg para entrega amanha em Rio Preto.">12 sacos de cimento</button>
                   <button class="quote-chat-suggestion" type="button" data-suggestion="Preciso de 3 m3 de areia media e 2 m3 de brita para esta semana.">Areia e brita</button>
                   <button class="quote-chat-suggestion" type="button" data-suggestion="Quero comparar 40 blocos estruturais com entrega em obra.">40 blocos estruturais</button>
@@ -42,12 +44,25 @@
                   <button class="quote-chat-suggestion" type="button" data-suggestion="Preciso fazer um muro de 45 m2 em um terreno em Rio Preto.">Muro de 45 m2</button>
                   <button class="quote-chat-suggestion" type="button" data-suggestion="Quero executar uma calcada de 60 m2 na frente da loja.">Calcada de 60 m2</button>
                 </div>
-                <p class="quote-chat-home-meta" id="chatPrefillNotice">A Cota pode orientar o planejamento da obra, detalhar fases de execucao e transformar isso em compra.</p>
+                <p class="quote-chat-home-meta" id="chatPrefillNotice">Descreva a obra como falaria em um bate-papo. A Cota coleta os dados que faltam e prepara a compra.</p>
               </div>
             </section>
             <br>
             <br>
             <div class="quote-chat-stream quote-chat-stream-bare hidden" id="chatMessages"></div>
+            <section class="dashboard-panel hidden" id="chatProjectSavePanel">
+              <div class="dashboard-panel-head">
+                <div>
+                  <h2 id="chatProjectSaveTitle">Quer salvar este projeto?</h2>
+                  <p id="chatProjectSaveMeta">A Cota pode guardar fase atual, custos e materiais principais.</p>
+                </div>
+                <a class="btn btn-ghost hidden" id="chatProjectOpenLink" href="projects.html">Abrir projeto</a>
+              </div>
+              <div class="form-row" style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;">
+                <input id="chatProjectNameInput" type="text" placeholder="Nome do projeto" />
+                <button class="btn btn-secondary" id="chatProjectSaveButton" type="button">Salvar projeto</button>
+              </div>
+            </section>
 
             <form class="quote-chat-composer quote-chat-composer-bare" id="chatComposerForm">
               <label class="sr-only" for="chatComposerInput">Mensagem</label>
@@ -77,7 +92,7 @@
                 </div>
               </details>
               <div class="quote-chat-composer-shell quote-chat-composer-shell-bare">
-                <textarea id="chatComposerInput" rows="1" placeholder="Descreva a obra, a etapa ou os materiais. Ex.: como comecar uma casa de 120 m2?"></textarea>
+                <textarea id="chatComposerInput" rows="1" placeholder="Descreva a obra como falaria para um orcamentista. Ex.: quero fazer um predio com 4 andares."></textarea>
                 <div class="quote-chat-actions quote-chat-actions-bare">
                   <button class="btn btn-secondary hidden" id="chatConfirmButton" type="button">Confirmar</button>
                   <button class="btn btn-primary" id="chatComposerSubmit" type="submit">Enviar</button>

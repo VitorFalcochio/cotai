@@ -226,6 +226,42 @@ class AIService:
             raise RuntimeError("Invalid AI payload for material extraction")
         return payload, provider
 
+    def extract_construction_context(
+        self,
+        text: str,
+        current_context: dict[str, Any] | None = None,
+    ) -> tuple[dict[str, Any], str]:
+        if not self.settings.groq_api_key and not self.settings.gemini_api_key:
+            return {}, "local"
+
+        prompt = (
+            "Voce interpreta mensagens de clientes para uma IA de construcao civil. "
+            "Retorne JSON puro com estas chaves: "
+            "project_type, area_m2, building_standard, floors, roof_type, foundation_type, location, bedrooms, bathrooms. "
+            "Valores permitidos para project_type: house, townhouse, warehouse, commercial, renovation, wall, sidewalk, screed, building. "
+            "Valores permitidos para building_standard: economico, medio, alto. "
+            "Valores permitidos para roof_type: telha_ceramica, telha_fibrocimento, telha_metalica, laje_impermeabilizada. "
+            "Valores permitidos para foundation_type: sapata, radier, estaca, bloco. "
+            "Use null quando nao souber. "
+            "Nao invente area nem dados tecnicos. "
+            "Se o texto indicar predio ou edificio, prefira project_type=building."
+        )
+        try:
+            content, provider = self._chat_completion(
+                prompt,
+                {
+                    "message": text,
+                    "current_context": current_context or {},
+                },
+            )
+            match = re.search(r"\{.*\}", content, flags=re.DOTALL)
+            payload = json.loads(match.group(0) if match else content)
+            if not isinstance(payload, dict):
+                raise RuntimeError("Invalid AI payload for construction context")
+            return payload, provider
+        except Exception as exc:  # noqa: BLE001
+            return {}, f"local_fallback:{exc}"
+
     def _fallback_summary(self, request_code: str, results: list[dict[str, Any]]) -> str:
         summary = build_user_quote_response(request_code, results)
         return f"{self._coach_opening()}\n{summary}"

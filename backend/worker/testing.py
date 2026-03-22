@@ -664,11 +664,44 @@ class InMemorySupabase:
             if project.get("company_id") == company_id and project.get("name") == name:
                 return project
         project_id = f"project-{len(self.projects) + 1}"
-        row = {"id": project_id, "company_id": company_id, "name": name, "location": location, "notes": notes, "status": "active"}
+        row = {
+            "id": project_id,
+            "company_id": company_id,
+            "name": name,
+            "location": location,
+            "notes": notes,
+            "status": "active",
+            "stage": "planning",
+            "updated_at": datetime.now(UTC).isoformat(),
+        }
         self.projects[project_id] = row
         return row
 
-    def upsert_project_materials(self, *, project_id: str | None, request_id: str, items: list[dict[str, Any]], status: str) -> None:
+    def get_project(self, project_id: str | None) -> dict[str, Any] | None:
+        if not project_id:
+            return None
+        return self.projects.get(project_id)
+
+    def list_projects(self, company_id: str, limit: int = 100) -> list[dict[str, Any]]:
+        rows = [row for row in self.projects.values() if row.get("company_id") == company_id]
+        rows.sort(key=lambda row: str(row.get("updated_at") or ""), reverse=True)
+        return rows[:limit]
+
+    def update_project(self, project_id: str, payload: dict[str, Any]) -> dict[str, Any] | None:
+        row = self.projects.get(project_id)
+        if not row:
+            return None
+        row.update({"updated_at": datetime.now(UTC).isoformat(), **payload})
+        return row
+
+    def list_requests_for_project(self, project_id: str | None, limit: int = 50) -> list[dict[str, Any]]:
+        if not project_id:
+            return []
+        rows = [row for row in self.requests_by_id.values() if row.get("project_id") == project_id]
+        rows.sort(key=lambda row: str(row.get("updated_at") or row.get("created_at") or ""), reverse=True)
+        return rows[:limit]
+
+    def upsert_project_materials(self, *, project_id: str | None, request_id: str | None, items: list[dict[str, Any]], status: str) -> None:
         if not project_id:
             return
         for item in items:

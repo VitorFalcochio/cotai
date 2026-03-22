@@ -8,6 +8,7 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field
 
 from ...worker.config import Settings
+from ...worker.services.ai_service import AIService
 from ...worker.services.search_service import SearchService
 from ...worker.utils.telemetry import telemetry
 
@@ -111,6 +112,7 @@ class ConstructionModeService:
     PROJECT_TYPE_LABELS = {
         "house": "casa",
         "townhouse": "sobrado",
+        "building": "predio",
         "warehouse": "galpao",
         "commercial": "obra comercial",
         "renovation": "reforma",
@@ -218,6 +220,7 @@ class ConstructionModeService:
     PROJECT_PHASES = {
         "house": PHASE_ORDER,
         "townhouse": PHASE_ORDER,
+        "building": PHASE_ORDER,
         "commercial": PHASE_ORDER,
         "warehouse": (
             ("foundation", "Fundacao", "Base estrutural"),
@@ -250,9 +253,10 @@ class ConstructionModeService:
         ),
     }
 
-    def __init__(self, settings: Settings, search_service: SearchService) -> None:
+    def __init__(self, settings: Settings, search_service: SearchService, ai_service: AIService | None = None) -> None:
         self.settings = settings
         self.search_service = search_service
+        self.ai_service = ai_service
 
     def analyze_project(self, text: str, context: dict[str, Any] | None = None) -> dict[str, Any]:
         merged_context = self._merge_context(text, context or {})
@@ -446,27 +450,50 @@ class ConstructionModeService:
         ).model_dump()
 
     def _merge_context(self, text: str, context: dict[str, Any]) -> dict[str, Any]:
-        project_type = self._infer_project_type(text) or self._clean_choice(context.get("project_type"), set(self.PROJECT_TYPE_LABELS))
-        standard = self._infer_standard(text) or self._clean_choice(context.get("building_standard"), set(self.STANDARD_MULTIPLIERS))
-        floors = self._infer_floors(text, project_type) if project_type else self._coerce_int(context.get("floors"))
+        ai_context = self._extract_ai_context(text, context)
+        project_type = (
+            self._infer_project_type(text)
+            or self._clean_choice(ai_context.get("project_type"), set(self.PROJECT_TYPE_LABELS))
+            or self._clean_choice(context.get("project_type"), set(self.PROJECT_TYPE_LABELS))
+        )
+        standard = (
+            self._infer_standard(text)
+            or self._clean_choice(ai_context.get("building_standard"), set(self.STANDARD_MULTIPLIERS))
+            or self._clean_choice(context.get("building_standard"), set(self.STANDARD_MULTIPLIERS))
+        )
+        floors = self._infer_floors(text, project_type) if project_type else self._coerce_int(ai_context.get("floors"))
+        if floors is None:
+            floors = self._coerce_int(context.get("floors"))
         if floors is None:
             floors = 1
         area_m2 = self._extract_area(text)
         if area_m2 is None:
+            area_m2 = self._coerce_float(ai_context.get("area_m2"))
+        if area_m2 is None:
             area_m2 = self._coerce_float(context.get("area_m2"))
         roof_type = self._infer_roof_type(text, project_type) if project_type else self._clean_choice(
-            context.get("roof_type"),
+            ai_context.get("roof_type"),
             {"telha_ceramica", "telha_fibrocimento", "telha_metalica", "laje_impermeabilizada"},
         )
-        foundation_type = self._infer_foundation_type(text) or self._clean_choice(
-            context.get("foundation_type"),
-            {"sapata", "radier", "estaca", "bloco"},
+        if roof_type is None:
+            roof_type = self._clean_choice(
+                context.get("roof_type"),
+                {"telha_ceramica", "telha_fibrocimento", "telha_metalica", "laje_impermeabilizada"},
+            )
+        foundation_type = (
+            self._infer_foundation_type(text)
+            or self._clean_choice(ai_context.get("foundation_type"), {"sapata", "radier", "estaca", "bloco"})
+            or self._clean_choice(context.get("foundation_type"), {"sapata", "radier", "estaca", "bloco"})
         )
-        location = self._infer_location(text) or self._clean_text(context.get("location"))
+        location = self._infer_location(text) or self._clean_text(ai_context.get("location")) or self._clean_text(context.get("location"))
         bedrooms = self._extract_room_count(text, ("quarto", "quartos"))
+        if bedrooms is None:
+            bedrooms = self._coerce_int(ai_context.get("bedrooms"))
         if bedrooms is None:
             bedrooms = self._coerce_int(context.get("bedrooms"))
         bathrooms = self._extract_room_count(text, ("banheiro", "banheiros"))
+        if bathrooms is None:
+            bathrooms = self._coerce_int(ai_context.get("bathrooms"))
         if bathrooms is None:
             bathrooms = self._coerce_int(context.get("bathrooms"))
 
@@ -765,16 +792,19 @@ class ConstructionModeService:
         questions: list[str] = []
         project_type = context.get("project_type")
         if not context.get("area_m2"):
-            questions.append("Qual e a area aproximada da obra em m2?")
+            if project_type == "building":
+                questions.append("Qual e a area total construida do predio ou a area media por pavimento em m2?")
+            else:
+                questions.append("Qual e a area aproximada da obra em m2?")
         if not context.get("project_type"):
-            questions.append("Voce esta falando de casa, sobrado, galpao, reforma, muro, calcada, contrapiso ou obra comercial?")
+            questions.append("Voce esta falando de casa, sobrado, predio, galpao, reforma, muro, calcada, contrapiso ou obra comercial?")
         if not context.get("building_standard"):
             questions.append("Qual padrao de acabamento voce quer considerar: economico, medio ou alto?")
         elif context.get("building_standard") == "medio" and not context.get("location"):
             questions.append("Em qual cidade ou regiao sera a obra? Isso ajuda na compra e nos precos.")
-        if project_type in {"house", "townhouse", "commercial", "warehouse"} and not context.get("roof_type"):
+        if project_type in {"house", "townhouse", "commercial", "warehouse", "building"} and not context.get("roof_type"):
             questions.append("Na cobertura, quer telha ceramica, fibrocimento, metalica ou laje impermeabilizada?")
-        if project_type in {"house", "townhouse", "commercial", "warehouse", "wall"} and not context.get("foundation_type"):
+        if project_type in {"house", "townhouse", "commercial", "warehouse", "building", "wall"} and not context.get("foundation_type"):
             questions.append("Se ja souber, qual fundacao pretende usar: sapata, radier, estaca ou bloco?")
         return questions[:4]
 
@@ -794,6 +824,8 @@ class ConstructionModeService:
             return "wall"
         if any(token in lowered for token in ("reforma", "reformar", "retrofit", "ampliacao", "ampliação")):
             return "renovation"
+        if any(token in lowered for token in ("predio", "prédio", "edificio", "edifício", "torre")):
+            return "building"
         if "sobrado" in lowered:
             return "townhouse"
         if any(token in lowered for token in ("galpao", "galpão", "barracao")):
@@ -820,6 +852,27 @@ class ConstructionModeService:
             return 2
         if project_type in {"wall", "sidewalk", "screed"}:
             return 1
+        numeric_match = re.search(r"\b(\d+)\s+(?:andares|andar|pavimentos|pavimento)\b", lowered)
+        if numeric_match:
+            return int(numeric_match.group(1))
+        word_to_number = {
+            "um": 1,
+            "uma": 1,
+            "dois": 2,
+            "duas": 2,
+            "tres": 3,
+            "três": 3,
+            "quatro": 4,
+            "cinco": 5,
+            "seis": 6,
+            "sete": 7,
+            "oito": 8,
+            "nove": 9,
+            "dez": 10,
+        }
+        word_match = re.search(r"\b(um|uma|dois|duas|tres|três|quatro|cinco|seis|sete|oito|nove|dez)\s+(?:andares|andar|pavimentos|pavimento)\b", lowered)
+        if word_match:
+            return word_to_number.get(word_match.group(1))
         if any(token in lowered for token in ("2 pavimentos", "dois pavimentos", "sobrado")):
             return 2
         if any(token in lowered for token in ("1 pavimento", "um pavimento", "terrea", "terreo")):
@@ -838,6 +891,8 @@ class ConstructionModeService:
             return "telha_metalica"
         if "ceramica" in lowered or "cerâmica" in lowered:
             return "telha_ceramica"
+        if project_type == "building":
+            return "laje_impermeabilizada"
         if project_type == "warehouse":
             return "telha_fibrocimento"
         if project_type:
@@ -858,18 +913,29 @@ class ConstructionModeService:
 
     def _required_context_fields(self, project_type: str | None) -> tuple[str, ...]:
         base_fields = ("area_m2", "project_type", "building_standard", "location")
-        if project_type in {"house", "townhouse", "commercial", "warehouse"}:
+        if project_type in {"house", "townhouse", "commercial", "warehouse", "building"}:
             return (*base_fields, "roof_type", "foundation_type")
         if project_type == "wall":
             return (*base_fields, "foundation_type")
         return base_fields
 
     def _default_roof_for_project(self, project_type: str | None) -> str | None:
+        if project_type == "building":
+            return "laje_impermeabilizada"
         if project_type == "warehouse":
             return "telha_fibrocimento"
         if project_type in {"house", "townhouse", "commercial"}:
             return "telha_ceramica"
         return None
+
+    def _extract_ai_context(self, text: str, context: dict[str, Any]) -> dict[str, Any]:
+        if not self.ai_service:
+            return {}
+        try:
+            payload, _provider = self.ai_service.extract_construction_context(text, current_context=context)
+        except Exception:
+            return {}
+        return payload if isinstance(payload, dict) else {}
 
     def _infer_location(self, text: str) -> str | None:
         match = re.search(r"\bem\s+([A-Za-zÀ-ÿ\s\-]+)", text or "", flags=re.IGNORECASE)

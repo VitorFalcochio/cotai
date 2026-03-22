@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cotai | Projetos</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" />
+  <link rel="stylesheet" href="./assets/css/apex.css" />
+</head>
+<body data-page="projects">
+  <div class="app-layout dashboard-apex-layout">
+    <aside class="app-sidebar dashboard-apex-sidebar" id="appSidebar"></aside>
+    <button class="app-drawer-overlay" id="appDrawerOverlay" type="button" aria-label="Fechar menu"></button>
+
+    <main class="app-main dashboard-apex-main">
+      <header class="app-topbar dashboard-apex-topbar">
+        <div>
+          <h1 style="margin:0;">Projetos</h1>
+          <p style="margin:6px 0 0;">Obras salvas pela Cota com fase atual, custos e materiais acompanhados.</p>
+        </div>
+        <div class="dashboard-topbar-actions">
+          <a class="btn btn-primary" href="new-request.html">Novo projeto via chat</a>
+        </div>
+      </header>
+
+      <p class="app-feedback hidden" id="projectsFeedback" role="alert"></p>
+
+      <section class="dashboard-metrics-grid">
+        <article class="dashboard-metric-card metric-green">
+          <div class="dashboard-metric-head">
+            <div><p>Projetos salvos</p><h3 id="projectsMetricTotal">0</h3></div>
+            <span class="dashboard-metric-icon"><i class="bx bx-briefcase-alt-2"></i></span>
+          </div>
+          <p class="dashboard-metric-trend">Base ativa da construtora</p>
+        </article>
+        <article class="dashboard-metric-card metric-cyan">
+          <div class="dashboard-metric-head">
+            <div><p>Materiais monitorados</p><h3 id="projectsMetricMaterials">0</h3></div>
+            <span class="dashboard-metric-icon"><i class="bx bx-cube-alt"></i></span>
+          </div>
+          <p class="dashboard-metric-trend">Itens registrados nos projetos</p>
+        </article>
+        <article class="dashboard-metric-card metric-blue">
+          <div class="dashboard-metric-head">
+            <div><p>Custo consolidado</p><h3 id="projectsMetricCost">R$ 0</h3></div>
+            <span class="dashboard-metric-icon"><i class="bx bx-line-chart"></i></span>
+          </div>
+          <p class="dashboard-metric-trend">Estimativas salvas pela Cota</p>
+        </article>
+        <article class="dashboard-metric-card metric-amber">
+          <div class="dashboard-metric-head">
+            <div><p>Projetos com fase ativa</p><h3 id="projectsMetricActive">0</h3></div>
+            <span class="dashboard-metric-icon"><i class="bx bx-layer"></i></span>
+          </div>
+          <p class="dashboard-metric-trend">Obras em andamento ou planejamento</p>
+        </article>
+      </section>
+
+      <section class="dashboard-core-grid">
+        <article class="dashboard-panel">
+          <div class="dashboard-panel-head">
+            <div>
+              <h2>Lista de projetos</h2>
+              <p>Selecione um projeto para ver fase atual, custos, materiais e historico.</p>
+            </div>
+          </div>
+          <div class="entity-list" id="projectsList"></div>
+        </article>
+
+        <article class="dashboard-panel">
+          <div class="dashboard-panel-head">
+            <div>
+              <h2 id="projectDetailTitle">Selecione um projeto</h2>
+              <p id="projectDetailSubtitle">A Cota mostra aqui o resumo executivo da obra.</p>
+            </div>
+            <a class="btn btn-ghost hidden" id="projectResumeLink" href="new-request.html">Continuar conversa</a>
+          </div>
+          <div class="comparison-summary-grid" id="projectDetailSummary"></div>
+          <div class="dashboard-status-list" id="projectDetailTimeline"></div>
+          <div class="entity-list" id="projectDetailMaterials"></div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./assets/js/pages/projects.page.js"></script>
+</body>
+</html>

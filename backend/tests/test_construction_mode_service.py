@@ -180,6 +180,17 @@ class ConstructionModeServiceTests(unittest.TestCase):
         self.assertIn("project_type", payload["missing_fields"])
         self.assertEqual(payload["phases"], [])
 
+    def test_analyze_project_understands_building_with_multiple_floors_and_keeps_guided_conversation(self) -> None:
+        service = ConstructionModeService(load_settings(), FakeSearchService())
+
+        payload = service.analyze_project("Quero fazer um predio com 4 andares")
+
+        self.assertEqual(payload["status"], "needs_clarification")
+        self.assertEqual(payload["project"]["project_type"], "building")
+        self.assertEqual(payload["project"]["floors"], 4)
+        self.assertIn("area_m2", payload["missing_fields"])
+        self.assertTrue(any("predio" in question.lower() or "pavimento" in question.lower() for question in payload["next_questions"]))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -103,6 +103,11 @@ class ConversationIntelligenceService:
         project_tokens = (
             "casa",
             "sobrado",
+            "predio",
+            "prédio",
+            "edificio",
+            "edifício",
+            "torre",
             "residencia",
             "residência",
             "residencial",
@@ -117,11 +122,13 @@ class ConversationIntelligenceService:
             "comercial",
         )
 
-        looks_like_construction = "m2" in text and any(token in text for token in project_tokens)
+        has_project_signal = any(token in text for token in project_tokens)
+        has_scope_signal = bool(re.search(r"\b\d+\s*(?:m2|andares|andar|pavimentos|pavimento)\b", text))
+        looks_like_construction = has_project_signal or has_scope_signal
         asks_procurement = any(token in text for token in procurement_tokens)
         asks_guidance = any(token in text for token in guidance_tokens)
         looks_like_refinement = has_construction_context and any(token in text for token in refinement_tokens)
-        looks_like_project_statement = looks_like_construction and (
+        looks_like_project_statement = (has_project_signal or has_scope_signal) and (
             asks_guidance
             or any(token in text for token in ("quero", "preciso", "pretendo", "vou", "desejo"))
         )

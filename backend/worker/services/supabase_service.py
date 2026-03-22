@@ -762,7 +762,7 @@ class SupabaseService:
         self,
         *,
         project_id: str | None,
-        request_id: str,
+        request_id: str | None,
         items: list[dict[str, Any]],
         status: str,
     ) -> None:
@@ -881,6 +881,51 @@ class SupabaseService:
             },
         )
         return rows[0] if rows else None
+
+    def get_project(self, project_id: str | None) -> dict[str, Any] | None:
+        if not project_id or not self.table_exists("projects"):
+            return None
+        return self._maybe_single("projects", {"select": "*", "id": f"eq.{project_id}"})
+
+    def list_projects(self, company_id: str, limit: int = 100) -> list[dict[str, Any]]:
+        if not company_id or not self.table_exists("projects"):
+            return []
+        return self._list(
+            "projects",
+            {
+                "select": "*",
+                "company_id": f"eq.{company_id}",
+                "order": "updated_at.desc",
+                "limit": limit,
+            },
+        )
+
+    def update_project(self, project_id: str, payload: dict[str, Any]) -> dict[str, Any] | None:
+        if not project_id or not self.table_exists("projects"):
+            return None
+        response = self._request(
+            "PATCH",
+            self._table_url("projects"),
+            params={"id": f"eq.{project_id}"},
+            headers=self._headers(prefer="return=representation"),
+            json={"updated_at": utc_now_iso(), **payload},
+        )
+        response.raise_for_status()
+        rows = response.json()
+        return rows[0] if isinstance(rows, list) and rows else None
+
+    def list_requests_for_project(self, project_id: str | None, limit: int = 50) -> list[dict[str, Any]]:
+        if not project_id or not self.table_exists("requests"):
+            return []
+        return self._list(
+            "requests",
+            {
+                "select": "*",
+                "project_id": f"eq.{project_id}",
+                "order": "updated_at.desc",
+                "limit": limit,
+            },
+        )
 
     def apply_project_execution_event(
         self,

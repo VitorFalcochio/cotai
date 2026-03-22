@@ -28,6 +28,7 @@ const SIDEBAR_ICON_MAP = {
   analytics: "bx-bar-chart-alt-2",
   alerts: "bx-bell",
   new: "bx-bot",
+  projects: "bx-briefcase-alt-2",
   requests: "bx-receipt",
   approvals: "bx-check-shield",
   comparisons: "bx-git-compare",
@@ -80,6 +81,7 @@ function getClientSidebarMarkup() {
         <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
         <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard"><span class="left"><span class="nav-label">Dashboard</span></span></a>
         <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotacao"><span class="left"><span class="nav-label">Cota</span></span><span class="mini-badge">IA</span></a>
+        <a class="side-link" data-nav="projects" href="projects.html" title="Projetos"><span class="left"><span class="nav-label">Projetos</span></span></a>
         <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span></a>
         ${plansLink}
       </nav>
