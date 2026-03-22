@@ -4,6 +4,18 @@ from typing import Any
 
 
 PLAN_LIMITS: dict[str, dict[str, Any]] = {
+    "starter": {
+        "label": "Starter",
+        "tagline": "Onboarding inicial para validar a operacao",
+        "monthly_price": 0,
+        "request_limit": 20,
+        "user_limit": 1,
+        "supplier_limit": 8,
+        "history_days": 30,
+        "csv_imports_per_month": 0,
+        "support_level": "Essencial",
+        "recommended": False,
+    },
     "silver": {
         "label": "Prata",
         "tagline": "Entrada enxuta para operacoes pequenas",
@@ -43,6 +55,8 @@ PLAN_LIMITS: dict[str, dict[str, Any]] = {
 }
 
 PLAN_ALIASES = {
+    "starter": "starter",
+    "trial": "starter",
     "silver": "silver",
     "prata": "silver",
     "gold": "gold",

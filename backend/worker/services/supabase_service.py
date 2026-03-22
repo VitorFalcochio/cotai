@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 from typing import Any
+from uuid import uuid4
 import requests
 from ...api.services.plan_limits import get_plan_definition, normalize_plan_key
 from ..config import Settings
@@ -26,6 +27,20 @@ def normalize_priority(value: str | None) -> str:
 
 def normalize_search_text(value: str) -> str:
     return " ".join(str(value or "").strip().lower().split())
+
+
+def generate_request_code(now: datetime | None = None) -> str:
+    current = now or datetime.now(UTC)
+    return f"CT-{current.strftime('%y%m%d')}-{uuid4().hex[:6].upper()}"
+
+
+def is_request_code_conflict_error(error: Exception) -> bool:
+    message = str(error or "").strip().casefold()
+    return (
+        "requests_request_code_key" in message
+        or ("duplicate key value" in message and "request_code" in message)
+        or ("unique constraint" in message and "request_code" in message)
+    )
 
 
 class SupabaseService:
@@ -326,6 +341,8 @@ class SupabaseService:
             "plan_label": definition["label"],
             "plan_tagline": definition.get("tagline"),
             "monthly_price": definition.get("monthly_price"),
+            "billing_enabled": self.settings.billing_enabled,
+            "plan_limits_enforced": self.settings.enforce_plan_limits,
             "request_limit": definition["request_limit"],
             "user_limit": definition["user_limit"],
             "supplier_limit": definition.get("supplier_limit"),
@@ -349,6 +366,9 @@ class SupabaseService:
 
         if context["company_status"] in {"inactive", "disabled", "blocked"}:
             raise RuntimeError("Sua empresa esta bloqueada para novas cotacoes no momento. Verifique o status do plano.")
+
+        if not self.settings.enforce_plan_limits:
+            return context
 
         if user_limit is not None and context["active_users"] > user_limit:
             raise RuntimeError(
@@ -1009,7 +1029,6 @@ class SupabaseService:
         duplicate_score: float | None = None,
     ) -> dict[str, Any]:
         self.assert_company_can_create_request(company_id)
-        request_code = f"CT-{datetime.now(UTC).strftime('%y%m%d%H%M%S')}"
         project_row = self.create_project(
             company_id=company_id,
             created_by_user_id=user_id,
@@ -1017,40 +1036,57 @@ class SupabaseService:
             location=delivery_location,
             notes=notes,
         )
-        payload = {
-            "request_code": request_code,
-            "company_id": company_id,
-            "project_id": project_row.get("id") if project_row else None,
-            "requested_by_user_id": user_id,
-            "chat_thread_id": thread_id,
-            "customer_name": customer_name,
-            "delivery_mode": delivery_mode,
-            "delivery_location": delivery_location,
-            "notes": notes,
-            "status": status or "PENDING_QUOTE",
-            "source_channel": "INTERNAL_CHAT",
-            "updated_at": utc_now_iso(),
-            "priority": normalize_priority(priority),
-            "sla_due_at": sla_due_at,
-            "approval_required": approval_required if approval_required is not None else False,
-            "approval_status": approval_status or "NOT_REQUIRED",
-            "duplicate_of_request_id": duplicate_of_request_id,
-            "duplicate_score": duplicate_score,
-        }
-        payload_variants = [
-            payload,
-            {key: value for key, value in payload.items() if key not in {"project_id", "duplicate_of_request_id", "duplicate_score"}},
-            {key: value for key, value in payload.items() if key not in {"project_id", "priority", "sla_due_at", "approval_required", "approval_status", "duplicate_of_request_id", "duplicate_score"}},
-        ]
         rows: list[dict[str, Any]] = []
         last_error: Exception | None = None
-        for payload_variant in payload_variants:
-            try:
-                rows = self._insert_rows("requests", payload_variant)
-                if rows:
-                    break
-            except Exception as exc:  # noqa: BLE001
-                last_error = exc
+        request_code = ""
+
+        for _attempt in range(5):
+            request_code = generate_request_code()
+            payload = {
+                "request_code": request_code,
+                "company_id": company_id,
+                "project_id": project_row.get("id") if project_row else None,
+                "requested_by_user_id": user_id,
+                "chat_thread_id": thread_id,
+                "customer_name": customer_name,
+                "delivery_mode": delivery_mode,
+                "delivery_location": delivery_location,
+                "notes": notes,
+                "status": status or "PENDING_QUOTE",
+                "source_channel": "INTERNAL_CHAT",
+                "updated_at": utc_now_iso(),
+                "priority": normalize_priority(priority),
+                "sla_due_at": sla_due_at,
+                "approval_required": approval_required if approval_required is not None else False,
+                "approval_status": approval_status or "NOT_REQUIRED",
+                "duplicate_of_request_id": duplicate_of_request_id,
+                "duplicate_score": duplicate_score,
+            }
+            payload_variants = [
+                payload,
+                {key: value for key, value in payload.items() if key not in {"project_id", "duplicate_of_request_id", "duplicate_score"}},
+                {key: value for key, value in payload.items() if key not in {"project_id", "priority", "sla_due_at", "approval_required", "approval_status", "duplicate_of_request_id", "duplicate_score"}},
+            ]
+            should_retry_with_new_code = False
+
+            for payload_variant in payload_variants:
+                try:
+                    rows = self._insert_rows("requests", payload_variant)
+                    if rows:
+                        break
+                except Exception as exc:  # noqa: BLE001
+                    last_error = exc
+                    if is_request_code_conflict_error(exc):
+                        should_retry_with_new_code = True
+                        break
+
+            if rows:
+                break
+            if should_retry_with_new_code:
+                continue
+            if last_error is not None:
+                raise last_error
+
         if not rows:
             if last_error is not None:
                 raise last_error

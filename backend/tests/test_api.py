@@ -18,6 +18,25 @@ from backend.worker.testing import InMemoryAIService, InMemorySupabase
 from backend.worker.utils.telemetry import telemetry
 
 
+class FakeConstructionSearchService:
+    def search_supplier_snapshots(self, item_name: str, limit: int = 5):
+        rows = {
+            "Concreto usinado fck 25": [{"price": 490.0, "source": "snapshot", "captured_at": "2026-03-20T10:00:00+00:00"}],
+            "Aco CA-50": [{"price": 8.0, "source": "snapshot", "captured_at": "2026-03-20T10:00:00+00:00"}],
+            "Bloco estrutural 14x19x39": [{"price": 6.1, "source": "snapshot", "captured_at": "2026-03-20T10:00:00+00:00"}],
+        }
+        return rows.get(item_name, [])[:limit]
+
+    def search_catalog(self, item_name: str, limit: int = 5):
+        rows = {
+            "Argamassa de assentamento": [{"price": 420.0, "source": "catalog"}],
+            "Cimento CP II 50kg": [{"price": 41.0, "source": "catalog"}],
+            "Brita 1": [{"price": 180.0, "source": "catalog"}],
+            "Areia media": [{"price": 165.0, "source": "catalog"}],
+        }
+        return rows.get(item_name, [])[:limit]
+
+
 class ApiTests(unittest.TestCase):
     def setUp(self) -> None:
         self.supabase = InMemorySupabase()
@@ -80,24 +99,6 @@ class ApiTests(unittest.TestCase):
                     },
                 }
 
-        class FakeConstructionSearchService:
-            def search_supplier_snapshots(self, item_name: str, limit: int = 5):
-                rows = {
-                    "Concreto usinado fck 25": [{"price": 490.0, "source": "snapshot", "captured_at": "2026-03-20T10:00:00+00:00"}],
-                    "Aco CA-50": [{"price": 8.0, "source": "snapshot", "captured_at": "2026-03-20T10:00:00+00:00"}],
-                    "Bloco estrutural 14x19x39": [{"price": 6.1, "source": "snapshot", "captured_at": "2026-03-20T10:00:00+00:00"}],
-                }
-                return rows.get(item_name, [])[:limit]
-
-            def search_catalog(self, item_name: str, limit: int = 5):
-                rows = {
-                    "Argamassa de assentamento": [{"price": 420.0, "source": "catalog"}],
-                    "Cimento CP II 50kg": [{"price": 41.0, "source": "catalog"}],
-                    "Brita 1": [{"price": 180.0, "source": "catalog"}],
-                    "Areia media": [{"price": 165.0, "source": "catalog"}],
-                }
-                return rows.get(item_name, [])[:limit]
-
         def override_supabase():
             return self.supabase
 
@@ -149,11 +150,14 @@ class ApiTests(unittest.TestCase):
         payload = response.json()
         self.assertIn("plan_usage", payload)
         self.assertEqual(payload["plan_usage"]["plan_key"], "silver")
+        self.assertFalse(payload["plan_usage"]["billing_enabled"])
+        self.assertFalse(payload["plan_usage"]["plan_limits_enforced"])
         self.assertEqual(payload["plan_usage"]["request_limit"], 80)
         self.assertEqual(payload["plan_usage"]["user_limit"], 2)
         self.assertEqual(payload["plan_usage"]["monthly_price"], 89)
 
     def test_chat_confirm_blocks_when_company_reaches_request_limit(self) -> None:
+        self.supabase.enforce_plan_limits = True
         company = self.supabase.companies["company-1"]
         company["plan"] = "silver"
         month_start = datetime.now(UTC).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
@@ -181,6 +185,7 @@ class ApiTests(unittest.TestCase):
         self.assertIn("atingiu o limite", response.json()["detail"])
 
     def test_chat_confirm_blocks_when_company_exceeds_user_limit(self) -> None:
+        self.supabase.enforce_plan_limits = True
         self.supabase.companies["company-1"]["plan"] = "silver"
         self.supabase.profiles["user-2"] = {
             "id": "user-2",

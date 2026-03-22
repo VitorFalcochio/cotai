@@ -9,6 +9,7 @@ from backend.worker.agent.catalog_normalizer import normalize_request_item
 from backend.worker.agent.price_validator import validate_offers
 from backend.worker.agent.ranker import rank_item_offers
 from backend.worker.main import WorkerApp, parse_request_message
+from backend.worker.services.supabase_service import generate_request_code, is_request_code_conflict_error
 from backend.worker.services.ai_service import AIService
 from backend.worker.testing import InMemoryAIService, InMemorySearchService, InMemorySupabase
 
@@ -35,6 +36,16 @@ class WorkerTests(unittest.TestCase):
         self.assertEqual(payload["request_code"], "CT-1000")
         self.assertEqual(len(payload["items"]), 2)
         self.assertEqual(payload["items"][0]["name"], "cimento cp2 50kg")
+
+    def test_generate_request_code_is_unique_and_keeps_ct_prefix(self) -> None:
+        codes = {generate_request_code() for _ in range(200)}
+        self.assertEqual(len(codes), 200)
+        self.assertTrue(all(code.startswith("CT-") for code in codes))
+        self.assertTrue(all(len(code.split("-")) == 3 for code in codes))
+
+    def test_request_code_conflict_detection_matches_unique_errors(self) -> None:
+        self.assertTrue(is_request_code_conflict_error(RuntimeError('duplicate key value violates unique constraint "requests_request_code_key"')))
+        self.assertFalse(is_request_code_conflict_error(RuntimeError("network timeout")))
 
     def test_request_completion_persists_results(self) -> None:
         supabase = InMemorySupabase()

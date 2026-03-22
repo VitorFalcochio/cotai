@@ -1,4 +1,4 @@
-import { WHATSAPP_NUMBER } from "./config.js";
+import { BILLING_ENABLED, CLIENT_DISABLED_PAGES, DASHBOARD_PATH, PLAN_SELECTION_ENABLED, WHATSAPP_NUMBER } from "./config.js";
 
 export const qs = (selector, root = document) => root.querySelector(selector);
 
@@ -12,6 +12,16 @@ const BOXICONS_STYLESHEET_ID = "cotai-boxicons-stylesheet";
 let themeControlElement = null;
 let themeMediaQuery = null;
 let toastStackElement = null;
+let developmentModalElement = null;
+
+const DISABLED_PAGE_SET = new Set(CLIENT_DISABLED_PAGES);
+const DEVELOPMENT_PAGE_LABELS = {
+  analytics: "Analytics",
+  alerts: "Alertas",
+  approvals: "Aprovacoes",
+  comparisons: "Comparativos",
+  "price-book": "Tabela de precos",
+};
 
 const SIDEBAR_ICON_MAP = {
   dashboard: "bx-grid-alt",
@@ -46,6 +56,10 @@ const ACTION_ICON_MAP = {
 };
 
 function getClientSidebarMarkup() {
+  const plansLink = BILLING_ENABLED || PLAN_SELECTION_ENABLED
+    ? `<a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span></a>`
+    : "";
+
   return `
     <div class="side-shell-head dashboard-brand-head">
       <a class="brand dashboard-brand" href="dashboard.html">
@@ -61,32 +75,19 @@ function getClientSidebarMarkup() {
     </div>
 
     <div class="dashboard-nav-group">
-      <p class="dashboard-nav-title">Nucleo</p>
+      <p class="dashboard-nav-title">Fluxo principal</p>
       <nav class="app-nav" id="appNav">
         <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
         <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard"><span class="left"><span class="nav-label">Dashboard</span></span></a>
         <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotacao"><span class="left"><span class="nav-label">Cota</span></span><span class="mini-badge">IA</span></a>
         <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span></a>
+        ${plansLink}
       </nav>
     </div>
 
     <div class="dashboard-nav-group">
-      <p class="dashboard-nav-title">Decisao</p>
+      <p class="dashboard-nav-title">Conta</p>
       <nav class="app-nav">
-        <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores"><span class="left"><span class="nav-label">Fornecedores</span></span></a>
-        <a class="side-link" data-nav="materials" href="materials.html" title="Materiais"><span class="left"><span class="nav-label">Materiais</span></span></a>
-        <a class="side-link" data-nav="price-book" href="price-book.html" title="Tabela de precos"><span class="left"><span class="nav-label">Tabela de precos</span></span></a>
-      </nav>
-    </div>
-
-    <div class="dashboard-nav-group">
-      <p class="dashboard-nav-title">Depois</p>
-      <nav class="app-nav">
-        <a class="side-link" data-nav="analytics" href="analytics.html" title="Analytics"><span class="left"><span class="nav-label">Analytics</span></span></a>
-        <a class="side-link" data-nav="alerts" href="alerts.html" title="Alertas"><span class="left"><span class="nav-label">Alertas</span></span></a>
-        <a class="side-link" data-nav="approvals" href="approvals.html" title="Aprovacoes"><span class="left"><span class="nav-label">Aprovacoes</span></span></a>
-        <a class="side-link" data-nav="comparisons" href="comparisons.html" title="Comparativos"><span class="left"><span class="nav-label">Comparativos</span></span></a>
-        <a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span></a>
         <a class="side-link" data-nav="settings" href="settings.html" title="Configuracoes"><span class="left"><span class="nav-label">Configuracoes</span></span></a>
       </nav>
     </div>
@@ -105,6 +106,10 @@ function getClientSidebarMarkup() {
 }
 
 function getAdminSidebarMarkup() {
+  const billingLink = BILLING_ENABLED
+    ? `<a class="side-link" data-nav="admin-billing" href="admin-billing.html" title="Receita"><span class="left"><span class="nav-label">Receita</span></span></a>`
+    : "";
+
   return `
     <div class="side-shell-head dashboard-brand-head">
       <a class="brand dashboard-brand" href="admin-dashboard.html">
@@ -134,7 +139,7 @@ function getAdminSidebarMarkup() {
       <nav class="app-nav dashboard-subnav">
         <a class="side-link" data-nav="admin-companies" href="admin-companies.html" title="Empresas"><span class="left"><span class="nav-label">Empresas</span></span></a>
         <a class="side-link" data-nav="admin-users" href="admin-users.html" title="Usuarios"><span class="left"><span class="nav-label">Usuarios</span></span></a>
-        <a class="side-link" data-nav="admin-billing" href="admin-billing.html" title="Receita"><span class="left"><span class="nav-label">Receita</span></span></a>
+        ${billingLink}
       </nav>
     </div>
 
@@ -501,6 +506,91 @@ export function showAppToast({
   return toast;
 }
 
+function ensureDevelopmentModal() {
+  if (developmentModalElement?.isConnected) return developmentModalElement;
+  developmentModalElement = document.createElement("div");
+  developmentModalElement.className = "app-modal";
+  developmentModalElement.id = "developmentModal";
+  developmentModalElement.setAttribute("aria-hidden", "true");
+  developmentModalElement.innerHTML = `
+    <div class="app-modal-backdrop" data-close-modal="true"></div>
+    <div class="app-modal-dialog">
+      <button class="icon-btn" type="button" aria-label="Fechar" data-close-modal="true"></button>
+      <div class="app-modal-copy">
+        <span class="eyebrow">Em desenvolvimento</span>
+        <h3 id="developmentModalTitle">Tela em desenvolvimento</h3>
+        <p id="developmentModalMessage">Esta area ainda nao faz parte do fluxo principal publicado.</p>
+      </div>
+      <div class="app-modal-actions">
+        <button class="btn btn-primary" type="button" id="developmentModalConfirm">Entendi</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(developmentModalElement);
+  decorateActionButtons(document);
+
+  const close = () => {
+    developmentModalElement?.classList.remove("show");
+    document.body.style.overflow = "";
+    developmentModalElement?.setAttribute("aria-hidden", "true");
+  };
+
+  developmentModalElement.querySelectorAll("[data-close-modal]").forEach((button) => {
+    button.addEventListener("click", close);
+  });
+  developmentModalElement.querySelector("#developmentModalConfirm")?.addEventListener("click", close);
+  return developmentModalElement;
+}
+
+export function showDevelopmentModal(pageKey = "") {
+  const modal = ensureDevelopmentModal();
+  const normalizedKey = String(pageKey || "").trim();
+  const title = DEVELOPMENT_PAGE_LABELS[normalizedKey] || "Tela em desenvolvimento";
+  const titleEl = qs("#developmentModalTitle", modal);
+  const messageEl = qs("#developmentModalMessage", modal);
+  if (titleEl) titleEl.textContent = title;
+  if (messageEl) {
+    messageEl.textContent = `${title} ainda esta em desenvolvimento e sera liberada em uma proxima etapa.`;
+  }
+  modal.classList.add("show");
+  modal.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+}
+
+function markDisabledNavigation(root = document) {
+  root.querySelectorAll("a[data-nav]").forEach((link) => {
+    const pageKey = String(link.dataset.nav || "").trim();
+    if (!DISABLED_PAGE_SET.has(pageKey)) return;
+    link.dataset.devDisabled = "true";
+    link.setAttribute("aria-disabled", "true");
+    link.classList.add("is-disabled");
+    const existingTitle = link.getAttribute("title") || DEVELOPMENT_PAGE_LABELS[pageKey] || "Tela";
+    link.setAttribute("title", `${existingTitle} - tela em desenvolvimento`);
+  });
+}
+
+function bindDevelopmentNavigation(root = document) {
+  root.addEventListener("click", (event) => {
+    const link = event.target.closest("a[data-nav][data-dev-disabled='true']");
+    if (!link) return;
+    event.preventDefault();
+    showDevelopmentModal(link.dataset.nav || "");
+  });
+}
+
+function enforcePageAvailability(page) {
+  const normalizedPage = String(page || "").trim();
+  if (!DISABLED_PAGE_SET.has(normalizedPage)) return;
+  window.setTimeout(() => {
+    showDevelopmentModal(normalizedPage);
+    window.setTimeout(() => {
+      if (String(document.body?.dataset.page || "").trim() === normalizedPage) {
+        window.location.replace(DASHBOARD_PATH);
+      }
+    }, 1600);
+  }, 120);
+}
+
 export function getReadableError(error, fallback = "Ocorreu um erro inesperado.") {
   const rawMessage = String(error?.message || error || "").trim();
   const message = rawMessage.toLowerCase();
@@ -527,6 +617,22 @@ export function getReadableError(error, fallback = "Ocorreu um erro inesperado."
 
   if (message.includes("user already registered")) {
     return "Este e-mail ja esta cadastrado.";
+  }
+
+  if (
+    message.includes("companies_slug_key") ||
+    (message.includes("duplicate key value") && message.includes("slug"))
+  ) {
+    return "Ja existe uma empresa com um nome muito parecido. Tente ajustar o nome da empresa para concluir o cadastro.";
+  }
+
+  if (
+    message.includes("session_expired") ||
+    message.includes("sessao expirada") ||
+    message.includes("sua sessao expirou") ||
+    message.includes("sessao invalida")
+  ) {
+    return "Sua sessao expirou. Entre novamente para continuar.";
   }
 
   if (message.includes("invalid login credentials")) {
@@ -613,9 +719,12 @@ export function initSidebar() {
   const overlay = qs("#appDrawerOverlay");
   if (!sidebar || !nav) return;
   decorateAllSidebarNavs(sidebar);
+  markDisabledNavigation(sidebar);
+  bindDevelopmentNavigation(sidebar);
   decorateActionButtons(document);
   normalizePageShell();
   document.body.classList.toggle("apex-shell", page !== "new-request");
+  enforcePageAvailability(page);
 
   const activeLink = sidebar.querySelector(`.side-link[data-nav="${current}"]`);
   if (activeLink) activeLink.classList.add("active");

@@ -65,6 +65,8 @@ class Settings:
     groq_api_key: str
     groq_model: str
     groq_base_url: str
+    billing_enabled: bool
+    enforce_plan_limits: bool
     test_mode: bool
     legacy_google_sheets_enabled: bool
     state_file: Path
@@ -106,6 +108,8 @@ def load_settings() -> Settings:
         groq_api_key=os.getenv("GROQ_API_KEY", "").strip(),
         groq_model=os.getenv("GROQ_MODEL", "llama-3.1-8b-instant").strip() or "llama-3.1-8b-instant",
         groq_base_url=os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1").strip().rstrip("/"),
+        billing_enabled=_env_bool("BILLING_ENABLED", False),
+        enforce_plan_limits=_env_bool("ENFORCE_PLAN_LIMITS", False),
         test_mode=_env_bool("TEST_MODE", False),
         legacy_google_sheets_enabled=_env_bool("LEGACY_GOOGLE_SHEETS_ENABLED", False),
         state_file=BACKEND_DIR / "state.json",

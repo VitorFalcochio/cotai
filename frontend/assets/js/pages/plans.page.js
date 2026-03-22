@@ -1,4 +1,4 @@
-import { LOGIN_PATH } from "../config.js";
+import { BILLING_ENABLED, DASHBOARD_PATH, LOGIN_PATH, PLAN_SELECTION_ENABLED } from "../config.js";
 import { getProfile, isAdminRole, requireAuth } from "../auth.js";
 import { getPlanConfig, PLAN_ORDER } from "../planCatalog.js";
 import { assertSupabaseConfigured, supabase } from "../supabaseClient.js";
@@ -113,11 +113,28 @@ async function savePlanSelection(planKey, button) {
 }
 
 async function init() {
-  assertSupabaseConfigured();
   const session = await requireAuth(LOGIN_PATH);
   if (!session) return;
 
   initSidebar();
+
+  if (!PLAN_SELECTION_ENABLED) {
+    document.querySelectorAll("[data-plan-select]").forEach((button) => {
+      button.disabled = true;
+      button.textContent = "Indisponivel";
+    });
+    showFeedback(
+      "#plansFeedback",
+      BILLING_ENABLED
+        ? "Os planos estao configurados, mas a troca manual ainda esta desativada nesta publicacao."
+        : "Os planos continuam configurados internamente, mas a monetizacao esta inativa nesta publicacao.",
+      false,
+    );
+    window.setTimeout(() => window.location.replace(DASHBOARD_PATH), 1800);
+    return;
+  }
+
+  assertSupabaseConfigured();
   await loadPlanContext(session.user.id);
 
   document.querySelectorAll("[data-plan-select]").forEach((button) => {

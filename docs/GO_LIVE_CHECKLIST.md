@@ -19,7 +19,7 @@ Checklist objetivo para deixar a Cotai demonstravel com seguranca comercial.
 - [ ] Worker processar request
 - [ ] Resultado aparecer no chat
 - [ ] Historico de pedidos listar request
-- [ ] Admin abrir snapshots de preco
+- [ ] Rodar `python scripts/smoke_e2e.py` com credenciais reais
 
 ## 3. Dados minimos para demo comercial
 
@@ -43,6 +43,14 @@ Checklist objetivo para deixar a Cotai demonstravel com seguranca comercial.
 - [ ] admin com modo demonstracao coerente
 - [ ] billing com modo demonstracao coerente
 - [ ] worker com modo demonstracao coerente
+
+## 5.1. Monitoramento minimo
+
+- [ ] API respondendo `/health`
+- [ ] API respondendo `/ops/overview`
+- [ ] worker com heartbeat recente
+- [ ] logs da API com `X-Request-Id`
+- [ ] logs do worker sem erro em loop no startup
 
 ## 6. Antes da reuniao de venda
 

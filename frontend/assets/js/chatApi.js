@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "./config.js";
-import { getSession } from "./auth.js";
+import { AUTH_ERROR_CODES, clearSession, createUnauthenticatedError, getSession } from "./auth.js";
 
 export async function getApiHealth() {
   try {
@@ -16,7 +16,7 @@ export async function getApiHealth() {
 async function apiFetch(path, options = {}) {
   const session = await getSession();
   if (!session?.access_token) {
-    throw new Error("Sessao invalida. Faca login novamente.");
+    throw createUnauthenticatedError();
   }
 
   let response;
@@ -37,6 +37,12 @@ async function apiFetch(path, options = {}) {
   }
 
   const payload = await response.json().catch(() => ({}));
+  if (response.status === 401 || response.status === 403) {
+    await clearSession();
+    const error = new Error(payload.detail || "Sua sessao expirou. Entre novamente para continuar.");
+    error.code = AUTH_ERROR_CODES.sessionExpired;
+    throw error;
+  }
   if (!response.ok) {
     throw new Error(payload.detail || "Falha ao comunicar com a API da Cotai.");
   }

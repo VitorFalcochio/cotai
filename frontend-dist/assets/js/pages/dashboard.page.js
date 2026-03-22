@@ -26,6 +26,21 @@ const STATUS_LABELS = {
   DRAFT: "Rascunho"
 };
 
+const CHAT_BACKGROUND_STORAGE_KEY = "cotai_chat_background_preference";
+
+function getStoredChatBackgroundPreference() {
+  const stored = String(window.localStorage.getItem(CHAT_BACKGROUND_STORAGE_KEY) || "glow").trim().toLowerCase();
+  return ["glow", "grid", "plain"].includes(stored) ? stored : "glow";
+}
+
+function setChatBackgroundPreference(backgroundPreference) {
+  const nextPreference = ["glow", "grid", "plain"].includes(backgroundPreference) ? backgroundPreference : "glow";
+  window.localStorage.setItem(CHAT_BACKGROUND_STORAGE_KEY, nextPreference);
+  document.documentElement.dataset.chatBackground = nextPreference;
+  document.body?.setAttribute("data-chat-background", nextPreference);
+  return nextPreference;
+}
+
 function badgeClass(status) {
   const value = String(status || "").toUpperCase();
   if (value === "DONE") return "is-success";
@@ -76,7 +91,7 @@ function buildNotifications(overview) {
       title: `${pendingApprovals.length} pedido(s) aguardando aprovacao`,
       description: "A equipe precisa validar as proximas compras antes de seguir para cotacao.",
       meta: relativeTimeFromNow(pendingApprovals[0]?.updated_at || pendingApprovals[0]?.created_at),
-      href: "approvals.html"
+      href: "requests.html"
     });
   }
 
@@ -194,6 +209,7 @@ function syncCustomizerState() {
   const themePreference = document.documentElement.dataset.themePreference || "system";
   const accentPreference = document.documentElement.dataset.accent || "emerald";
   const densityPreference = document.documentElement.dataset.density || "comfortable";
+  const backgroundPreference = document.documentElement.dataset.chatBackground || getStoredChatBackgroundPreference();
 
   document.querySelectorAll("[data-theme-choice]").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.themeChoice === themePreference);
@@ -209,6 +225,10 @@ function syncCustomizerState() {
 
   document.querySelectorAll("[data-density-choice]").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.densityChoice === densityPreference);
+  });
+
+  document.querySelectorAll("[data-chat-background-choice]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.chatBackgroundChoice === backgroundPreference);
   });
 }
 
@@ -263,6 +283,13 @@ function initCustomizer() {
     });
   });
 
+  panel.querySelectorAll("[data-chat-background-choice]").forEach((button) => {
+    button.addEventListener("click", () => {
+      setChatBackgroundPreference(button.dataset.chatBackgroundChoice);
+      syncCustomizerState();
+    });
+  });
+
   document.addEventListener("click", (event) => {
     if (panel.classList.contains("hidden")) return;
     if (panel.contains(event.target) || toggle.contains(event.target)) return;
@@ -288,10 +315,6 @@ function buildSearchIndex(overview) {
   const staticPages = [
     { label: "Dashboard", subtitle: "Visao geral da operacao", href: "dashboard.html", group: "Paginas", icon: "bx-grid-alt", tag: "Pagina" },
     { label: "Pedidos", subtitle: "Historico e acompanhamento", href: "requests.html", group: "Paginas", icon: "bx-receipt", tag: "Pagina" },
-    { label: "Aprovacoes", subtitle: "Fila de validacao", href: "approvals.html", group: "Paginas", icon: "bx-check-shield", tag: "Pagina" },
-    { label: "Comparativos", subtitle: "Melhor opcao por pedido", href: "comparisons.html", group: "Paginas", icon: "bx-git-compare", tag: "Pagina" },
-    { label: "Fornecedores", subtitle: "Base e performance", href: "suppliers.html", group: "Paginas", icon: "bx-store-alt", tag: "Pagina" },
-    { label: "Materiais", subtitle: "Catalogo e recorrencia", href: "materials.html", group: "Paginas", icon: "bx-cube-alt", tag: "Pagina" },
     { label: "Cota", subtitle: "Assistente de compras", href: "new-request.html", group: "Paginas", icon: "bx-bot", tag: "IA" },
     { label: "Configuracoes", subtitle: "Conta e preferencias", href: "settings.html", group: "Paginas", icon: "bx-cog", tag: "Pagina" }
   ];
@@ -305,24 +328,6 @@ function buildSearchIndex(overview) {
     tag: String(request.status || "pedido").replaceAll("_", " ")
   }));
 
-  const suppliers = overview.suppliers.slice(0, 8).map((supplier) => ({
-    label: supplier.name || "Fornecedor",
-    subtitle: `${supplier.quote_participation_count || 0} participacoes`,
-    href: "suppliers.html",
-    group: "Fornecedores",
-    icon: "bx-store-alt",
-    tag: "Base"
-  }));
-
-  const materials = overview.topMaterials.slice(0, 8).map((material) => ({
-    label: material.name || "Material",
-    subtitle: `${material.count || 0} ocorrencias recentes`,
-    href: "materials.html",
-    group: "Materiais",
-    icon: "bx-cube-alt",
-    tag: "Catalogo"
-  }));
-
   const projects = overview.projects.slice(0, 6).map((project) => ({
     label: project.name || "Projeto",
     subtitle: project.location || "Sem local definido",
@@ -332,7 +337,7 @@ function buildSearchIndex(overview) {
     tag: "Projeto"
   }));
 
-  return [...staticPages, ...requests, ...suppliers, ...materials, ...projects].map((item) => ({
+  return [...staticPages, ...requests, ...projects].map((item) => ({
     ...item,
     searchText: normalizeText(`${item.label} ${item.subtitle} ${item.group} ${item.tag}`)
   }));
@@ -637,6 +642,7 @@ async function init() {
   if (!session) return;
 
   initSidebar();
+  setChatBackgroundPreference(getStoredChatBackgroundPreference());
 
   const companyLabel = getCompanyDisplayName(session.user);
   const companyInitials = getInitials(companyLabel);

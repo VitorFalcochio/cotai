@@ -1,5 +1,5 @@
 import { LOGIN_PATH } from "../config.js";
-import { requireAuth, signOut } from "../auth.js";
+import { handleSessionExpired, isSessionExpiredError, requireAuth, signOut } from "../auth.js";
 import { fetchProcurementOverview } from "../procurementData.js";
 import { exportQuoteCsv, printQuoteReport } from "../quoteExport.js";
 import { formatCurrencyBRL } from "../adminCommon.js";
@@ -9,6 +9,7 @@ let overview = null;
 let filteredRequests = [];
 let selectedRequest = null;
 const DUPLICATE_REQUEST_STORAGE_KEY = "cotai_request_prefill";
+const THREAD_STORAGE_KEY = "cotai_active_chat_thread";
 
 const STATUS_LABELS = {
   DONE: "Concluido",
@@ -39,6 +40,19 @@ function normalize(value) {
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .trim();
+}
+
+function handlePageError(error, fallback = "Nao foi possivel carregar os pedidos.") {
+  if (isSessionExpiredError(error)) {
+    showFeedback("#requestsFeedback", "Sua sessao expirou. Redirecionando para o login.");
+    window.setTimeout(() => {
+      handleSessionExpired(LOGIN_PATH);
+    }, 350);
+    return true;
+  }
+
+  showFeedback("#requestsFeedback", error.message || fallback);
+  return false;
 }
 
 function escapeHtml(value) {
@@ -75,6 +89,29 @@ function statusRank(status) {
   return 5;
 }
 
+function getRequestAttentionMeta(row) {
+  const status = String(row.status || "").toUpperCase();
+  const updatedAt = new Date(row.updated_at || row.created_at || 0);
+  const ageHours = Number.isFinite(updatedAt.getTime()) ? (Date.now() - updatedAt.getTime()) / 36e5 : 0;
+
+  if (status === "AWAITING_CONFIRMATION") {
+    return { tone: "is-warning", label: "Confirmar no chat", detail: "A Cota ja montou o rascunho e espera sua validacao." };
+  }
+  if (status === "AWAITING_APPROVAL") {
+    return { tone: "is-warning", label: "Liberar aprovacao", detail: "Pedido parado aguardando aval administrativo." };
+  }
+  if (status === "ERROR") {
+    return { tone: "is-danger", label: "Recotar ou revisar", detail: row.last_error || "O fluxo parou com erro e precisa de nova acao." };
+  }
+  if ((status === "PROCESSING" || status === "PENDING_QUOTE") && ageHours >= 4) {
+    return { tone: "is-warning", label: "Acompanhar fila", detail: `Pedido sem atualizacao ha ${Math.round(ageHours)}h.` };
+  }
+  if (status === "DONE") {
+    return { tone: "is-success", label: "Decidir compra", detail: "Comparativo pronto para negociar ou fechar pedido." };
+  }
+  return { tone: "is-muted", label: "Monitorando", detail: "Pedido dentro do fluxo normal." };
+}
+
 function renderRows(rows) {
   if (!rows.length) {
     return '<tr><td colspan="6" class="app-empty">Nenhum pedido encontrado com os filtros atuais.</td></tr>';
@@ -94,7 +131,7 @@ function renderRows(rows) {
           <td>
             <div class="table-entity-meta">
               <strong><span class="app-badge ${badgeClass(row.status)}">${formatStatus(row.status)}</span></strong>
-              <small>${row.priority || "MEDIUM"}</small>
+              <small>${row.priority || "MEDIUM"} - ${escapeHtml(getRequestAttentionMeta(row).label)}</small>
             </div>
           </td>
           <td>
@@ -112,6 +149,7 @@ function renderRows(rows) {
           <td>${formatDateTime(row.updated_at || row.created_at)}</td>
           <td class="app-actions">
             <button class="btn btn-ghost" data-action="details" data-id="${row.id}">Detalhes</button>
+            ${row.chat_thread_id ? `<button class="btn btn-ghost" data-action="resume" data-id="${row.id}">Continuar</button>` : ""}
             <button class="btn btn-ghost" data-action="duplicate" data-id="${row.id}">Recotar</button>
             <button class="btn btn-ghost" data-action="pdf" data-id="${row.id}">PDF</button>
             <button class="btn btn-ghost" data-action="csv" data-id="${row.id}">CSV</button>
@@ -272,6 +310,39 @@ function renderPipeline(rows) {
     .join("");
 }
 
+function renderFollowUpPanel(rows) {
+  const prioritized = [...rows]
+    .sort((left, right) => statusRank(left.status) - statusRank(right.status))
+    .slice(0, 6);
+
+  return renderInsightList(
+    prioritized,
+    (row) => {
+      const meta = getRequestAttentionMeta(row);
+      return `
+        <article class="entity-list-item">
+          <div class="entity-list-copy">
+            <p>${escapeHtml(row.request_code || row.id)}</p>
+            <strong>${escapeHtml(meta.label)}</strong>
+            <span>${escapeHtml(meta.detail)}</span>
+          </div>
+          <button class="btn btn-ghost" type="button" data-action="resume" data-id="${row.id}">Abrir</button>
+        </article>
+      `;
+    },
+    "Sem follow-up urgente",
+    "Os proximos passos criticos vao aparecer aqui."
+  );
+}
+
+function resumeRequest(request) {
+  if (!request?.chat_thread_id) {
+    return duplicateRequest(request);
+  }
+  sessionStorage.setItem(THREAD_STORAGE_KEY, request.chat_thread_id);
+  window.location.href = "new-request.html";
+}
+
 function applyFilters() {
   const searchValue = normalize(qs("#requestsSearch")?.value);
   const statusValue = String(qs("#requestsStatusFilter")?.value || "").toUpperCase();
@@ -281,7 +352,7 @@ function applyFilters() {
   filteredRequests = overview.requests.filter((row) => {
     const matchesSearch =
       !searchValue ||
-      [row.request_code, row.customer_name, row.delivery_location, row.best_supplier_name]
+      [row.request_code, row.customer_name, row.delivery_location, row.best_supplier_name, row.notes, getRequestAttentionMeta(row).label]
         .some((value) => normalize(value).includes(searchValue));
     const matchesStatus = !statusValue || String(row.status || "").toUpperCase() === statusValue;
     const matchesPriority = !priorityValue || String(row.priority || "").toUpperCase() === priorityValue;
@@ -351,13 +422,14 @@ async function init() {
       )
     );
     setHTML("#requestsPipeline", renderPipeline(overview.requests));
+    setHTML("#requestsFollowUps", renderFollowUpPanel(overview.requests));
 
     if (overview.notices.length) {
       showFeedback("#requestsFeedback", overview.notices.join(" "));
     }
     applyFilters();
   } catch (error) {
-    showFeedback("#requestsFeedback", error.message || "Nao foi possivel carregar os pedidos.");
+    handlePageError(error, "Nao foi possivel carregar os pedidos.");
     setHTML("#requestsTableBody", '<tr><td colspan="6" class="app-empty">Erro ao carregar pedidos.</td></tr>');
     return;
   }
@@ -385,6 +457,7 @@ async function init() {
     const request = overview.requests.find((item) => item.id === button.dataset.id);
     if (!request) return;
     if (button.dataset.action === "details") return selectRequest(request.id);
+    if (button.dataset.action === "resume") return resumeRequest(request);
     if (button.dataset.action === "duplicate") return duplicateRequest(request);
     if (button.dataset.action === "pdf") {
       return printQuoteReport({
@@ -399,6 +472,16 @@ async function init() {
         request,
         results: getRequestResults(request.id)
       });
+    }
+  });
+
+  qs("#requestsFollowUps")?.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+    const request = overview.requests.find((item) => item.id === button.dataset.id);
+    if (!request) return;
+    if (button.dataset.action === "resume") {
+      resumeRequest(request);
     }
   });
 }

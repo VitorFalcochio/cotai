@@ -19,5 +19,10 @@ export const SUPABASE_URL = String(RUNTIME_CONFIG.SUPABASE_URL || DEFAULT_SUPABA
 export const SUPABASE_ANON_KEY = String(RUNTIME_CONFIG.SUPABASE_ANON_KEY || DEFAULT_SUPABASE_ANON_KEY).trim();
 export const API_BASE_URL = resolveApiBaseUrl();
 export const WHATSAPP_NUMBER = String(RUNTIME_CONFIG.WHATSAPP_NUMBER || DEFAULT_WHATSAPP_NUMBER).trim();
+export const BILLING_ENABLED = Boolean(RUNTIME_CONFIG.BILLING_ENABLED);
+export const PLAN_SELECTION_ENABLED = Boolean(RUNTIME_CONFIG.PLAN_SELECTION_ENABLED);
+export const CLIENT_DISABLED_PAGES = Array.isArray(RUNTIME_CONFIG.CLIENT_DISABLED_PAGES)
+  ? RUNTIME_CONFIG.CLIENT_DISABLED_PAGES.map((item) => String(item || "").trim()).filter(Boolean)
+  : [];
 export const LOGIN_PATH = "login.html";
 export const DASHBOARD_PATH = "dashboard.html";

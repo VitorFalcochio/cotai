@@ -196,7 +196,18 @@ class AIService:
         )
         try:
             content, provider = self._chat_completion(prompt, {"items": items})
-            return content or fallback, provider
+            cleaned_content = str(content or "").strip()
+            match = re.search(r"\{.*\}", cleaned_content, flags=re.DOTALL)
+            if match:
+                try:
+                    payload = json.loads(match.group(0))
+                except json.JSONDecodeError:
+                    payload = None
+                if isinstance(payload, dict):
+                    cleaned_message = str(payload.get("message") or "").strip()
+                    if cleaned_message:
+                        return cleaned_message, provider
+            return cleaned_content or fallback, provider
         except Exception as exc:  # noqa: BLE001
             return fallback, f"local_fallback:{exc}"
 

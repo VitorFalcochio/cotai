@@ -1,4 +1,4 @@
-import { WHATSAPP_NUMBER } from "./config.js";
+import { BILLING_ENABLED, CLIENT_DISABLED_PAGES, DASHBOARD_PATH, PLAN_SELECTION_ENABLED, WHATSAPP_NUMBER } from "./config.js";
 
 export const qs = (selector, root = document) => root.querySelector(selector);
 
@@ -12,6 +12,16 @@ const BOXICONS_STYLESHEET_ID = "cotai-boxicons-stylesheet";
 let themeControlElement = null;
 let themeMediaQuery = null;
 let toastStackElement = null;
+let developmentModalElement = null;
+
+const DISABLED_PAGE_SET = new Set(CLIENT_DISABLED_PAGES);
+const DEVELOPMENT_PAGE_LABELS = {
+  analytics: "Analytics",
+  alerts: "Alertas",
+  approvals: "Aprovacoes",
+  comparisons: "Comparativos",
+  "price-book": "Tabela de precos",
+};
 
 const SIDEBAR_ICON_MAP = {
   dashboard: "bx-grid-alt",
@@ -46,6 +56,10 @@ const ACTION_ICON_MAP = {
 };
 
 function getClientSidebarMarkup() {
+  const plansLink = BILLING_ENABLED || PLAN_SELECTION_ENABLED
+    ? `<a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span></a>`
+    : "";
+
   return `
     <div class="side-shell-head dashboard-brand-head">
       <a class="brand dashboard-brand" href="dashboard.html">
@@ -61,32 +75,19 @@ function getClientSidebarMarkup() {
     </div>
 
     <div class="dashboard-nav-group">
-      <p class="dashboard-nav-title">Nucleo</p>
+      <p class="dashboard-nav-title">Fluxo principal</p>
       <nav class="app-nav" id="appNav">
         <div class="side-indicator" id="sideIndicator" aria-hidden="true"></div>
         <a class="side-link" data-nav="dashboard" href="dashboard.html" title="Dashboard"><span class="left"><span class="nav-label">Dashboard</span></span></a>
         <a class="side-link" data-nav="new" href="new-request.html" title="Nova cotacao"><span class="left"><span class="nav-label">Cota</span></span><span class="mini-badge">IA</span></a>
         <a class="side-link" data-nav="requests" href="requests.html" title="Pedidos"><span class="left"><span class="nav-label">Pedidos</span></span></a>
+        ${plansLink}
       </nav>
     </div>
 
     <div class="dashboard-nav-group">
-      <p class="dashboard-nav-title">Decisao</p>
+      <p class="dashboard-nav-title">Conta</p>
       <nav class="app-nav">
-        <a class="side-link" data-nav="suppliers" href="suppliers.html" title="Fornecedores"><span class="left"><span class="nav-label">Fornecedores</span></span></a>
-        <a class="side-link" data-nav="materials" href="materials.html" title="Materiais"><span class="left"><span class="nav-label">Materiais</span></span></a>
-        <a class="side-link" data-nav="price-book" href="price-book.html" title="Tabela de precos"><span class="left"><span class="nav-label">Tabela de precos</span></span></a>
-      </nav>
-    </div>
-
-    <div class="dashboard-nav-group">
-      <p class="dashboard-nav-title">Depois</p>
-      <nav class="app-nav">
-        <a class="side-link" data-nav="analytics" href="analytics.html" title="Analytics"><span class="left"><span class="nav-label">Analytics</span></span></a>
-        <a class="side-link" data-nav="alerts" href="alerts.html" title="Alertas"><span class="left"><span class="nav-label">Alertas</span></span></a>
-        <a class="side-link" data-nav="approvals" href="approvals.html" title="Aprovacoes"><span class="left"><span class="nav-label">Aprovacoes</span></span></a>
-        <a class="side-link" data-nav="comparisons" href="comparisons.html" title="Comparativos"><span class="left"><span class="nav-label">Comparativos</span></span></a>
-        <a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span></a>
         <a class="side-link" data-nav="settings" href="settings.html" title="Configuracoes"><span class="left"><span class="nav-label">Configuracoes</span></span></a>
       </nav>
     </div>
@@ -105,6 +106,10 @@ function getClientSidebarMarkup() {
 }
 
 function getAdminSidebarMarkup() {
+  const billingLink = BILLING_ENABLED
+    ? `<a class="side-link" data-nav="admin-billing" href="admin-billing.html" title="Receita"><span class="left"><span class="nav-label">Receita</span></span></a>`
+    : "";
+
   return `
     <div class="side-shell-head dashboard-brand-head">
       <a class="brand dashboard-brand" href="admin-dashboard.html">
@@ -134,7 +139,7 @@ function getAdminSidebarMarkup() {
       <nav class="app-nav dashboard-subnav">
         <a class="side-link" data-nav="admin-companies" href="admin-companies.html" title="Empresas"><span class="left"><span class="nav-label">Empresas</span></span></a>
         <a class="side-link" data-nav="admin-users" href="admin-users.html" title="Usuarios"><span class="left"><span class="nav-label">Usuarios</span></span></a>
-        <a class="side-link" data-nav="admin-billing" href="admin-billing.html" title="Receita"><span class="left"><span class="nav-label">Receita</span></span></a>
+        ${billingLink}
       </nav>
     </div>
 
@@ -501,6 +506,91 @@ export function showAppToast({
   return toast;
 }
 
+function ensureDevelopmentModal() {
+  if (developmentModalElement?.isConnected) return developmentModalElement;
+  developmentModalElement = document.createElement("div");
+  developmentModalElement.className = "app-modal";
+  developmentModalElement.id = "developmentModal";
+  developmentModalElement.setAttribute("aria-hidden", "true");
+  developmentModalElement.innerHTML = `
+    <div class="app-modal-backdrop" data-close-modal="true"></div>
+    <div class="app-modal-dialog">
+      <button class="icon-btn" type="button" aria-label="Fechar" data-close-modal="true"></button>
+      <div class="app-modal-copy">
+        <span class="eyebrow">Em desenvolvimento</span>
+        <h3 id="developmentModalTitle">Tela em desenvolvimento</h3>
+        <p id="developmentModalMessage">Esta area ainda nao faz parte do fluxo principal publicado.</p>
+      </div>
+      <div class="app-modal-actions">
+        <button class="btn btn-primary" type="button" id="developmentModalConfirm">Entendi</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(developmentModalElement);
+  decorateActionButtons(document);
+
+  const close = () => {
+    developmentModalElement?.classList.remove("show");
+    document.body.style.overflow = "";
+    developmentModalElement?.setAttribute("aria-hidden", "true");
+  };
+
+  developmentModalElement.querySelectorAll("[data-close-modal]").forEach((button) => {
+    button.addEventListener("click", close);
+  });
+  developmentModalElement.querySelector("#developmentModalConfirm")?.addEventListener("click", close);
+  return developmentModalElement;
+}
+
+export function showDevelopmentModal(pageKey = "") {
+  const modal = ensureDevelopmentModal();
+  const normalizedKey = String(pageKey || "").trim();
+  const title = DEVELOPMENT_PAGE_LABELS[normalizedKey] || "Tela em desenvolvimento";
+  const titleEl = qs("#developmentModalTitle", modal);
+  const messageEl = qs("#developmentModalMessage", modal);
+  if (titleEl) titleEl.textContent = title;
+  if (messageEl) {
+    messageEl.textContent = `${title} ainda esta em desenvolvimento e sera liberada em uma proxima etapa.`;
+  }
+  modal.classList.add("show");
+  modal.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+}
+
+function markDisabledNavigation(root = document) {
+  root.querySelectorAll("a[data-nav]").forEach((link) => {
+    const pageKey = String(link.dataset.nav || "").trim();
+    if (!DISABLED_PAGE_SET.has(pageKey)) return;
+    link.dataset.devDisabled = "true";
+    link.setAttribute("aria-disabled", "true");
+    link.classList.add("is-disabled");
+    const existingTitle = link.getAttribute("title") || DEVELOPMENT_PAGE_LABELS[pageKey] || "Tela";
+    link.setAttribute("title", `${existingTitle} - tela em desenvolvimento`);
+  });
+}
+
+function bindDevelopmentNavigation(root = document) {
+  root.addEventListener("click", (event) => {
+    const link = event.target.closest("a[data-nav][data-dev-disabled='true']");
+    if (!link) return;
+    event.preventDefault();
+    showDevelopmentModal(link.dataset.nav || "");
+  });
+}
+
+function enforcePageAvailability(page) {
+  const normalizedPage = String(page || "").trim();
+  if (!DISABLED_PAGE_SET.has(normalizedPage)) return;
+  window.setTimeout(() => {
+    showDevelopmentModal(normalizedPage);
+    window.setTimeout(() => {
+      if (String(document.body?.dataset.page || "").trim() === normalizedPage) {
+        window.location.replace(DASHBOARD_PATH);
+      }
+    }, 1600);
+  }, 120);
+}
+
 export function getReadableError(error, fallback = "Ocorreu um erro inesperado.") {
   const rawMessage = String(error?.message || error || "").trim();
   const message = rawMessage.toLowerCase();
@@ -527,6 +617,22 @@ export function getReadableError(error, fallback = "Ocorreu um erro inesperado."
 
   if (message.includes("user already registered")) {
     return "Este e-mail ja esta cadastrado.";
+  }
+
+  if (
+    message.includes("companies_slug_key") ||
+    (message.includes("duplicate key value") && message.includes("slug"))
+  ) {
+    return "Ja existe uma empresa com um nome muito parecido. Tente ajustar o nome da empresa para concluir o cadastro.";
+  }
+
+  if (
+    message.includes("session_expired") ||
+    message.includes("sessao expirada") ||
+    message.includes("sua sessao expirou") ||
+    message.includes("sessao invalida")
+  ) {
+    return "Sua sessao expirou. Entre novamente para continuar.";
   }
 
   if (message.includes("invalid login credentials")) {
@@ -613,9 +719,12 @@ export function initSidebar() {
   const overlay = qs("#appDrawerOverlay");
   if (!sidebar || !nav) return;
   decorateAllSidebarNavs(sidebar);
+  markDisabledNavigation(sidebar);
+  bindDevelopmentNavigation(sidebar);
   decorateActionButtons(document);
   normalizePageShell();
   document.body.classList.toggle("apex-shell", page !== "new-request");
+  enforcePageAvailability(page);
 
   const activeLink = sidebar.querySelector(`.side-link[data-nav="${current}"]`);
   if (activeLink) activeLink.classList.add("active");
@@ -692,7 +801,20 @@ export function initSidebar() {
 export function initLandingMotion() {
   const header = document.querySelector(".header");
   const animatedSections = [...document.querySelectorAll("[data-animate]")];
+  const heroShell = document.querySelector(".hero-shell");
+  const parallaxNodes = [...document.querySelectorAll("[data-parallax]")];
+  const scrollZoomNodes = [...document.querySelectorAll("[data-scroll-zoom]")];
+  const storyDrives = [...document.querySelectorAll("[data-story-drive]")];
+  const editorialDrives = [...document.querySelectorAll("[data-editorial-drive]")];
+  const sceneSections = [...document.querySelectorAll("[data-scene-section]")];
+  const maskedHeadings = [...document.querySelectorAll(
+    ".hero-copy h1, .ai-copy h2, .light-title, .story-screen h3, .story-step-card h3, .section-title, .future-title, .final-cta-shell h2"
+  )];
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  maskedHeadings.forEach((heading) => {
+    heading.setAttribute("data-mask-reveal", "");
+  });
 
   if (header) {
     let ticking = false;
@@ -708,6 +830,184 @@ export function initLandingMotion() {
       ticking = true;
       window.requestAnimationFrame(updateHeaderState);
     }, { passive: true });
+  }
+
+  if (heroShell && !reduceMotion) {
+    const updateHeroSpotlight = (event) => {
+      const rect = heroShell.getBoundingClientRect();
+      const relativeX = ((event.clientX - rect.left) / rect.width) * 100;
+      const relativeY = ((event.clientY - rect.top) / rect.height) * 100;
+
+      heroShell.style.setProperty("--hero-spotlight-x", `${Math.max(0, Math.min(100, relativeX)).toFixed(2)}%`);
+      heroShell.style.setProperty("--hero-spotlight-y", `${Math.max(0, Math.min(100, relativeY)).toFixed(2)}%`);
+    };
+
+    const resetHeroSpotlight = () => {
+      heroShell.style.setProperty("--hero-spotlight-x", "50%");
+      heroShell.style.setProperty("--hero-spotlight-y", "24%");
+    };
+
+    heroShell.addEventListener("pointermove", updateHeroSpotlight, { passive: true });
+    heroShell.addEventListener("pointerleave", resetHeroSpotlight, { passive: true });
+  }
+
+  if (parallaxNodes.length && !reduceMotion) {
+    let parallaxTicking = false;
+
+    const updateParallax = () => {
+      const viewportHeight = window.innerHeight || 1;
+
+      parallaxNodes.forEach((node) => {
+        const strength = Number(node.getAttribute("data-parallax")) || 10;
+        const rect = node.getBoundingClientRect();
+        const progress = ((rect.top + rect.height * 0.5) - viewportHeight * 0.5) / viewportHeight;
+        const offset = Math.max(-1, Math.min(1, progress)) * strength;
+        const rotation = Math.max(-1, Math.min(1, progress)) * -1.5;
+        node.style.transform = `translate3d(0, ${offset.toFixed(2)}px, 0) rotate(${rotation.toFixed(2)}deg)`;
+      });
+
+      parallaxTicking = false;
+    };
+
+    updateParallax();
+
+    window.addEventListener("scroll", () => {
+      if (parallaxTicking) return;
+      parallaxTicking = true;
+      window.requestAnimationFrame(updateParallax);
+    }, { passive: true });
+
+    window.addEventListener("resize", updateParallax, { passive: true });
+  }
+
+  if (scrollZoomNodes.length && !reduceMotion) {
+    let scrollZoomTicking = false;
+
+    const updateScrollZoom = () => {
+      const viewportHeight = window.innerHeight || 1;
+
+      scrollZoomNodes.forEach((node) => {
+        const rect = node.getBoundingClientRect();
+        const center = rect.top + rect.height * 0.5;
+        const distanceFromCenter = (center - viewportHeight * 0.5) / viewportHeight;
+        const clamped = Math.max(-1, Math.min(1, distanceFromCenter));
+        const scaleOffset = (1 - Math.abs(clamped)) * 0.055;
+        const translateY = clamped * 34;
+        const opacity = 0.52 + (1 - Math.abs(clamped)) * 0.48;
+
+        node.style.setProperty("--scroll-zoom-scale-offset", scaleOffset.toFixed(4));
+        node.style.setProperty("--scroll-zoom-y", `${translateY.toFixed(2)}px`);
+        node.style.setProperty("--scroll-zoom-opacity", opacity.toFixed(3));
+      });
+
+      scrollZoomTicking = false;
+    };
+
+    updateScrollZoom();
+
+    window.addEventListener("scroll", () => {
+      if (scrollZoomTicking) return;
+      scrollZoomTicking = true;
+      window.requestAnimationFrame(updateScrollZoom);
+    }, { passive: true });
+
+    window.addEventListener("resize", updateScrollZoom, { passive: true });
+  }
+
+  if (storyDrives.length) {
+    storyDrives.forEach((drive) => {
+      const steps = [...drive.querySelectorAll("[data-story-step]")];
+      if (!steps.length) return;
+
+      const setActiveStep = (index) => {
+        drive.setAttribute("data-active-step", String(index));
+        steps.forEach((step, stepIndex) => {
+          step.classList.toggle("is-active", stepIndex === index);
+        });
+      };
+
+      setActiveStep(0);
+
+      if (reduceMotion || !("IntersectionObserver" in window)) {
+        return;
+      }
+
+      const storyObserver = new IntersectionObserver((entries) => {
+        const visibleEntries = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+        if (!visibleEntries.length) return;
+
+        const activeIndex = Number(visibleEntries[0].target.getAttribute("data-story-step")) || 0;
+        setActiveStep(activeIndex);
+      }, {
+        threshold: [0.35, 0.55, 0.75],
+        rootMargin: "-10% 0px -25% 0px"
+      });
+
+      steps.forEach((step) => storyObserver.observe(step));
+    });
+  }
+
+  if (editorialDrives.length) {
+    editorialDrives.forEach((drive) => {
+      const steps = [...drive.querySelectorAll("[data-editorial-step]")];
+      if (!steps.length) return;
+
+      const setActiveSlide = (index) => {
+        drive.setAttribute("data-active-slide", String(index));
+      };
+
+      setActiveSlide(0);
+
+      if (reduceMotion || !("IntersectionObserver" in window)) {
+        return;
+      }
+
+      const editorialObserver = new IntersectionObserver((entries) => {
+        const visibleEntries = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+        if (!visibleEntries.length) return;
+
+        const activeIndex = Number(visibleEntries[0].target.getAttribute("data-editorial-step")) || 0;
+        setActiveSlide(activeIndex);
+      }, {
+        threshold: [0.3, 0.55, 0.8],
+        rootMargin: "-8% 0px -12% 0px"
+      });
+
+      steps.forEach((step) => editorialObserver.observe(step));
+    });
+  }
+
+  if (sceneSections.length) {
+    const setScene = (scene) => {
+      if (!document.body?.classList.contains("landing-page")) return;
+      document.body.dataset.scene = scene || "hero";
+    };
+
+    setScene(document.body?.dataset.scene || "hero");
+
+    if (!reduceMotion && "IntersectionObserver" in window) {
+      const sceneObserver = new IntersectionObserver((entries) => {
+        const visibleEntries = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+        if (!visibleEntries.length) return;
+
+        const activeScene = visibleEntries[0].target.getAttribute("data-scene-section") || "hero";
+        setScene(activeScene);
+      }, {
+        threshold: [0.2, 0.4, 0.65],
+        rootMargin: "-12% 0px -18% 0px"
+      });
+
+      sceneSections.forEach((section) => sceneObserver.observe(section));
+    }
   }
 
   if (!animatedSections.length) return;

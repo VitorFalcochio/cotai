@@ -243,7 +243,7 @@ class ChatService:
 
         if procurement:
             purchase_list = list(procurement.get("purchase_list") or [])
-            selected_phase = procurement.get("selected_phase_key")
+            selected_phase = procurement.get("summary", {}).get("selected_phase_title") or procurement.get("selected_phase_key")
             lines = [
                 "Aqui e a Cota, sua IA de construcao civil.",
                 "Transformei a leitura da obra em lista inicial de compra.",

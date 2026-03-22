@@ -1,5 +1,7 @@
 ﻿(() => {
   const WHATSAPP_NUMBER = "5517996657737";
+  const BILLING_ENABLED = false;
+  const PLAN_SELECTION_ENABLED = false;
   const STORAGE_KEYS = {
     suppliers: "cotai_suppliers",
     materials: "cotai_materials",
@@ -79,7 +81,7 @@
       <p class="dashboard-nav-title">Commerce</p>
       <nav class="app-nav dashboard-subnav">
         <a class="side-link" data-nav="new" href="new-request.html" title="Cota"><span class="left"><span class="nav-label">Cota</span></span><span class="mini-badge">IA</span></a>
-        <a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span></a>
+        ${BILLING_ENABLED || PLAN_SELECTION_ENABLED ? '<a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span></a>' : ""}
         <a class="side-link" data-nav="settings" href="settings.html" title="Configuracoes"><span class="left"><span class="nav-label">Configuracoes</span></span></a>
       </nav>
     </div>

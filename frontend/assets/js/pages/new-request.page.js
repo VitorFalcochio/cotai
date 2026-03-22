@@ -1,5 +1,5 @@
 import { LOGIN_PATH } from "../config.js";
-import { requireAuth, signOut } from "../auth.js";
+import { handleSessionExpired, isSessionExpiredError, requireAuth, signOut } from "../auth.js";
 import {
   analyzeConstruction,
   buildConstructionProcurement,
@@ -41,6 +41,19 @@ let latestConstructionQuery = "";
 let liveConstructionBrain = null;
 let selectedExecutionEventType = "material_received";
 const CHAT_BACKGROUND_STORAGE_KEY = "cotai_chat_background_preference";
+
+function handlePageError(error, selector = "#newRequestFeedback", fallback = "Nao foi possivel concluir a acao.") {
+  if (isSessionExpiredError(error)) {
+    showFeedback(selector, "Sua sessao expirou. Redirecionando para o login.");
+    window.setTimeout(() => {
+      handleSessionExpired(LOGIN_PATH);
+    }, 350);
+    return true;
+  }
+
+  showFeedback(selector, error.message || fallback);
+  return false;
+}
 
 const STATUS_LABELS = {
   DRAFT: "Rascunho",
@@ -1345,10 +1358,38 @@ function renderThread(payload) {
     latestConstructionQuery = "";
   }
   injectDynamicPreviewIntoLatestAssistant();
+  surfaceThreadFeedback(payload);
 
   updateSidebar(payload);
   updateExecutionPanelState();
   managePolling();
+}
+
+function surfaceThreadFeedback(payload) {
+  const request = payload?.request || null;
+  const threadStatus = String(payload?.thread?.status || "").toUpperCase();
+  const requestStatus = String(request?.status || "").toUpperCase();
+  const effectiveStatus = requestStatus || threadStatus;
+
+  if (effectiveStatus === "AWAITING_CONFIRMATION") {
+    showFeedback("#newRequestFeedback", "Revise os itens detectados e confirme quando estiver tudo certo.", false);
+    return;
+  }
+  if (effectiveStatus === "AWAITING_APPROVAL") {
+    showFeedback("#newRequestFeedback", "Pedido registrado e aguardando aprovacao administrativa.", false);
+    return;
+  }
+  if (effectiveStatus === "PENDING_QUOTE" || effectiveStatus === "PROCESSING") {
+    showFeedback("#newRequestFeedback", "Pedido confirmado. A Cotai esta consolidando a cotacao agora.", false);
+    return;
+  }
+  if (effectiveStatus === "DONE") {
+    showFeedback("#newRequestFeedback", "Cotacao concluida. Revise o comparativo e os resultados abaixo.", false);
+    return;
+  }
+  if (effectiveStatus === "ERROR") {
+    showFeedback("#newRequestFeedback", request?.last_error || "O pedido encontrou um erro no processamento.");
+  }
 }
 
 function injectDynamicPreviewIntoLatestAssistant() {
@@ -1597,7 +1638,7 @@ async function submitMessage({ input, submitButton }) {
       list.innerHTML = previousMarkup;
       setChatStage(hadVisibleThread);
     }
-    showFeedback("#newRequestFeedback", error.message || "Não foi possível enviar a mensagem.");
+    handlePageError(error, "#newRequestFeedback", "Nao foi possivel enviar a mensagem.");
   } finally {
     setLoading(submitButton, false, "Enviar");
   }
@@ -1843,7 +1884,7 @@ async function init() {
     setChatAvailability(true);
   } catch (error) {
     setChatAvailability(true);
-    showFeedback("#newRequestFeedback", error.message || "O motor de cotação parece instável, mas você ainda pode tentar enviar a mensagem.");
+    handlePageError(error, "#newRequestFeedback", "O motor de cotacao parece instavel, mas voce ainda pode tentar enviar a mensagem.");
   }
 
   qs("#logoutButton")?.addEventListener("click", async () => {
@@ -1865,7 +1906,7 @@ async function init() {
       const payload = await confirmChatThread(activeThreadId, draft);
       renderThread(payload);
     } catch (error) {
-      showFeedback("#newRequestFeedback", error.message || "Não foi possível confirmar o pedido.");
+      handlePageError(error, "#newRequestFeedback", "Nao foi possivel confirmar o pedido.");
     } finally {
       setLoading(confirmButton, false, "Confirmar pedido");
     }
@@ -1874,5 +1915,5 @@ async function init() {
 
 runPageBoot(init, { loadingMessage: "Validando sessão e conectando ao motor de cotação." }).catch((error) => {
   setChatAvailability(false);
-  showFeedback("#newRequestFeedback", error.message || "Não foi possível iniciar o motor de cotação.");
+  handlePageError(error, "#newRequestFeedback", "Nao foi possivel iniciar o motor de cotacao.");
 });

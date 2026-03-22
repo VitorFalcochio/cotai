@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from ...shared.request_parser import format_item_label, parse_item_line
@@ -57,12 +58,13 @@ class RequestParserService:
     def _build_item_cautions(self, items: list[dict[str, Any]]) -> list[str]:
         cautions: list[str] = []
         raw_text = " ".join(str(item.get("raw") or item.get("name") or "") for item in items).lower()
+        has_token = lambda *tokens: any(re.search(rf"\b{re.escape(token)}\b", raw_text) for token in tokens)
 
-        if any(token in raw_text for token in ("cimento", "argamassa", "rejunte")) and "kg" not in raw_text:
+        if has_token("cimento", "argamassa", "rejunte") and "kg" not in raw_text:
             cautions.append("Antes de confirmar: se tiver o peso da embalagem, me passe para eu evitar compra errada.")
-        if any(token in raw_text for token in ("ferro", "aco", "vergalhao", "barra")) and "mm" not in raw_text:
+        if has_token("ferro", "aco", "vergalhao", "barra") and "mm" not in raw_text:
             cautions.append("Atencao na ferragem: confirme a bitola em mm para eu nao misturar material estrutural.")
-        if any(token in raw_text for token in ("piso", "porcelanato", "revestimento")) and "m2" not in raw_text:
+        if has_token("piso", "porcelanato", "revestimento") and "m2" not in raw_text:
             cautions.append("Se for revestimento, confirme a area em m2 ou a medida da peca para eu montar melhor a compra.")
 
         return cautions[:2]

@@ -2,6 +2,16 @@ import { DASHBOARD_PATH } from "./config.js";
 import { assertSupabaseConfigured, supabase } from "./supabaseClient.js";
 
 const ADMIN_ROLES = new Set(["admin", "owner"]);
+export const AUTH_ERROR_CODES = {
+  sessionExpired: "session_expired",
+  unauthenticated: "unauthenticated"
+};
+
+function buildAuthError(message, code) {
+  const error = new Error(message);
+  error.code = code;
+  return error;
+}
 
 export async function signIn(email, password) {
   assertSupabaseConfigured();
@@ -45,6 +55,15 @@ export async function getSession() {
   return data.session;
 }
 
+export async function clearSession() {
+  if (!supabase) return;
+  try {
+    await supabase.auth.signOut({ scope: "local" });
+  } catch (_) {
+    // Best effort cleanup for expired sessions.
+  }
+}
+
 export async function requireAuth(loginPath = "/login.html") {
   const session = await getSession();
 
@@ -68,6 +87,22 @@ export async function redirectIfAuthenticated(path = DASHBOARD_PATH) {
 
 export function isAdminRole(role) {
   return ADMIN_ROLES.has(String(role || "").toLowerCase());
+}
+
+export function isSessionExpiredError(error) {
+  return error?.code === AUTH_ERROR_CODES.sessionExpired || error?.code === AUTH_ERROR_CODES.unauthenticated;
+}
+
+export async function handleSessionExpired(loginPath = "/login.html") {
+  await clearSession();
+  if (globalThis?.sessionStorage) {
+    sessionStorage.clear();
+  }
+  window.location.replace(loginPath);
+}
+
+export function createUnauthenticatedError(message = "Sessao invalida. Faca login novamente.") {
+  return buildAuthError(message, AUTH_ERROR_CODES.unauthenticated);
 }
 
 export async function getProfile(userId) {

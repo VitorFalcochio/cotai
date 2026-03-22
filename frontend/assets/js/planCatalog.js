@@ -1,4 +1,26 @@
 export const PLAN_CATALOG = {
+  starter: {
+    key: "starter",
+    label: "Starter",
+    price: 0,
+    requestLimit: 20,
+    userLimit: 1,
+    supplierLimit: 8,
+    historyDays: 30,
+    csvImportsPerMonth: 0,
+    supportLevel: "Essencial",
+    badge: "Trial",
+    badgeTone: "is-muted",
+    description: "Camada inicial para validar o fluxo, estruturar a empresa e dar os primeiros passos.",
+    ctaLabel: "Comecar",
+    features: [
+      "20 pedidos por mes",
+      "1 usuario ativo",
+      "Base com ate 8 fornecedores",
+      "Historico de 30 dias",
+      "Sem importacao CSV"
+    ]
+  },
   silver: {
     key: "silver",
     label: "Prata",
@@ -67,10 +89,11 @@ export const PLAN_CATALOG = {
   }
 };
 
-export const PLAN_ORDER = ["silver", "gold", "diamond"];
+export const PLAN_ORDER = ["starter", "silver", "gold", "diamond"];
 
 export function normalizePlanKey(value, fallback = "silver") {
   const normalized = String(value || "").trim().toLowerCase();
+  if (normalized === "starter" || normalized === "trial") return "starter";
   if (normalized === "prata") return "silver";
   if (normalized === "ouro") return "gold";
   if (normalized === "diamante") return "diamond";

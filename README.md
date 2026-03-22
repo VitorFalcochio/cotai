@@ -60,8 +60,13 @@ python -m backend.worker.main
 Testes:
 
 ```bash
-python -m unittest backend.tests.test_worker backend.tests.test_api
+python -m unittest discover -s backend\tests -v
 ```
+
+Checagens urgentes ja tratadas no fluxo principal:
+
+- `request_code` agora usa identificador com sufixo aleatorio e retry em caso de colisao no banco
+- o fluxo principal de chat, confirmacao, pedido e worker fica coberto pela suite em `backend/tests`
 
 ## Deploy
 

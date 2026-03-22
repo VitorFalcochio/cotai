@@ -91,7 +91,7 @@ function buildNotifications(overview) {
       title: `${pendingApprovals.length} pedido(s) aguardando aprovacao`,
       description: "A equipe precisa validar as proximas compras antes de seguir para cotacao.",
       meta: relativeTimeFromNow(pendingApprovals[0]?.updated_at || pendingApprovals[0]?.created_at),
-      href: "approvals.html"
+      href: "requests.html"
     });
   }
 
@@ -315,10 +315,6 @@ function buildSearchIndex(overview) {
   const staticPages = [
     { label: "Dashboard", subtitle: "Visao geral da operacao", href: "dashboard.html", group: "Paginas", icon: "bx-grid-alt", tag: "Pagina" },
     { label: "Pedidos", subtitle: "Historico e acompanhamento", href: "requests.html", group: "Paginas", icon: "bx-receipt", tag: "Pagina" },
-    { label: "Aprovacoes", subtitle: "Fila de validacao", href: "approvals.html", group: "Paginas", icon: "bx-check-shield", tag: "Pagina" },
-    { label: "Comparativos", subtitle: "Melhor opcao por pedido", href: "comparisons.html", group: "Paginas", icon: "bx-git-compare", tag: "Pagina" },
-    { label: "Fornecedores", subtitle: "Base e performance", href: "suppliers.html", group: "Paginas", icon: "bx-store-alt", tag: "Pagina" },
-    { label: "Materiais", subtitle: "Catalogo e recorrencia", href: "materials.html", group: "Paginas", icon: "bx-cube-alt", tag: "Pagina" },
     { label: "Cota", subtitle: "Assistente de compras", href: "new-request.html", group: "Paginas", icon: "bx-bot", tag: "IA" },
     { label: "Configuracoes", subtitle: "Conta e preferencias", href: "settings.html", group: "Paginas", icon: "bx-cog", tag: "Pagina" }
   ];
@@ -332,24 +328,6 @@ function buildSearchIndex(overview) {
     tag: String(request.status || "pedido").replaceAll("_", " ")
   }));
 
-  const suppliers = overview.suppliers.slice(0, 8).map((supplier) => ({
-    label: supplier.name || "Fornecedor",
-    subtitle: `${supplier.quote_participation_count || 0} participacoes`,
-    href: "suppliers.html",
-    group: "Fornecedores",
-    icon: "bx-store-alt",
-    tag: "Base"
-  }));
-
-  const materials = overview.topMaterials.slice(0, 8).map((material) => ({
-    label: material.name || "Material",
-    subtitle: `${material.count || 0} ocorrencias recentes`,
-    href: "materials.html",
-    group: "Materiais",
-    icon: "bx-cube-alt",
-    tag: "Catalogo"
-  }));
-
   const projects = overview.projects.slice(0, 6).map((project) => ({
     label: project.name || "Projeto",
     subtitle: project.location || "Sem local definido",
@@ -359,7 +337,7 @@ function buildSearchIndex(overview) {
     tag: "Projeto"
   }));
 
-  return [...staticPages, ...requests, ...suppliers, ...materials, ...projects].map((item) => ({
+  return [...staticPages, ...requests, ...projects].map((item) => ({
     ...item,
     searchText: normalizeText(`${item.label} ${item.subtitle} ${item.group} ${item.tag}`)
   }));

@@ -9,6 +9,8 @@ from ..api.services.plan_limits import get_plan_definition, normalize_plan_key
 
 @dataclass
 class InMemorySupabase:
+    billing_enabled: bool = False
+    enforce_plan_limits: bool = False
     requests: dict[str, dict[str, Any]] = field(default_factory=dict)
     requests_by_id: dict[str, dict[str, Any]] = field(default_factory=dict)
     request_items: dict[str, list[dict[str, Any]]] = field(default_factory=dict)
@@ -124,6 +126,8 @@ class InMemorySupabase:
             "plan_label": definition["label"],
             "plan_tagline": definition.get("tagline"),
             "monthly_price": definition.get("monthly_price"),
+            "billing_enabled": self.billing_enabled,
+            "plan_limits_enforced": self.enforce_plan_limits,
             "request_limit": definition["request_limit"],
             "user_limit": definition["user_limit"],
             "supplier_limit": definition.get("supplier_limit"),
@@ -143,6 +147,8 @@ class InMemorySupabase:
         context = self.get_company_plan_context(company_id, profile=profile)
         if context["company_status"] in {"inactive", "disabled", "blocked"}:
             raise RuntimeError("Sua empresa esta bloqueada para novas cotacoes no momento. Verifique o status do plano.")
+        if not self.enforce_plan_limits:
+            return context
         if context["user_limit"] is not None and context["active_users"] > context["user_limit"]:
             raise RuntimeError(
                 f"O plano {context['plan_label']} permite ate {context['user_limit']} usuario(s) ativo(s). "

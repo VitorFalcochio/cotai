@@ -118,6 +118,9 @@ COTAI_API_BASE_URL=https://cotai-api-production.up.railway.app
 COTAI_SUPABASE_URL=https://SEU-PROJETO.supabase.co
 COTAI_SUPABASE_ANON_KEY=...
 COTAI_WHATSAPP_NUMBER=5517996657737
+COTAI_BILLING_ENABLED=false
+COTAI_PLAN_SELECTION_ENABLED=false
+COTAI_CLIENT_DISABLED_PAGES=analytics,alerts,approvals,comparisons,price-book
 ```
 
 O build do Vercel vai escrever esses valores em:
@@ -136,19 +139,28 @@ Depois dos 3 deploys:
 5. Verifique se o worker esta consumindo a fila.
 6. Valide:
    - nova cotacao
-   - modo construcao
    - pedidos
-   - suppliers
-   - materials
+   - dashboard
+   - resultado voltando para o chat
+
+Smoke E2E versionado:
+
+```bash
+set COTAI_E2E_EMAIL=seu-email
+set COTAI_E2E_PASSWORD=sua-senha
+python scripts/smoke_e2e.py
+```
 
 ## 5. Checklist minimo
 
 - `Supabase` com migrations aplicadas
 - `API` respondendo `/health`
+- `API` respondendo `/ops/overview`
 - `Worker` rodando sem erro de environment
 - `Vercel` com `COTAI_API_BASE_URL` correto
 - `CORS_ORIGINS` da API incluindo o dominio do frontend
 - `GEMINI_API_KEY` e `GROQ_API_KEY` validas
+- `BILLING_ENABLED=0` e `ENFORCE_PLAN_LIMITS=0` enquanto o MVP estiver sem monetizacao ativa
 
 ## 6. Comandos uteis locais
 
@@ -174,4 +186,8 @@ python -m unittest backend.tests.test_construction_mode_service backend.tests.te
 
 - O scraping com Playwright nunca e imune a mudancas de layout dos sites externos.
 - O worker deve ficar separado da API para nao competir por CPU e memoria.
+- Logs minimos em producao:
+  - acompanhar `X-Request-Id` nas chamadas da API
+  - usar `/ops/overview` para confirmar worker online e fila andando
+  - verificar logs da Railway para API e worker a cada deploy
 - Se quiser um deploy ainda mais robusto depois, o proximo passo natural e migrar `API + worker` para um VPS Linux com observabilidade e processo supervisor.

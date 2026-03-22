@@ -1,3 +1,4 @@
+import { BILLING_ENABLED } from "../config.js";
 import { fetchAdminBilling } from "../adminBilling.js";
 import { bootAdminPage, runAdminPageBoot } from "../adminPage.js";
 import { formatCurrencyBRL } from "../adminCommon.js";
@@ -25,6 +26,23 @@ function renderRows(rows) {
 
 async function init() {
   await bootAdminPage();
+
+  if (!BILLING_ENABLED) {
+    setText("#billingMrr", "Inativo");
+    setText("#billingTrials", "-");
+    setText("#billingInactive", "-");
+    setText("#billingUpgrades", "-");
+    setText("#billingDowngrades", "-");
+    setText("#billingPlanSilver", "-");
+    setText("#billingPlanGold", "-");
+    setText("#billingPlanDiamond", "-");
+    setHTML(
+      "#adminBillingBody",
+      '<tr><td colspan="5" class="app-empty">A area financeira esta inativa nesta publicacao. Os planos continuam configurados no projeto para ativacao futura.</td></tr>',
+    );
+    showFeedback("#adminBillingFeedback", "Billing desativado temporariamente no produto publicado.", false);
+    return;
+  }
 
   try {
     const payload = await fetchAdminBilling();

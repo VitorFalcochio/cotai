@@ -29,9 +29,9 @@
                 <span class="quote-chat-home-icon" aria-hidden="true">
                   <i class="bx bx-bot"></i>
                 </span>
-                <h1 id="chatThreadTitle">Descreva a obra ou o material e a Cota organiza tudo</h1>
+                <h1 id="chatThreadTitle">Converse com a Cota, sua IA da construcao civil</h1>
                 <p class="quote-chat-home-subtitle">
-                  A Cota atua como mestre de obra assistido por dados. Voce pode pedir uma cotacao direta ou descrever uma obra completa para receber previsao por fase, lista inicial de compra e perguntas de refinamento.
+                  A Cota atua como engenheira comercial e mestre de obra assistidos por dados. Voce pode pedir orientacao para comecar uma obra, receber previsao por fase, montar lista inicial de compra ou cotar materiais com prazo e entrega.
                 </p>
                 <div class="quote-chat-suggestions" aria-label="Exemplos de pedido">
                   <button class="quote-chat-suggestion" type="button" data-suggestion="Quero cotar 12 sacos de cimento cp-ii 50kg para entrega amanha em Rio Preto.">12 sacos de cimento</button>
@@ -42,7 +42,7 @@
                   <button class="quote-chat-suggestion" type="button" data-suggestion="Preciso fazer um muro de 45 m2 em um terreno em Rio Preto.">Muro de 45 m2</button>
                   <button class="quote-chat-suggestion" type="button" data-suggestion="Quero executar uma calcada de 60 m2 na frente da loja.">Calcada de 60 m2</button>
                 </div>
-                <p class="quote-chat-home-meta" id="chatPrefillNotice">A Cota pode resumir preco e prazo ou montar uma previsao inicial completa da obra por fase.</p>
+                <p class="quote-chat-home-meta" id="chatPrefillNotice">A Cota pode orientar o planejamento da obra, detalhar fases de execucao e transformar isso em compra.</p>
               </div>
             </section>
             <br>
@@ -51,8 +51,33 @@
 
             <form class="quote-chat-composer quote-chat-composer-bare" id="chatComposerForm">
               <label class="sr-only" for="chatComposerInput">Mensagem</label>
+              <details class="quote-chat-ops-panel" id="chatExecutionPanel">
+                <summary class="quote-chat-ops-toggle">
+                  <span>Obra</span>
+                  <small id="chatExecutionHint">Atualize a execucao sem poluir o chat</small>
+                  <i class="bx bx-chevron-down" aria-hidden="true"></i>
+                </summary>
+                <div class="quote-chat-ops-body">
+                  <div class="quote-chat-ops-types" id="chatExecutionTypes" role="tablist" aria-label="Acoes rapidas da obra">
+                    <button class="quote-chat-ops-chip is-active" type="button" data-execution-type="material_received">Material chegou</button>
+                    <button class="quote-chat-ops-chip" type="button" data-execution-type="material_consumed">Material consumido</button>
+                    <button class="quote-chat-ops-chip" type="button" data-execution-type="stage_completed">Etapa concluida</button>
+                    <button class="quote-chat-ops-chip" type="button" data-execution-type="supplier_delay">Fornecedor atrasou</button>
+                    <button class="quote-chat-ops-chip" type="button" data-execution-type="purchase_executed">Compra executada</button>
+                  </div>
+                  <div class="quote-chat-ops-form">
+                    <label class="sr-only" for="chatExecutionReference">Referencia</label>
+                    <input id="chatExecutionReference" type="text" placeholder="Ex.: Cimento CP II 50kg" />
+                    <label class="sr-only" for="chatExecutionQuantity">Quantidade</label>
+                    <input id="chatExecutionQuantity" type="number" step="0.01" min="0" placeholder="Qtd" />
+                    <label class="sr-only" for="chatExecutionNote">Nota</label>
+                    <input id="chatExecutionNote" type="text" placeholder="Nota opcional" />
+                    <button class="btn btn-secondary" id="chatExecutionSubmit" type="button">Registrar</button>
+                  </div>
+                </div>
+              </details>
               <div class="quote-chat-composer-shell quote-chat-composer-shell-bare">
-                <textarea id="chatComposerInput" rows="1" placeholder="Peca para a Cota cotar materiais, quantidades, prazo e local de entrega"></textarea>
+                <textarea id="chatComposerInput" rows="1" placeholder="Descreva a obra, a etapa ou os materiais. Ex.: como comecar uma casa de 120 m2?"></textarea>
                 <div class="quote-chat-actions quote-chat-actions-bare">
                   <button class="btn btn-secondary hidden" id="chatConfirmButton" type="button">Confirmar</button>
                   <button class="btn btn-primary" id="chatComposerSubmit" type="submit">Enviar</button>
