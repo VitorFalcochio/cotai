@@ -12,6 +12,7 @@ let selectedRequest = null;
 const DUPLICATE_REQUEST_STORAGE_KEY = "cotai_request_prefill";
 const THREAD_STORAGE_KEY = "cotai_active_chat_thread";
 const highlightedRequestId = new URLSearchParams(window.location.search).get("requestId") || "";
+const MOBILE_REQUESTS_MEDIA = window.matchMedia("(max-width: 768px)");
 
 const STATUS_LABELS = {
   DONE: "Concluido",
@@ -307,11 +308,29 @@ function renderComparison(request) {
   `;
 }
 
+function isMobileRequestsView() {
+  return MOBILE_REQUESTS_MEDIA.matches;
+}
+
+function closeMobileRequestSurfaces() {
+  document.body.classList.remove("requests-filters-open", "requests-comparison-open", "requests-surface-open");
+}
+
+function openMobileRequestSurface(type) {
+  if (!isMobileRequestsView()) return;
+  document.body.classList.add("requests-surface-open");
+  document.body.classList.toggle("requests-filters-open", type === "filters");
+  document.body.classList.toggle("requests-comparison-open", type === "comparison");
+}
+
 function selectRequest(requestId) {
   selectedRequest = overview.requests.find((request) => request.id === requestId) || null;
   setText("#requestDetailTitle", selectedRequest?.request_code || selectedRequest?.requestCode || "Selecione um pedido");
   setHTML("#requestDecisionSummary", renderDecisionSummary(selectedRequest));
   setHTML("#requestComparisonPanel", renderComparison(selectedRequest));
+  if (selectedRequest && isMobileRequestsView()) {
+    openMobileRequestSurface("comparison");
+  }
 }
 
 function buildDuplicatePayload(request) {
@@ -546,9 +565,16 @@ async function init() {
     const sort = qs("#requestsSort");
     if (sort) sort.value = "recent";
     applyFilters();
+    if (isMobileRequestsView()) {
+      closeMobileRequestSurfaces();
+    }
   });
 
   qs("#requestsExportCsv")?.addEventListener("click", exportCurrentRows);
+  qs("#requestsFiltersToggle")?.addEventListener("click", () => openMobileRequestSurface("filters"));
+  qs("#requestsFiltersClose")?.addEventListener("click", closeMobileRequestSurfaces);
+  qs("#requestsComparisonClose")?.addEventListener("click", closeMobileRequestSurfaces);
+  qs("#requestsMobileSheetOverlay")?.addEventListener("click", closeMobileRequestSurfaces);
 
   qs("#requestsTableBody")?.addEventListener("click", (event) => {
     const button = event.target.closest("button[data-action]");
@@ -607,6 +633,20 @@ async function init() {
       resumeRequest(request);
     }
   });
+
+  if (typeof MOBILE_REQUESTS_MEDIA.addEventListener === "function") {
+    MOBILE_REQUESTS_MEDIA.addEventListener("change", () => {
+      if (!MOBILE_REQUESTS_MEDIA.matches) {
+        closeMobileRequestSurfaces();
+      }
+    });
+  } else if (typeof MOBILE_REQUESTS_MEDIA.addListener === "function") {
+    MOBILE_REQUESTS_MEDIA.addListener(() => {
+      if (!MOBILE_REQUESTS_MEDIA.matches) {
+        closeMobileRequestSurfaces();
+      }
+    });
+  }
 }
 
 init().catch((error) => {

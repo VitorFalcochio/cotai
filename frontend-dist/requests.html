@@ -26,6 +26,7 @@
         </div>
         <div class="app-topbar-actions">
           <button class="btn btn-ghost" id="requestsExportCsv" type="button">Exportar CSV</button>
+          <button class="btn btn-ghost" id="requestsFiltersToggle" type="button">Filtros</button>
           <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
           <button class="btn btn-ghost" id="logoutButton" type="button">Sair</button>
           <a class="btn btn-primary" href="new-request.html">Nova cotacao</a>
@@ -87,7 +88,7 @@
         <div id="requestsFollowUps" class="entity-list"></div>
       </section>
 
-      <section class="card table-shell">
+      <section class="card table-shell requests-history-shell">
         <div class="table-toolbar">
           <div>
             <p class="eyebrow">Busca</p>
@@ -95,7 +96,17 @@
           </div>
         </div>
 
-        <div class="app-filter-bar app-filter-bar-compact">
+        <div class="app-filter-bar app-filter-bar-compact requests-filters-sheet" id="requestsFilterBar">
+          <div class="requests-sheet-handle" aria-hidden="true"></div>
+          <div class="requests-sheet-head">
+            <div>
+              <p class="eyebrow">Filtros</p>
+              <h2>Refinar fila</h2>
+            </div>
+            <button class="icon-btn" id="requestsFiltersClose" type="button" aria-label="Fechar filtros">
+              <i class="bx bx-x" aria-hidden="true"></i>
+            </button>
+          </div>
           <div class="form-row">
             <label for="requestsSearch">Buscar</label>
             <input id="requestsSearch" type="search" placeholder="Codigo, cliente, local ou fornecedor" />
@@ -153,13 +164,17 @@
         </div>
       </section>
 
-      <section class="card table-shell">
+      <section class="card table-shell requests-comparison-sheet" id="requestsComparisonSheet">
         <div class="filter-shell-head">
           <div>
             <p class="eyebrow">Comparador</p>
             <h2 id="requestDetailTitle">Selecione um pedido</h2>
           </div>
+          <button class="icon-btn requests-comparison-close" id="requestsComparisonClose" type="button" aria-label="Fechar comparador">
+            <i class="bx bx-x" aria-hidden="true"></i>
+          </button>
         </div>
+        <div class="requests-sheet-handle" aria-hidden="true"></div>
         <div class="comparison-summary-grid" id="requestDecisionSummary">
           <article class="comparison-summary-card"><span>Melhor preco</span><strong>-</strong></article>
           <article class="comparison-summary-card"><span>Melhor prazo</span><strong>-</strong></article>
@@ -170,6 +185,7 @@
       </section>
     </main>
   </div>
+  <button class="requests-mobile-sheet-overlay" id="requestsMobileSheetOverlay" type="button" aria-label="Fechar painel"></button>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="./assets/js/pages/requests.page.js"></script>
