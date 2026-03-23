@@ -43,6 +43,48 @@ let liveConstructionBrain = null;
 let currentProject = null;
 let selectedExecutionEventType = "material_received";
 const CHAT_BACKGROUND_STORAGE_KEY = "cotai_chat_background_preference";
+const MOBILE_CHAT_MEDIA = window.matchMedia("(max-width: 768px)");
+
+function isMobileChatView() {
+  return MOBILE_CHAT_MEDIA.matches;
+}
+
+function syncResponsiveText(selector, fallbackText = "") {
+  const element = qs(selector);
+  if (!element) return;
+
+  const nextText = isMobileChatView()
+    ? String(element.dataset.mobileCopy || fallbackText || element.textContent || "").trim()
+    : String(element.dataset.desktopCopy || fallbackText || element.textContent || "").trim();
+  const previousDefault = String(element.dataset.activeDefaultCopy || "").trim();
+  const currentText = String(element.textContent || "").trim();
+
+  if (!currentText || currentText === previousDefault) {
+    element.textContent = nextText;
+  }
+
+  element.dataset.activeDefaultCopy = nextText;
+}
+
+function getChatInputPlaceholder(isAvailable) {
+  const input = qs("#chatComposerInput");
+  if (!input) return "";
+  if (!isAvailable) return "A API do chatbot esta offline no momento.";
+  return isMobileChatView()
+    ? String(input.dataset.mobilePlaceholder || input.placeholder || "").trim()
+    : String(input.dataset.desktopPlaceholder || input.placeholder || "").trim();
+}
+
+function applyResponsiveChatCopy(isAvailable = !qs("#chatComposerInput")?.disabled) {
+  syncResponsiveText("#chatThreadTitle");
+  syncResponsiveText("#chatHomeSubtitle");
+  syncResponsiveText("#chatPrefillNotice");
+
+  const input = qs("#chatComposerInput");
+  if (input) {
+    input.placeholder = getChatInputPlaceholder(Boolean(isAvailable));
+  }
+}
 
 function handlePageError(error, selector = "#newRequestFeedback", fallback = "Nao foi possivel concluir a acao.") {
   if (isSessionExpiredError(error)) {
@@ -126,9 +168,7 @@ function setChatAvailability(isAvailable) {
 
   if (input) {
     input.disabled = !isAvailable;
-    input.placeholder = isAvailable
-      ? "Descreva a obra como falaria para um orcamentista. Ex.: quero fazer um predio com 4 andares."
-      : "A API do chatbot está offline no momento.";
+    input.placeholder = getChatInputPlaceholder(isAvailable);
   }
   if (submitButton) submitButton.disabled = !isAvailable;
   if (saveButton) saveButton.disabled = !isAvailable || !activeThreadId;
@@ -157,9 +197,9 @@ function updateExecutionPanelState() {
   });
 
   if (hint) {
-    hint.textContent = isRequestActive
-      ? `${config.label} de forma rapida`
-      : "Disponivel apos confirmar o pedido";
+    hint.textContent = isMobileChatView()
+      ? (isRequestActive ? "Atalho rapido da obra" : "Liberado apos confirmar")
+      : (isRequestActive ? `${config.label} de forma rapida` : "Disponivel apos confirmar o pedido");
   }
 
   if (panel) {
@@ -1895,6 +1935,7 @@ function loadRequestPrefill() {
 async function init() {
   initSidebar();
   applyChatBackgroundPreference();
+  applyResponsiveChatCopy(true);
   const form = qs("#chatComposerForm");
   const input = qs("#chatComposerInput");
   const submitButton = qs("#chatComposerSubmit");
@@ -1908,6 +1949,18 @@ async function init() {
   bindQuickImport();
   updateExecutionPanelState();
   const prefillLoaded = loadRequestPrefill();
+
+  if (typeof MOBILE_CHAT_MEDIA.addEventListener === "function") {
+    MOBILE_CHAT_MEDIA.addEventListener("change", () => {
+      applyResponsiveChatCopy(!qs("#chatComposerInput")?.disabled);
+      updateExecutionPanelState();
+    });
+  } else if (typeof MOBILE_CHAT_MEDIA.addListener === "function") {
+    MOBILE_CHAT_MEDIA.addListener(() => {
+      applyResponsiveChatCopy(!qs("#chatComposerInput")?.disabled);
+      updateExecutionPanelState();
+    });
+  }
 
   suggestions.forEach((button) => {
     button.addEventListener("click", () => {

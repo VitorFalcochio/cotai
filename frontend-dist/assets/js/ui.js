@@ -57,7 +57,7 @@ const ACTION_ICON_MAP = {
 };
 
 const CLIENT_BOTTOM_NAV_ITEMS = [
-  { key: "dashboard", label: "Painel", href: "dashboard.html", icon: "bx-grid-alt" },
+  { key: "dashboard", label: "Hoje", href: "dashboard.html", icon: "bx-grid-alt" },
   { key: "new", label: "Cota", href: "new-request.html", icon: "bx-bot" },
   { key: "requests", label: "Pedidos", href: "requests.html", icon: "bx-receipt" },
   { key: "projects", label: "Projetos", href: "projects.html", icon: "bx-briefcase-alt-2" },
