@@ -8,7 +8,6 @@ import {
   formatDateTime,
   initSidebar,
   qs,
-  runPageBoot,
   setAccentPreference,
   setDensityPreference,
   setHTML,
@@ -534,6 +533,127 @@ function renderRecentRequestsMobile(rows) {
     .join("");
 }
 
+function renderDashboardSkeletons() {
+  setText("#metricRequests", "...");
+  setText("#metricMaterialsQuoted", "...");
+  setText("#metricSavings", "...");
+  setText("#metricInFlight", "...");
+  setText("#metricRequestsMeta", "Carregando indicadores");
+  setText("#metricMaterialsMeta", "Carregando indicadores");
+  setText("#metricSavingsMeta", "Carregando indicadores");
+  setText("#metricInFlightMeta", "Carregando indicadores");
+  setText("#dashboardMobileHeroMeta", "Estruturando a leitura operacional para o mobile.");
+  setText("#dashboardMobilePulseValue", "Carregando...");
+  setText("#dashboardMobilePulseMeta", "Atualizando fila e status.");
+  setText("#dashboardMobileSupplierValue", "Carregando...");
+  setText("#dashboardMobileSupplierMeta", "Lendo recorrencia da base recente.");
+
+  setHTML(
+    "#dashboardTodayPriorityList",
+    Array.from({ length: 2 })
+      .map(
+        () => `
+          <article class="dashboard-today-card dashboard-skeleton-card">
+            <div class="skeleton" style="height: 16px; width: 42%;"></div>
+            <div class="skeleton" style="height: 22px; width: 58%;"></div>
+            <div class="skeleton" style="height: 52px; width: 100%;"></div>
+            <div class="skeleton" style="height: 18px; width: 74%;"></div>
+            <div class="skeleton" style="height: 48px; width: 100%;"></div>
+          </article>
+        `
+      )
+      .join("")
+  );
+
+  setHTML(
+    "#dashboardRecentMobileList",
+    Array.from({ length: 2 })
+      .map(
+        () => `
+          <article class="dashboard-recent-mobile-card dashboard-skeleton-card">
+            <div class="skeleton" style="height: 16px; width: 40%;"></div>
+            <div class="skeleton" style="height: 22px; width: 56%;"></div>
+            <div class="skeleton" style="height: 44px; width: 100%;"></div>
+            <div class="skeleton" style="height: 48px; width: 100%;"></div>
+          </article>
+        `
+      )
+      .join("")
+  );
+
+  setHTML(
+    "#dashboardRequestsTableBody",
+    Array.from({ length: 4 })
+      .map(
+        () => `
+          <tr class="skeleton-row">
+            <td><div class="skeleton" style="height: 18px; width: 80%;"></div></td>
+            <td><div class="skeleton" style="height: 18px; width: 68%;"></div></td>
+            <td><div class="skeleton" style="height: 18px; width: 72%;"></div></td>
+            <td><div class="skeleton" style="height: 18px; width: 64%;"></div></td>
+          </tr>
+        `
+      )
+      .join("")
+  );
+
+  setHTML(
+    "#dashboardStatusList",
+    Array.from({ length: 3 })
+      .map(
+        () => `
+          <article class="dashboard-status-item dashboard-skeleton-card">
+            <div class="skeleton" style="height: 18px; width: 46%;"></div>
+            <div class="skeleton" style="height: 52px; width: 100%;"></div>
+          </article>
+        `
+      )
+      .join("")
+  );
+
+  setHTML(
+    "#dashboardTopMaterials",
+    Array.from({ length: 3 })
+      .map(
+        () => `
+          <article class="entity-list-item dashboard-skeleton-card">
+            <div class="skeleton" style="height: 16px; width: 38%;"></div>
+            <div class="skeleton" style="height: 20px; width: 60%;"></div>
+          </article>
+        `
+      )
+      .join("")
+  );
+
+  setHTML(
+    "#dashboardActivityList",
+    Array.from({ length: 2 })
+      .map(
+        () => `
+          <article class="dashboard-status-item dashboard-skeleton-card">
+            <div class="skeleton" style="height: 18px; width: 52%;"></div>
+            <div class="skeleton" style="height: 48px; width: 100%;"></div>
+          </article>
+        `
+      )
+      .join("")
+  );
+
+  setHTML(
+    "#dashboardSummaryList",
+    Array.from({ length: 2 })
+      .map(
+        () => `
+          <article class="dashboard-status-item dashboard-skeleton-card">
+            <div class="skeleton" style="height: 18px; width: 44%;"></div>
+            <div class="skeleton" style="height: 48px; width: 100%;"></div>
+          </article>
+        `
+      )
+      .join("")
+  );
+}
+
 function renderTodayPriorityList(rows) {
   const priorityRows = [...rows]
     .sort((left, right) => {
@@ -756,8 +876,8 @@ function renderSummaryList(overview, inFlightCount) {
 async function init() {
   const session = await requireAuth(LOGIN_PATH);
   if (!session) return;
+  renderDashboardSkeletons();
   await bootstrapMobileNotifications(session.user.id);
-
   initSidebar();
   setChatBackgroundPreference(getStoredChatBackgroundPreference());
 
@@ -826,6 +946,6 @@ async function init() {
   }
 }
 
-runPageBoot(init, { loadingMessage: "Carregando dashboard principal." }).catch((error) => {
+init().catch((error) => {
   showFeedback("#dashboardFeedback", error.message || "Erro ao iniciar o dashboard.");
 });

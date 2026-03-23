@@ -542,6 +542,18 @@
   line-height: 1.55;
 }
 
+.dashboard-skeleton-card {
+  pointer-events: none;
+}
+
+.dashboard-skeleton-card .skeleton + .skeleton {
+  margin-top: 8px;
+}
+
+.dashboard-kpi-more {
+  display: none;
+}
+
 .dashboard-recent-mobile-head {
   display: flex;
   align-items: flex-start;
@@ -1093,6 +1105,14 @@
     gap: 10px;
   }
 
+  body[data-page="dashboard"] .dashboard-search-shell {
+    order: 2;
+  }
+
+  body[data-page="dashboard"] .dashboard-topbar-actions {
+    order: 1;
+  }
+
   body[data-page="dashboard"] .dashboard-topbar-actions > * {
     width: 100%;
   }
@@ -1108,6 +1128,10 @@
 
   body[data-page="dashboard"] .dashboard-user-chip,
   body[data-page="dashboard"] #adminShortcut {
+    display: none;
+  }
+
+  body[data-page="dashboard"] #dashboardCustomizeToggle {
     display: none;
   }
 
@@ -1142,6 +1166,59 @@
   body[data-page="dashboard"] .dashboard-recent-mobile-card,
   body[data-page="dashboard"] .dashboard-today-card {
     border-radius: 20px;
+  }
+
+  body[data-page="dashboard"] .dashboard-mobile-hero-copy p,
+  body[data-page="dashboard"] .dashboard-mobile-pulse-card p,
+  body[data-page="dashboard"] .dashboard-recent-mobile-meta span,
+  body[data-page="dashboard"] .dashboard-today-card-detail,
+  body[data-page="dashboard"] .dashboard-panel-head p,
+  body[data-page="dashboard"] .dashboard-status-item p,
+  body[data-page="dashboard"] .entity-list-copy p {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  body[data-page="dashboard"] .dashboard-mobile-pulse-card span,
+  body[data-page="dashboard"] .dashboard-today-card-meta,
+  body[data-page="dashboard"] .app-badge,
+  body[data-page="dashboard"] .dashboard-search-item-tag,
+  body[data-page="dashboard"] .dashboard-search-group-label {
+    font-size: 0.875rem;
+    line-height: 1.45;
+  }
+
+  body[data-page="dashboard"] .dashboard-metrics-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  body[data-page="dashboard"] .dashboard-metric-card:nth-child(n + 3) {
+    display: none;
+  }
+
+  body[data-page="dashboard"] .dashboard-metric-card h3 {
+    font-size: clamp(1.75rem, 7vw, 2.25rem);
+    line-height: 1.05;
+  }
+
+  body[data-page="dashboard"] .dashboard-metric-card p,
+  body[data-page="dashboard"] .dashboard-metric-trend {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  body[data-page="dashboard"] .dashboard-panel-head .btn,
+  body[data-page="dashboard"] .dashboard-recent-mobile-actions .btn,
+  body[data-page="dashboard"] .dashboard-today-card-actions .btn,
+  body[data-page="dashboard"] .dashboard-kpi-more {
+    min-height: 48px;
+  }
+
+  body[data-page="dashboard"] .dashboard-kpi-more {
+    display: inline-flex;
+    width: 100%;
+    margin: 8px 0 18px;
   }
 
   .requests-mobile-list {
@@ -1677,6 +1754,14 @@
 
   body[data-page="dashboard"] .dashboard-mobile-pulse-card strong {
     font-size: 1rem;
+  }
+
+  body[data-page="dashboard"] .dashboard-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  body[data-page="dashboard"] .dashboard-metric-card:nth-child(n + 2) {
+    display: none;
   }
 
   body[data-page="dashboard"] .dashboard-recent-mobile-card,
