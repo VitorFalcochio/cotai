@@ -1,0 +1,130 @@
+{
+  "source_id": "case_001",
+  "source_type": "manual_curated",
+  "author_role": "architect",
+  "approved": true,
+  "brief": {
+    "title": "Casa contemporanea com 2 pavimentos",
+    "project_type": "casa",
+    "style": "contemporaneo",
+    "lot": {
+      "width": 12.0,
+      "depth": 25.0,
+      "topography": "flat"
+    },
+    "target_area": 180.0,
+    "floors": 2,
+    "preferences": [
+      "cozinha integrada",
+      "area gourmet",
+      "lavanderia separada",
+      "iluminacao natural"
+    ],
+    "requirements": {
+      "bedrooms": 3,
+      "suites": 1,
+      "bathrooms": 3,
+      "garage_spots": 2,
+      "has_pool": true,
+      "has_office": true
+    },
+    "constraints": {
+      "front_setback": 4.0,
+      "side_setback": 1.5,
+      "rear_setback": 2.0
+    }
+  },
+  "project_schema": {
+    "design_strategy": "sobrado_setorizado",
+    "zones": [
+      "front",
+      "social_core",
+      "wet_core",
+      "upper_private",
+      "outdoor"
+    ],
+    "rooms": [
+      {
+        "name": "Garagem",
+        "level": 0,
+        "category": "garage",
+        "role": "garage",
+        "zone": "front",
+        "cluster": "access",
+        "width": 6.0,
+        "depth": 5.8,
+        "adjacency": ["Hall", "Area de Servico"]
+      },
+      {
+        "name": "Sala de Estar",
+        "level": 0,
+        "category": "social",
+        "role": "living",
+        "zone": "social_core",
+        "cluster": "social",
+        "width": 5.5,
+        "depth": 4.8,
+        "adjacency": ["Sala de Jantar", "Varanda"]
+      },
+      {
+        "name": "Cozinha",
+        "level": 0,
+        "category": "social",
+        "role": "kitchen",
+        "zone": "social_core",
+        "cluster": "social",
+        "width": 4.0,
+        "depth": 3.6,
+        "adjacency": ["Sala de Jantar", "Area de Servico", "Espaco Gourmet"]
+      }
+    ]
+  },
+  "layout_solution": {
+    "floor_plates": [
+      {
+        "level": 0,
+        "rooms": [
+          {
+            "name": "Garagem",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 6.0,
+            "depth": 5.8
+          }
+        ]
+      }
+    ],
+    "wet_stack_alignment": [
+      "Lavabo",
+      "Banheiro Suite",
+      "Lavanderia"
+    ],
+    "circulation_core": {
+      "stairs": "Escada",
+      "hall": "Hall"
+    }
+  },
+  "technical_review": {
+    "strengths": [
+      "Boa integracao entre social e lazer",
+      "Circulacao curta e clara",
+      "Setor intimo bem separado"
+    ],
+    "issues": [
+      "Escada precisa de ajuste fino de patamar",
+      "Banheiro social pode ganhar ventilacao melhor"
+    ],
+    "recommendations": [
+      "Aumentar a varanda em 0.5m",
+      "Recuar a suite master para ampliar privacidade"
+    ]
+  },
+  "quality_score": {
+    "layout_score": 8.8,
+    "circulation_score": 8.2,
+    "privacy_score": 8.6,
+    "constructability_score": 7.9,
+    "wet_stack_score": 8.4,
+    "overall_score": 8.4
+  }
+}

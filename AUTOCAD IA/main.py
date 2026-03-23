@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import asdict
 import json
 from pathlib import Path
 
@@ -27,6 +28,13 @@ def build_parser() -> argparse.ArgumentParser:
     from_text.add_argument("description", type=str)
     from_text.add_argument("output_path", type=Path)
 
+    analyze_text = subparsers.add_parser("analyze-text", help="Analisa o programa arquitetonico e imprime o projeto estruturado.")
+    analyze_text.add_argument("description", type=str)
+
+    export_json = subparsers.add_parser("export-plan-json", help="Gera um JSON estruturado para importar no preview do Cotai Arquiteto.")
+    export_json.add_argument("description", type=str)
+    export_json.add_argument("output_path", type=Path)
+
     return parser
 
 
@@ -44,6 +52,18 @@ def main() -> int:
       project = build_project_from_text(args.description)
       export_project_to_dxf(project, args.output_path)
       print(f"DXF gerado em: {args.output_path}")
+      return 0
+
+    if args.command == "analyze-text":
+      project = build_project_from_text(args.description)
+      print(json.dumps(asdict(project), ensure_ascii=False, indent=2))
+      return 0
+
+    if args.command == "export-plan-json":
+      project = build_project_from_text(args.description)
+      args.output_path.parent.mkdir(parents=True, exist_ok=True)
+      args.output_path.write_text(json.dumps(asdict(project), ensure_ascii=False, indent=2), encoding="utf-8")
+      print(f"JSON gerado em: {args.output_path}")
       return 0
 
     parser.print_help()

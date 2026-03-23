@@ -1,0 +1,262 @@
+{
+  "source_id": "case_001",
+  "source_type": "manual_curated",
+  "author_role": "architect",
+  "approved": true,
+  "brief": {
+    "title": "Casa contemporanea com lazer integrado",
+    "project_type": "casa",
+    "style": "contemporaneo",
+    "lot": {
+      "width": 12.0,
+      "depth": 25.0,
+      "topography": "flat"
+    },
+    "target_area": 180.0,
+    "floors": 2,
+    "preferences": [
+      "cozinha integrada",
+      "area gourmet",
+      "closet master",
+      "iluminacao natural"
+    ],
+    "requirements": {
+      "bedrooms": 3,
+      "suites": 1,
+      "bathrooms": 3,
+      "garage_spots": 2,
+      "has_pool": true,
+      "has_office": true
+    },
+    "constraints": {
+      "front_setback": 4.0,
+      "side_setback": 1.5,
+      "rear_setback": 2.0
+    }
+  },
+  "project_schema": {
+    "design_strategy": "sobrado_setorizado",
+    "zones": ["front", "social_core", "wet_core", "upper_private", "outdoor"],
+    "rooms": [
+      {
+        "name": "Garagem",
+        "level": 0,
+        "category": "garage",
+        "role": "garage",
+        "zone": "front",
+        "cluster": "access",
+        "width": 6.2,
+        "depth": 5.8,
+        "adjacency": ["Hall", "Area de Servico"]
+      },
+      {
+        "name": "Hall",
+        "level": 0,
+        "category": "service",
+        "role": "circulation",
+        "zone": "core",
+        "cluster": "access",
+        "width": 2.2,
+        "depth": 4.2,
+        "adjacency": ["Sala de Estar", "Escada"]
+      },
+      {
+        "name": "Escada",
+        "level": 0,
+        "category": "service",
+        "role": "stairs",
+        "zone": "core",
+        "cluster": "access",
+        "width": 3.1,
+        "depth": 4.0,
+        "adjacency": ["Hall", "Sala Intima"]
+      },
+      {
+        "name": "Sala de Estar",
+        "level": 0,
+        "category": "social",
+        "role": "living",
+        "zone": "social_core",
+        "cluster": "social",
+        "width": 5.5,
+        "depth": 4.8,
+        "adjacency": ["Sala de Jantar", "Varanda"]
+      },
+      {
+        "name": "Sala de Jantar",
+        "level": 0,
+        "category": "social",
+        "role": "dining",
+        "zone": "social_core",
+        "cluster": "social",
+        "width": 4.2,
+        "depth": 4.0,
+        "adjacency": ["Sala de Estar", "Cozinha"]
+      },
+      {
+        "name": "Cozinha",
+        "level": 0,
+        "category": "social",
+        "role": "kitchen",
+        "zone": "social_core",
+        "cluster": "social",
+        "width": 4.0,
+        "depth": 3.8,
+        "adjacency": ["Sala de Jantar", "Area de Servico", "Espaco Gourmet"]
+      },
+      {
+        "name": "Area de Servico",
+        "level": 0,
+        "category": "service",
+        "role": "service",
+        "zone": "wet_core",
+        "cluster": "wet",
+        "width": 3.2,
+        "depth": 2.8,
+        "adjacency": ["Cozinha", "Garagem"]
+      },
+      {
+        "name": "Lavabo",
+        "level": 0,
+        "category": "service",
+        "role": "powder_room",
+        "zone": "wet_core",
+        "cluster": "wet",
+        "width": 1.8,
+        "depth": 1.7,
+        "adjacency": ["Hall"]
+      },
+      {
+        "name": "Espaco Gourmet",
+        "level": 0,
+        "category": "leisure",
+        "role": "gourmet",
+        "zone": "outdoor",
+        "cluster": "social",
+        "width": 5.4,
+        "depth": 3.4,
+        "adjacency": ["Cozinha", "Sala de Estar", "Piscina"]
+      },
+      {
+        "name": "Piscina",
+        "level": 0,
+        "category": "external",
+        "role": "pool",
+        "zone": "outdoor",
+        "cluster": "external",
+        "width": 6.5,
+        "depth": 3.0,
+        "adjacency": ["Espaco Gourmet", "Varanda"]
+      },
+      {
+        "name": "Sala Intima",
+        "level": 1,
+        "category": "social",
+        "role": "family_lounge",
+        "zone": "upper_private",
+        "cluster": "private",
+        "width": 4.0,
+        "depth": 3.6,
+        "adjacency": ["Escada", "Suite Master", "Quarto 1"]
+      },
+      {
+        "name": "Suite Master",
+        "level": 1,
+        "category": "private",
+        "role": "master_suite",
+        "zone": "upper_private",
+        "cluster": "master",
+        "width": 4.8,
+        "depth": 4.5,
+        "adjacency": ["Closet", "Banheiro Suite"]
+      },
+      {
+        "name": "Closet",
+        "level": 1,
+        "category": "private",
+        "role": "closet",
+        "zone": "upper_private",
+        "cluster": "private",
+        "width": 2.4,
+        "depth": 2.2,
+        "adjacency": ["Suite Master", "Banheiro Suite"]
+      },
+      {
+        "name": "Banheiro Suite",
+        "level": 1,
+        "category": "private",
+        "role": "bathroom",
+        "zone": "upper_private",
+        "cluster": "wet",
+        "width": 2.4,
+        "depth": 2.2,
+        "adjacency": ["Suite Master"]
+      },
+      {
+        "name": "Quarto 1",
+        "level": 1,
+        "category": "private",
+        "role": "bedroom",
+        "zone": "upper_private",
+        "cluster": "private",
+        "width": 3.5,
+        "depth": 3.4,
+        "adjacency": ["Hall Intimo", "Banheiro Social"]
+      },
+      {
+        "name": "Quarto 2",
+        "level": 1,
+        "category": "private",
+        "role": "bedroom",
+        "zone": "upper_private",
+        "cluster": "private",
+        "width": 3.5,
+        "depth": 3.4,
+        "adjacency": ["Hall Intimo", "Banheiro Social"]
+      },
+      {
+        "name": "Banheiro Social",
+        "level": 1,
+        "category": "private",
+        "role": "bathroom",
+        "zone": "upper_private",
+        "cluster": "wet",
+        "width": 2.2,
+        "depth": 2.1,
+        "adjacency": ["Quarto 1", "Quarto 2"]
+      }
+    ]
+  },
+  "layout_solution": {
+    "narrative": "Garagem e acesso frontal. Nucleo social central integrado ao lazer. Escada e hall no eixo medio. Pavimento superior com setor intimo mais reservado.",
+    "quality_intent": {
+      "privacy": "high",
+      "social_integration": "high",
+      "circulation_efficiency": "medium_high",
+      "constructability": "medium_high"
+    }
+  },
+  "technical_review": {
+    "strengths": [
+      "Programa bem setorizado em dois pavimentos",
+      "Boa relacao entre cozinha, gourmet e piscina",
+      "Suite master com conjunto proprio"
+    ],
+    "issues": [
+      "Banheiro social superior pode precisar de ventilacao mais direta",
+      "Hall intimo deve evitar corredor excessivo"
+    ],
+    "recommendations": [
+      "Avaliar esquadrias maiores na sala de estar",
+      "Aproximar mais a lavanderia da garagem para operacao diaria"
+    ]
+  },
+  "quality_score": {
+    "layout_score": 8.4,
+    "circulation_score": 8.0,
+    "privacy_score": 8.7,
+    "constructability_score": 8.2,
+    "wet_stack_score": 8.1,
+    "overall_score": 8.3
+  }
+}

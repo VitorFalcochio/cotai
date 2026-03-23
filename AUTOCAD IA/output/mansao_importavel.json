@@ -1,0 +1,474 @@
+{
+  "title": "Projeto beta - mansao",
+  "project_type": "mansao",
+  "floors": 2,
+  "width": 20.0,
+  "depth": 30.0,
+  "wall_thickness": 0.15,
+  "rooms": [
+    {
+      "name": "Garagem",
+      "width": 7.5,
+      "depth": 6.0,
+      "level": 0,
+      "category": "garage",
+      "zone": "front",
+      "role": "garage",
+      "cluster": "access",
+      "adjacency": [
+        "Hall",
+        "Area de Servico"
+      ],
+      "notes": "",
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "name": "Escritorio",
+      "width": 4.0,
+      "depth": 3.5,
+      "level": 0,
+      "category": "social",
+      "zone": "front",
+      "role": "office",
+      "cluster": "social",
+      "adjacency": [],
+      "notes": "",
+      "x": 7.8,
+      "y": 0.0
+    },
+    {
+      "name": "Sala de estar",
+      "width": 6.0,
+      "depth": 5.0,
+      "level": 0,
+      "category": "social",
+      "zone": "social_core",
+      "role": "living",
+      "cluster": "social",
+      "adjacency": [
+        "Sala de Jantar",
+        "Cozinha",
+        "Varanda"
+      ],
+      "notes": "",
+      "x": 0.0,
+      "y": 6.3
+    },
+    {
+      "name": "Sala de jantar",
+      "width": 5.0,
+      "depth": 4.0,
+      "level": 0,
+      "category": "social",
+      "zone": "social_core",
+      "role": "dining",
+      "cluster": "social",
+      "adjacency": [
+        "Sala de Estar",
+        "Cozinha"
+      ],
+      "notes": "",
+      "x": 6.3,
+      "y": 6.3
+    },
+    {
+      "name": "Cozinha",
+      "width": 4.0,
+      "depth": 3.5,
+      "level": 0,
+      "category": "social",
+      "zone": "social_core",
+      "role": "kitchen",
+      "cluster": "social",
+      "adjacency": [
+        "Sala de Jantar",
+        "Area de Servico",
+        "Espaco Gourmet"
+      ],
+      "notes": "",
+      "x": 11.6,
+      "y": 6.3
+    },
+    {
+      "name": "Cozinha gourmet",
+      "width": 6.0,
+      "depth": 5.0,
+      "level": 0,
+      "category": "social",
+      "zone": "social_core",
+      "role": "kitchen",
+      "cluster": "social",
+      "adjacency": [
+        "Sala de Jantar",
+        "Area de Servico",
+        "Espaco Gourmet"
+      ],
+      "notes": "",
+      "x": 0.0,
+      "y": 11.6
+    },
+    {
+      "name": "Espaco gourmet",
+      "width": 7.0,
+      "depth": 4.0,
+      "level": 0,
+      "category": "leisure",
+      "zone": "social_core",
+      "role": "gourmet",
+      "cluster": "social",
+      "adjacency": [
+        "Sala de Estar",
+        "Cozinha",
+        "Espaco Gourmet"
+      ],
+      "notes": "",
+      "x": 6.3,
+      "y": 25.4
+    },
+    {
+      "name": "Hall",
+      "width": 2.2,
+      "depth": 4.2,
+      "level": 0,
+      "category": "service",
+      "zone": "core",
+      "role": "circulation",
+      "cluster": "access",
+      "adjacency": [],
+      "notes": "",
+      "x": 8.9,
+      "y": 16.9
+    },
+    {
+      "name": "Lavabo",
+      "width": 2.0,
+      "depth": 1.8,
+      "level": 0,
+      "category": "service",
+      "zone": "wet_core",
+      "role": "powder_room",
+      "cluster": "wet",
+      "adjacency": [],
+      "notes": "",
+      "x": 12.9,
+      "y": 16.9
+    },
+    {
+      "name": "Area de servico",
+      "width": 3.5,
+      "depth": 3.0,
+      "level": 0,
+      "category": "service",
+      "zone": "wet_core",
+      "role": "service",
+      "cluster": "wet",
+      "adjacency": [
+        "Cozinha",
+        "Garagem"
+      ],
+      "notes": "",
+      "x": 15.2,
+      "y": 16.9
+    },
+    {
+      "name": "Escada",
+      "width": 3.1,
+      "depth": 4.0,
+      "level": 0,
+      "category": "service",
+      "zone": "core",
+      "role": "stairs",
+      "cluster": "access",
+      "adjacency": [],
+      "notes": "",
+      "x": 8.45,
+      "y": 21.4
+    },
+    {
+      "name": "Sala intima",
+      "width": 4.5,
+      "depth": 4.0,
+      "level": 0,
+      "category": "social",
+      "zone": "social_core",
+      "role": "family_lounge",
+      "cluster": "social",
+      "adjacency": [
+        "Escada",
+        "Suite",
+        "Quarto"
+      ],
+      "notes": "",
+      "x": 7.75,
+      "y": 25.7
+    },
+    {
+      "name": "Piscina",
+      "width": 8.0,
+      "depth": 4.0,
+      "level": 0,
+      "category": "external",
+      "zone": "outdoor",
+      "role": "pool",
+      "cluster": "external",
+      "adjacency": [
+        "Sala de Estar",
+        "Cozinha",
+        "Espaco Gourmet"
+      ],
+      "notes": "",
+      "x": 0.0,
+      "y": 30.0
+    },
+    {
+      "name": "Varanda",
+      "width": 6.0,
+      "depth": 2.5,
+      "level": 0,
+      "category": "leisure",
+      "zone": "outdoor",
+      "role": "veranda",
+      "cluster": "leisure",
+      "adjacency": [
+        "Sala de Estar",
+        "Cozinha",
+        "Espaco Gourmet"
+      ],
+      "notes": "",
+      "x": 8.3,
+      "y": 30.0
+    },
+    {
+      "name": "Hall Intimo",
+      "width": 2.2,
+      "depth": 4.2,
+      "level": 1,
+      "category": "service",
+      "zone": "core",
+      "role": "circulation",
+      "cluster": "access",
+      "adjacency": [],
+      "notes": "",
+      "x": 8.9,
+      "y": 0.0
+    },
+    {
+      "name": "Escada",
+      "width": 3.1,
+      "depth": 4.0,
+      "level": 1,
+      "category": "service",
+      "zone": "core",
+      "role": "stairs",
+      "cluster": "access",
+      "adjacency": [],
+      "notes": "",
+      "x": 8.45,
+      "y": 0.0
+    },
+    {
+      "name": "Sala Intima",
+      "width": 4.4,
+      "depth": 3.8,
+      "level": 1,
+      "category": "social",
+      "zone": "upper_private",
+      "role": "family_lounge",
+      "cluster": "private",
+      "adjacency": [],
+      "notes": "",
+      "x": 7.8,
+      "y": 4.5
+    },
+    {
+      "name": "Suite master",
+      "width": 7.0,
+      "depth": 6.0,
+      "level": 1,
+      "category": "private",
+      "zone": "upper_private",
+      "role": "master_suite",
+      "cluster": "master",
+      "adjacency": [
+        "Closet",
+        "Banheiro",
+        "Sala Intima"
+      ],
+      "notes": "",
+      "x": 0.0,
+      "y": 8.6
+    },
+    {
+      "name": "Closet",
+      "width": 3.0,
+      "depth": 2.5,
+      "level": 1,
+      "category": "private",
+      "zone": "upper_private",
+      "role": "closet",
+      "cluster": "private",
+      "adjacency": [
+        "Suite Master",
+        "Suite",
+        "Banheiro"
+      ],
+      "notes": "",
+      "x": 7.3,
+      "y": 8.6
+    },
+    {
+      "name": "Banheiro 1",
+      "width": 2.4,
+      "depth": 2.2,
+      "level": 1,
+      "category": "private",
+      "zone": "upper_private",
+      "role": "bathroom",
+      "cluster": "wet",
+      "adjacency": [
+        "Suite",
+        "Quarto",
+        "Hall"
+      ],
+      "notes": "",
+      "x": 11.2,
+      "y": 11.4
+    },
+    {
+      "name": "Suite",
+      "width": 4.5,
+      "depth": 4.0,
+      "level": 1,
+      "category": "private",
+      "zone": "upper_private",
+      "role": "suite",
+      "cluster": "private",
+      "adjacency": [
+        "Banheiro",
+        "Hall"
+      ],
+      "notes": "",
+      "x": 12.8,
+      "y": 8.6
+    },
+    {
+      "name": "Banheiro 2",
+      "width": 2.4,
+      "depth": 2.2,
+      "level": 1,
+      "category": "private",
+      "zone": "upper_private",
+      "role": "bathroom",
+      "cluster": "wet",
+      "adjacency": [
+        "Suite",
+        "Quarto",
+        "Hall"
+      ],
+      "notes": "",
+      "x": 17.6,
+      "y": 8.6
+    },
+    {
+      "name": "Suite 1",
+      "width": 4.5,
+      "depth": 4.0,
+      "level": 1,
+      "category": "private",
+      "zone": "upper_private",
+      "role": "suite",
+      "cluster": "private",
+      "adjacency": [
+        "Banheiro",
+        "Hall"
+      ],
+      "notes": "",
+      "x": 0.0,
+      "y": 14.9
+    },
+    {
+      "name": "Banheiro 3",
+      "width": 2.4,
+      "depth": 2.2,
+      "level": 1,
+      "category": "private",
+      "zone": "upper_private",
+      "role": "bathroom",
+      "cluster": "wet",
+      "adjacency": [
+        "Suite",
+        "Quarto",
+        "Hall"
+      ],
+      "notes": "",
+      "x": 11.2,
+      "y": 14.9
+    },
+    {
+      "name": "Suite 2",
+      "width": 4.5,
+      "depth": 4.0,
+      "level": 1,
+      "category": "private",
+      "zone": "upper_private",
+      "role": "suite",
+      "cluster": "private",
+      "adjacency": [
+        "Banheiro",
+        "Hall"
+      ],
+      "notes": "",
+      "x": 15.5,
+      "y": 12.9
+    },
+    {
+      "name": "Quarto 1",
+      "width": 3.5,
+      "depth": 3.5,
+      "level": 1,
+      "category": "private",
+      "zone": "upper_private",
+      "role": "bedroom",
+      "cluster": "private",
+      "adjacency": [
+        "Hall",
+        "Banheiro"
+      ],
+      "notes": "",
+      "x": 0.0,
+      "y": 19.2
+    },
+    {
+      "name": "Quarto 2",
+      "width": 3.5,
+      "depth": 3.5,
+      "level": 1,
+      "category": "private",
+      "zone": "upper_private",
+      "role": "bedroom",
+      "cluster": "private",
+      "adjacency": [
+        "Hall",
+        "Banheiro"
+      ],
+      "notes": "",
+      "x": 16.5,
+      "y": 17.2
+    }
+  ],
+  "notes": "Quero uma mansao de 2 andares em um terreno de 20x30 com garagem para 4 carros, sala de estar, sala de jantar, cozinha gourmet, area de servico, lavabo, escritorio, varanda gourmet, piscina. No pavimento superior quero 1 suite master, 2 suites, 2 quartos, 3 banheiros, closet e sala intima.",
+  "design_strategy": "casa_espraiada_setorizada",
+  "processing_notes": [
+    "Projeto multi-pavimento com setor intimo elevado.",
+    "Garagem posicionada como ancora frontal de acesso.",
+    "Area de lazer conectada ao nucleo social.",
+    "Suite master tratada como conjunto privativo com apoio molhado.",
+    "Terreno largo: distribuir programa em alas com patios e respiros."
+  ],
+  "constraints": {
+    "max_floor_plate_area": 600.0,
+    "requires_circulation_core": true,
+    "needs_wet_stack_alignment": true
+  }
+}

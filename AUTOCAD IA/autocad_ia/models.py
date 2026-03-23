@@ -11,6 +11,11 @@ class RoomSpec:
     depth: float
     level: int = 0
     category: str = "social"
+    zone: str = ""
+    role: str = ""
+    cluster: str = ""
+    adjacency: list[str] = field(default_factory=list)
+    notes: str = ""
     x: float = 0.0
     y: float = 0.0
 
@@ -26,6 +31,11 @@ class RoomSpec:
             depth=float(payload.get("depth", 3.0)),
             level=int(payload.get("level", 0) or 0),
             category=str(payload.get("category", "social")).strip() or "social",
+            zone=str(payload.get("zone", "")).strip(),
+            role=str(payload.get("role", "")).strip(),
+            cluster=str(payload.get("cluster", "")).strip(),
+            adjacency=[str(item).strip() for item in payload.get("adjacency", []) if str(item).strip()],
+            notes=str(payload.get("notes", "")).strip(),
             x=float(payload.get("x", 0.0)),
             y=float(payload.get("y", 0.0)),
         )
@@ -41,6 +51,9 @@ class ProjectSpec:
     wall_thickness: float = 0.15
     rooms: list[RoomSpec] = field(default_factory=list)
     notes: str = ""
+    design_strategy: str = ""
+    processing_notes: list[str] = field(default_factory=list)
+    constraints: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> "ProjectSpec":
@@ -54,4 +67,7 @@ class ProjectSpec:
             wall_thickness=float(payload.get("wall_thickness", 0.15)),
             rooms=rooms,
             notes=str(payload.get("notes", "")).strip(),
+            design_strategy=str(payload.get("design_strategy", "")).strip(),
+            processing_notes=[str(item).strip() for item in payload.get("processing_notes", []) if str(item).strip()],
+            constraints=dict(payload.get("constraints", {}) or {}),
         )

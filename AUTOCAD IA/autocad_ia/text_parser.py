@@ -15,8 +15,8 @@ SECTION_MARKERS = {
 ROOM_LIBRARY: dict[str, dict[str, object]] = {
     "sala de estar": {"aliases": ("sala de estar",), "size": (6.0, 5.0), "category": "social"},
     "sala de jantar": {"aliases": ("sala de jantar", "jantar"), "size": (5.0, 4.0), "category": "social"},
-    "sala intima": {"aliases": ("sala intima", "sala de tv"), "size": (4.5, 4.0), "category": "social"},
-    "cozinha gourmet": {"aliases": ("cozinha gourmet",), "size": (6.0, 5.0), "category": "social"},
+    "sala intima": {"aliases": ("sala intima", "sala de tv", "family room"), "size": (4.5, 4.0), "category": "social"},
+    "cozinha gourmet": {"aliases": ("cozinha gourmet", "cozinha com ilha"), "size": (6.0, 5.0), "category": "social"},
     "cozinha": {"aliases": ("cozinha",), "size": (4.0, 3.5), "category": "social"},
     "despensa": {"aliases": ("despensa",), "size": (2.0, 2.0), "category": "service"},
     "lavabo": {"aliases": ("lavabo",), "size": (2.0, 1.8), "category": "service"},
@@ -24,10 +24,13 @@ ROOM_LIBRARY: dict[str, dict[str, object]] = {
     "area de servico": {"aliases": ("area de servico",), "size": (3.5, 3.0), "category": "service"},
     "lavanderia": {"aliases": ("lavanderia",), "size": (3.5, 3.0), "category": "service"},
     "deposito": {"aliases": ("deposito",), "size": (2.5, 2.0), "category": "service"},
-    "espaco gourmet": {"aliases": ("espaco gourmet", "varanda gourmet"), "size": (7.0, 4.0), "category": "leisure"},
+    "espaco gourmet": {"aliases": ("espaco gourmet", "varanda gourmet", "area gourmet"), "size": (7.0, 4.0), "category": "leisure"},
     "varanda": {"aliases": ("varanda",), "size": (6.0, 2.5), "category": "leisure"},
+    "hall": {"aliases": ("hall", "circulacao", "corredor"), "size": (2.2, 4.2), "category": "service"},
     "garagem": {"aliases": ("garagem",), "size": (7.5, 6.0), "category": "garage"},
     "piscina": {"aliases": ("piscina",), "size": (8.0, 4.0), "category": "external"},
+    "jardim": {"aliases": ("jardim", "quintal"), "size": (6.0, 4.0), "category": "external"},
+    "home theater": {"aliases": ("home theater", "cinema"), "size": (4.5, 4.0), "category": "social"},
     "suite master": {"aliases": ("suite master",), "size": (7.0, 6.0), "category": "private"},
     "suite": {"aliases": ("suite",), "size": (4.5, 4.0), "category": "private"},
     "quarto": {"aliases": ("quarto",), "size": (3.5, 3.5), "category": "private"},
@@ -36,6 +39,8 @@ ROOM_LIBRARY: dict[str, dict[str, object]] = {
 }
 
 QUANTITY_ROOM_PATTERN = re.compile(r"(\d+)\s+(suites?|quartos?|banheiros?)", re.IGNORECASE)
+GARAGE_SPOTS_PATTERN = re.compile(r"(\d+)\s+vagas?(?:\s+de)?\s+garagem", re.IGNORECASE)
+TARGET_AREA_PATTERN = re.compile(r"(\d+(?:[.,]\d+)?)\s*m(?:²|2)", re.IGNORECASE)
 
 
 def _to_float(value: str) -> float:
@@ -68,11 +73,21 @@ def _detect_project_type(lowered: str) -> str:
 
 
 def _detect_floors(lowered: str) -> int:
+    if any(token in lowered for token in ("triplex",)):
+        return 3
     if any(token in lowered for token in ("3 andares", "tres andares", "3 pavimentos", "tres pavimentos")):
         return 3
     if any(token in lowered for token in ("2 andares", "dois andares", "2 pavimentos", "dois pavimentos", "sobrado")):
         return 2
     return 1
+
+
+def _detect_target_area(text: str) -> float | None:
+    matches = TARGET_AREA_PATTERN.findall(text)
+    if not matches:
+        return None
+    numeric = [_to_float(match) for match in matches]
+    return max(numeric) if numeric else None
 
 
 def _canonical_room_key(fragment: str) -> str | None:
@@ -185,6 +200,17 @@ def _extract_quantity_rooms(text: str, floors: int, existing_names: list[str]) -
     return quantity_rooms
 
 
+def _extract_garage_by_spots(text: str, floors: int, existing_names: list[str]) -> list[RoomSpec]:
+    existing_lower = {name.lower() for name in existing_names}
+    match = GARAGE_SPOTS_PATTERN.search(text)
+    if not match or "garagem" in existing_lower:
+        return []
+    spots = max(int(match.group(1)), 1)
+    width = max(3.0 * spots, 6.0)
+    depth = 5.8 if spots <= 2 else 6.2
+    return [_build_room("garagem", width, depth, floors, 0)]
+
+
 def _extract_implicit_rooms(text: str, floors: int, existing_names: list[str]) -> list[RoomSpec]:
     lowered = text.lower()
     existing_lower = {name.lower() for name in existing_names}
@@ -224,6 +250,8 @@ def parse_project_from_text(description: str) -> ProjectSpec:
     rooms.extend(_extract_quantity_rooms(text, floors, existing_names))
     existing_names = [room.name for room in rooms]
     rooms.extend(_extract_implicit_rooms(text, floors, existing_names))
+    existing_names = [room.name for room in rooms]
+    rooms.extend(_extract_garage_by_spots(text, floors, existing_names))
 
     if not rooms:
         rooms = [
@@ -233,6 +261,8 @@ def parse_project_from_text(description: str) -> ProjectSpec:
             RoomSpec(name="Banheiro", width=2.0, depth=2.0, category="private", level=1 if floors > 1 else 0),
         ]
 
+    target_area = _detect_target_area(text)
+
     return ProjectSpec(
         title=title,
         project_type=project_type,
@@ -241,4 +271,5 @@ def parse_project_from_text(description: str) -> ProjectSpec:
         depth=project_depth,
         rooms=rooms,
         notes=text,
+        constraints={"target_area": target_area} if target_area else {},
     )

@@ -1,0 +1,131 @@
+{
+  "source_id": "case_002",
+  "source_type": "manual_curated",
+  "author_role": "architect",
+  "approved": true,
+  "brief": {
+    "title": "Sobrado para lote estreito",
+    "project_type": "sobrado",
+    "style": "moderno",
+    "lot": {
+      "width": 7.5,
+      "depth": 26.0,
+      "topography": "flat"
+    },
+    "target_area": 132.0,
+    "floors": 2,
+    "preferences": [
+      "integracao social",
+      "lavanderia separada",
+      "mais privacidade nas suites"
+    ],
+    "requirements": {
+      "bedrooms": 3,
+      "suites": 1,
+      "bathrooms": 3,
+      "garage_spots": 1,
+      "has_pool": false,
+      "has_office": false
+    },
+    "constraints": {
+      "front_setback": 4.0,
+      "side_setback": 1.5,
+      "rear_setback": 2.0
+    }
+  },
+  "project_schema": {
+    "design_strategy": "lote_estreito_linear",
+    "zones": ["front", "social_core", "wet_core", "upper_private"],
+    "rooms": [
+      {
+        "name": "Garagem",
+        "level": 0,
+        "category": "garage",
+        "role": "garage",
+        "zone": "front",
+        "cluster": "access",
+        "width": 3.2,
+        "depth": 5.5,
+        "adjacency": ["Hall"]
+      },
+      {
+        "name": "Sala de Estar",
+        "level": 0,
+        "category": "social",
+        "role": "living",
+        "zone": "social_core",
+        "cluster": "social",
+        "width": 3.8,
+        "depth": 4.2,
+        "adjacency": ["Sala de Jantar"]
+      },
+      {
+        "name": "Sala de Jantar",
+        "level": 0,
+        "category": "social",
+        "role": "dining",
+        "zone": "social_core",
+        "cluster": "social",
+        "width": 3.2,
+        "depth": 3.2,
+        "adjacency": ["Sala de Estar", "Cozinha"]
+      },
+      {
+        "name": "Cozinha",
+        "level": 0,
+        "category": "social",
+        "role": "kitchen",
+        "zone": "social_core",
+        "cluster": "social",
+        "width": 3.2,
+        "depth": 3.4,
+        "adjacency": ["Sala de Jantar", "Area de Servico"]
+      },
+      {
+        "name": "Escada",
+        "level": 0,
+        "category": "service",
+        "role": "stairs",
+        "zone": "core",
+        "cluster": "access",
+        "width": 2.1,
+        "depth": 4.0,
+        "adjacency": ["Hall", "Hall Intimo"]
+      },
+      {
+        "name": "Suite Master",
+        "level": 1,
+        "category": "private",
+        "role": "master_suite",
+        "zone": "upper_private",
+        "cluster": "master",
+        "width": 3.8,
+        "depth": 4.2,
+        "adjacency": ["Closet", "Banheiro Suite"]
+      }
+    ]
+  },
+  "layout_solution": {
+    "narrative": "Sobrado linear com escada central e compressao de circulacao para aproveitar um lote estreito."
+  },
+  "technical_review": {
+    "strengths": [
+      "Boa eficiencia para lote estreito",
+      "Setor social limpo e sem recortes desnecessarios"
+    ],
+    "issues": [
+      "Exige cuidado com iluminacao e ventilacao no meio da planta"
+    ],
+    "recommendations": [
+      "Criar claraboia ou patio de luz junto da escada"
+    ]
+  },
+  "quality_score": {
+    "layout_score": 8.0,
+    "circulation_score": 8.6,
+    "privacy_score": 8.1,
+    "constructability_score": 8.5,
+    "wet_stack_score": 8.3,
+    "overall_score": 8.3
+  }
+}

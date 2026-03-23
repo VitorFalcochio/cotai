@@ -1,0 +1,135 @@
+{
+  "source_id": "case_003",
+  "source_type": "manual_curated",
+  "author_role": "architect",
+  "approved": true,
+  "brief": {
+    "title": "Mansao de alto padrao com lazer completo",
+    "project_type": "mansao",
+    "style": "contemporaneo",
+    "lot": {
+      "width": 24.0,
+      "depth": 36.0,
+      "topography": "flat"
+    },
+    "target_area": 420.0,
+    "floors": 2,
+    "preferences": [
+      "suite master ampla",
+      "area gourmet completa",
+      "lazer integrado",
+      "escritorio",
+      "home theater"
+    ],
+    "requirements": {
+      "bedrooms": 5,
+      "suites": 3,
+      "bathrooms": 6,
+      "garage_spots": 4,
+      "has_pool": true,
+      "has_office": true
+    },
+    "constraints": {
+      "front_setback": 5.0,
+      "side_setback": 2.5,
+      "rear_setback": 3.0
+    }
+  },
+  "project_schema": {
+    "design_strategy": "casa_espraiada_setorizada",
+    "zones": ["front", "social_core", "wet_core", "upper_private", "outdoor"],
+    "rooms": [
+      {
+        "name": "Garagem",
+        "level": 0,
+        "category": "garage",
+        "role": "garage",
+        "zone": "front",
+        "cluster": "access",
+        "width": 8.4,
+        "depth": 6.2,
+        "adjacency": ["Hall", "Area de Servico"]
+      },
+      {
+        "name": "Escritorio",
+        "level": 0,
+        "category": "social",
+        "role": "office",
+        "zone": "front",
+        "cluster": "social",
+        "width": 4.4,
+        "depth": 3.8,
+        "adjacency": ["Hall"]
+      },
+      {
+        "name": "Sala de Estar",
+        "level": 0,
+        "category": "social",
+        "role": "living",
+        "zone": "social_core",
+        "cluster": "social",
+        "width": 6.4,
+        "depth": 5.5,
+        "adjacency": ["Sala de Jantar", "Varanda", "Home Theater"]
+      },
+      {
+        "name": "Cozinha Gourmet",
+        "level": 0,
+        "category": "social",
+        "role": "kitchen",
+        "zone": "social_core",
+        "cluster": "social",
+        "width": 5.2,
+        "depth": 4.4,
+        "adjacency": ["Sala de Jantar", "Area de Servico", "Espaco Gourmet"]
+      },
+      {
+        "name": "Piscina",
+        "level": 0,
+        "category": "external",
+        "role": "pool",
+        "zone": "outdoor",
+        "cluster": "external",
+        "width": 9.0,
+        "depth": 4.0,
+        "adjacency": ["Espaco Gourmet", "Varanda"]
+      },
+      {
+        "name": "Suite Master",
+        "level": 1,
+        "category": "private",
+        "role": "master_suite",
+        "zone": "upper_private",
+        "cluster": "master",
+        "width": 6.2,
+        "depth": 5.2,
+        "adjacency": ["Closet", "Banheiro Master", "Sala Intima"]
+      }
+    ]
+  },
+  "layout_solution": {
+    "narrative": "Programa espraiado em alas com social central e lazer nos fundos; setor intimo elevado e mais reservado."
+  },
+  "technical_review": {
+    "strengths": [
+      "Boa leitura de residencia de alto padrao",
+      "Setor social muito bem conectado ao lazer",
+      "Frente nobre com acesso e escritorio bem resolvidos"
+    ],
+    "issues": [
+      "Exige refinamento em volumetria e circulacao superior"
+    ],
+    "recommendations": [
+      "Refinar alinhamento das suites com o wet stack",
+      "Criar respiro verde entre ala social e lateral do lote"
+    ]
+  },
+  "quality_score": {
+    "layout_score": 8.9,
+    "circulation_score": 8.1,
+    "privacy_score": 9.0,
+    "constructability_score": 7.8,
+    "wet_stack_score": 8.0,
+    "overall_score": 8.4
+  }
+}

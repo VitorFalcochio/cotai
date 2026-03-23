@@ -220,26 +220,40 @@ def _furniture_entities(room: RoomSpec, level_y_offset: float) -> list[str]:
 def _site_outline_entities(project: ProjectSpec, rooms: list[RoomSpec], level_y_offset: float) -> list[str]:
     if not rooms:
         return []
-    min_x = min(room.x for room in rooms)
-    min_y = min(room.y for room in rooms) + level_y_offset
-    max_x = max(room.x + room.width for room in rooms)
-    max_y = max(room.y + room.depth for room in rooms) + level_y_offset
     margin = 0.8
-    notch = min(1.4, max((max_x - min_x) * 0.12, 0.9))
+    bands = sorted({round(room.y, 3) for room in rooms} | {round(room.y + room.depth, 3) for room in rooms})
+    if len(bands) < 2:
+        return []
 
-    p1 = (min_x - margin, min_y - margin)
-    p2 = (max_x + margin, min_y - margin)
-    p3 = (max_x + margin, max_y + margin)
-    p4 = (min_x + notch, max_y + margin)
-    p5 = (min_x - margin, max_y - notch)
+    left_chain: list[tuple[float, float]] = []
+    right_chain: list[tuple[float, float]] = []
 
-    return [
-        _line(p1, p2, "OUTLINE", 3),
-        _line(p2, p3, "OUTLINE", 3),
-        _line(p3, p4, "OUTLINE", 3),
-        _line(p4, p5, "OUTLINE", 3),
-        _line(p5, p1, "OUTLINE", 3),
-    ]
+    for start, end in zip(bands[:-1], bands[1:]):
+        middle = (start + end) / 2
+        active = [room for room in rooms if room.y <= middle <= room.y + room.depth]
+        if not active:
+            continue
+        left = min(room.x for room in active) - margin
+        right = max(room.x + room.width for room in active) + margin
+        y = start + level_y_offset - margin
+        left_chain.append((left, y))
+        right_chain.append((right, y))
+
+    last_y = bands[-1] + level_y_offset + margin
+    final_active = [room for room in rooms if room.y + room.depth >= bands[-1]]
+    if final_active:
+        left_chain.append((min(room.x for room in final_active) - margin, last_y))
+        right_chain.append((max(room.x + room.width for room in final_active) + margin, last_y))
+
+    polygon = left_chain + list(reversed(right_chain))
+    if len(polygon) < 3:
+        return []
+
+    entities: list[str] = []
+    for index, point in enumerate(polygon):
+        next_point = polygon[(index + 1) % len(polygon)]
+        entities.append(_line(point, next_point, "OUTLINE", 3))
+    return entities
 
 
 def _site_access_entities(rooms: list[RoomSpec], level_y_offset: float) -> list[str]:
@@ -283,6 +297,48 @@ def _site_access_entities(rooms: list[RoomSpec], level_y_offset: float) -> list[
     return entities
 
 
+def _find_room(rooms: list[RoomSpec], name: str) -> RoomSpec | None:
+    lowered = name.lower()
+    for room in rooms:
+        room_name = room.name.lower()
+        if lowered == room_name or lowered in room_name or room_name in lowered:
+            return room
+    return None
+
+
+def _circulation_entities(rooms: list[RoomSpec], level_y_offset: float) -> list[str]:
+    hubs = [
+        room
+        for room in rooms
+        if any(token in room.name.lower() for token in ("hall", "circulacao", "corredor", "escada"))
+    ]
+    if not hubs:
+        return []
+
+    entities: list[str] = []
+    for hub in hubs:
+        hx1, hy1, hx2, hy2 = _room_bounds(hub, level_y_offset)
+        hub_center = ((hx1 + hx2) / 2, (hy1 + hy2) / 2)
+        target_names = hub.adjacency or []
+        target_rooms = [_find_room(rooms, target_name) for target_name in target_names]
+        target_rooms = [room for room in target_rooms if room and room is not hub]
+
+        if not target_rooms:
+            target_rooms = [
+                room
+                for room in rooms
+                if room is not hub and any(token in room.name.lower() for token in ("suite", "quarto", "sala", "cozinha", "jantar"))
+            ][:4]
+
+        for room in target_rooms[:5]:
+            x1, y1, x2, y2 = _room_bounds(room, level_y_offset)
+            target_center = ((x1 + x2) / 2, (y1 + y2) / 2)
+            mid_point = (hub_center[0], target_center[1])
+            entities.append(_line(hub_center, mid_point, "CIRCULATION", 8))
+            entities.append(_line(mid_point, target_center, "CIRCULATION", 8))
+    return entities
+
+
 def _room_text_entities(room: RoomSpec, level_y_offset: float) -> list[str]:
     center_x = room.x + (room.width / 2)
     center_y = room.y + level_y_offset + (room.depth / 2)
@@ -290,6 +346,44 @@ def _room_text_entities(room: RoomSpec, level_y_offset: float) -> list[str]:
         _text(room.name, (center_x - (room.width * 0.18), center_y + 0.1), 0.22, "TEXT", 2),
         _text(f"{room.width:.2f} x {room.depth:.2f} m", (center_x - (room.width * 0.2), center_y - 0.2), 0.14, "TEXT", 8),
     ]
+
+
+def _processing_notes_entities(project: ProjectSpec, y_offset: float) -> list[str]:
+    if not project.processing_notes:
+        return []
+
+    entities: list[str] = [
+        _text("PROCESSAMENTO IA", (project.width + 1.1, y_offset - 0.55), 0.2, "TEXT", 5),
+    ]
+    cursor_y = y_offset - 1.0
+    for note in project.processing_notes[:5]:
+        entities.append(_text(f"- {note}", (project.width + 1.1, cursor_y), 0.14, "TEXT", 8))
+        cursor_y -= 0.32
+    return entities
+
+
+def _dimension_entities(project: ProjectSpec, rooms: list[RoomSpec], level_y_offset: float) -> list[str]:
+    if not rooms:
+        return []
+
+    entities: list[str] = []
+    max_y = max(room.y + room.depth for room in rooms)
+    top_y = level_y_offset - 0.25
+    right_x = project.width + 0.45
+
+    entities.extend(
+        [
+            _line((0.0, top_y), (project.width, top_y), "DIMS", 1),
+            _line((0.0, top_y - 0.15), (0.0, level_y_offset), "DIMS", 1),
+            _line((project.width, top_y - 0.15), (project.width, level_y_offset), "DIMS", 1),
+            _text(f"{project.width:.2f}m", ((project.width * 0.5) - 0.45, top_y + 0.08), 0.14, "DIMS", 1),
+            _line((right_x, level_y_offset), (right_x, level_y_offset + max_y), "DIMS", 1),
+            _line((project.width, level_y_offset), (right_x + 0.15, level_y_offset), "DIMS", 1),
+            _line((project.width, level_y_offset + max_y), (right_x + 0.15, level_y_offset + max_y), "DIMS", 1),
+            _text(f"{max_y:.2f}m", (right_x + 0.08, level_y_offset + (max_y * 0.5)), 0.14, "DIMS", 1),
+        ]
+    )
+    return entities
 
 
 def _level_header(level: int, y_offset: float, title: str) -> list[str]:
@@ -317,9 +411,11 @@ def write_project_dxf(project: ProjectSpec, output_path: Path) -> Path:
 
         y_offset = level * level_height
         entities.extend(_level_header(level, y_offset, project.title))
+        entities.extend(_processing_notes_entities(project, y_offset))
         if level == 0:
             entities.extend(_site_outline_entities(project, level_rooms, y_offset))
             entities.extend(_site_access_entities(level_rooms, y_offset))
+        entities.extend(_dimension_entities(project, level_rooms, y_offset))
         entities.append(_line((0.0, y_offset), (project.width, y_offset), "PLOT", 8))
         entities.append(_line((project.width, y_offset), (project.width, y_offset + project.depth), "PLOT", 8))
         entities.append(_line((project.width, y_offset + project.depth), (0.0, y_offset + project.depth), "PLOT", 8))
@@ -333,6 +429,7 @@ def write_project_dxf(project: ProjectSpec, output_path: Path) -> Path:
             entities.extend(_fixture_entities(room, y_offset))
             entities.extend(_furniture_entities(room, y_offset))
             entities.extend(_room_text_entities(room, y_offset))
+        entities.extend(_circulation_entities(level_rooms, y_offset))
 
     dxf = "".join(
         [
