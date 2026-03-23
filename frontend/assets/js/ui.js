@@ -13,6 +13,9 @@ let themeControlElement = null;
 let themeMediaQuery = null;
 let toastStackElement = null;
 let developmentModalElement = null;
+let deferredInstallPrompt = null;
+let runtimeEventsBound = false;
+let offlineToastVisible = false;
 
 const DISABLED_PAGE_SET = new Set(CLIENT_DISABLED_PAGES);
 const DEVELOPMENT_PAGE_LABELS = {
@@ -388,6 +391,67 @@ export function initThemeSystem() {
 
 initThemeSystem();
 
+function bindRuntimeEvents() {
+  if (runtimeEventsBound || typeof window === "undefined") return;
+  runtimeEventsBound = true;
+
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    if (!window.matchMedia("(max-width: 768px)").matches) return;
+    showAppToast({
+      tone: "info",
+      icon: "bx-download",
+      title: "Instale o app",
+      message: "Adicione o Cotai na tela inicial para abrir mais rapido e com cara de aplicativo.",
+      actionLabel: "Instalar",
+      duration: 7200,
+      onAction: async () => {
+        if (!deferredInstallPrompt) return;
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice.catch(() => null);
+        deferredInstallPrompt = null;
+      },
+    });
+  });
+
+  window.addEventListener("appinstalled", () => {
+    deferredInstallPrompt = null;
+    showAppToast({
+      tone: "success",
+      icon: "bx-check-circle",
+      title: "Cotai instalado",
+      message: "Agora voce pode abrir o Cotai direto da tela inicial.",
+      duration: 5200,
+    });
+  });
+
+  window.addEventListener("offline", () => {
+    offlineToastVisible = true;
+    showAppToast({
+      tone: "warning",
+      icon: "bx-wifi-off",
+      title: "Sem conexao",
+      message: "O shell do app continua acessivel. Quando a internet voltar, a sincronizacao retoma.",
+      duration: 6200,
+    });
+  });
+
+  window.addEventListener("online", () => {
+    if (!offlineToastVisible) return;
+    offlineToastVisible = false;
+    showAppToast({
+      tone: "success",
+      icon: "bx-wifi",
+      title: "Conexao restaurada",
+      message: "O Cotai voltou a sincronizar normalmente.",
+      duration: 4200,
+    });
+  });
+}
+
+bindRuntimeEvents();
+
 let appBootElement = null;
 let appBootStartedAt = 0;
 
@@ -557,6 +621,14 @@ export function showAppToast({
   window.requestAnimationFrame(() => {
     toast.classList.add("is-visible");
   });
+
+  if (isMobileViewport && "vibrate" in navigator && ["success", "warning", "danger"].includes(tone)) {
+    try {
+      navigator.vibrate(tone === "danger" ? [18, 24, 18] : 12);
+    } catch (_) {
+      // Best-effort native feel only.
+    }
+  }
 
   if (duration > 0) {
     window.setTimeout(removeToast, isMobileViewport ? Math.max(duration, 5600) : duration);

@@ -1712,6 +1712,17 @@ body[data-chat-background="plain"] .quote-chat-shell-bare {
     padding: 14px;
     border-radius: 22px;
     box-shadow: 0 20px 42px rgba(0, 0, 0, 0.24);
+    overflow: hidden;
+  }
+
+  .app-toast::after {
+    content: "";
+    position: absolute;
+    inset: auto 14px 0 14px;
+    height: 3px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(25, 210, 107, 0.92), rgba(255, 255, 255, 0.18));
+    opacity: 0.78;
   }
 
   .app-toast-actions {
@@ -1754,6 +1765,32 @@ body[data-chat-background="plain"] .quote-chat-shell-bare {
 }
 
 @media (max-width: 768px) {
+  .btn:active,
+  .icon-btn:active,
+  .side-collapse-btn:active,
+  .app-mobile-nav-link:active {
+    transform: scale(0.98);
+  }
+
+  .app-toast {
+    transition:
+      opacity var(--transition-base),
+      transform var(--transition-base),
+      border-color var(--transition-base),
+      box-shadow var(--transition-base);
+  }
+
+  .app-toast.is-visible {
+    box-shadow: 0 22px 44px rgba(0, 0, 0, 0.28);
+  }
+
+  .empty-state-copy,
+  .chat-empty-copy {
+    background:
+      radial-gradient(circle at top right, rgba(25, 210, 107, 0.08), transparent 28%),
+      rgba(255, 255, 255, 0.03);
+  }
+
   .card,
   .panel,
   .table-card,
