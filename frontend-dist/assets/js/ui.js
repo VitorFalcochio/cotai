@@ -516,9 +516,18 @@ export function showAppToast({
   duration = 5000,
 } = {}) {
   const stack = ensureToastStack();
+  const isMobileViewport = window.matchMedia("(max-width: 640px)").matches;
+  if (isMobileViewport) {
+    const activeToasts = [...stack.querySelectorAll(".app-toast")];
+    activeToasts.slice(0, Math.max(0, activeToasts.length - 1)).forEach((item) => {
+      item.classList.add("is-leaving");
+      window.setTimeout(() => item.remove(), 220);
+    });
+  }
   const toast = document.createElement("article");
   toast.className = `app-toast is-${tone}`;
   toast.setAttribute("role", "status");
+  toast.dataset.hasAction = actionLabel ? "true" : "false";
   toast.innerHTML = `
     <div class="app-toast-icon" aria-hidden="true"><i class="bx ${icon}"></i></div>
     <div class="app-toast-copy">
@@ -550,7 +559,7 @@ export function showAppToast({
   });
 
   if (duration > 0) {
-    window.setTimeout(removeToast, duration);
+    window.setTimeout(removeToast, isMobileViewport ? Math.max(duration, 5600) : duration);
   }
 
   return toast;

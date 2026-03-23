@@ -867,6 +867,8 @@ body.drawer-open .app-drawer-overlay {
   .app-topbar {
     gap: 14px;
     margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.12);
   }
 
   .app-topbar > div:first-child,
@@ -923,10 +925,44 @@ body.drawer-open .app-drawer-overlay {
     backdrop-filter: blur(18px);
   }
 
+  .app-topbar h1,
+  .app-topbar h2,
+  .page-header h1,
+  .page-header h2 {
+    font-size: clamp(1.85rem, 8vw, 2.4rem);
+    line-height: 1.02;
+  }
+
+  .app-topbar p:last-child,
+  .page-header p:last-child {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .app-topbar-actions,
+  .page-actions {
+    padding: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(16px);
+  }
+
   :root[data-theme="light"] .topbar,
   :root[data-theme="light"] .app-topbar,
   :root[data-theme="light"] .dashboard-apex-topbar {
     background: rgba(247, 250, 248, 0.88);
+  }
+
+  :root[data-theme="light"] .app-topbar {
+    border-bottom-color: rgba(8, 18, 13, 0.06);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+  }
+
+  :root[data-theme="light"] .app-topbar-actions,
+  :root[data-theme="light"] .page-actions {
+    border-color: rgba(8, 18, 13, 0.06);
+    background: rgba(255, 255, 255, 0.72);
   }
 
   .app-mobile-nav-link {
