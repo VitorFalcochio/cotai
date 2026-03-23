@@ -520,6 +520,42 @@ class SupabaseService:
         except Exception:
             return
 
+    def create_company_notification(
+        self,
+        *,
+        company_id: str | None,
+        request_id: str | None,
+        request_code: str | None,
+        event_type: str,
+        title: str,
+        message: str,
+        tone: str = "info",
+        metadata: dict[str, Any] | None = None,
+    ) -> dict[str, Any] | None:
+        if not self.table_exists("company_notifications"):
+            return None
+        rows = self._insert_rows(
+            "company_notifications",
+            {
+                "company_id": company_id,
+                "request_id": request_id,
+                "request_code": request_code,
+                "event_type": event_type,
+                "title": title,
+                "message": message,
+                "tone": tone,
+                "metadata": metadata or {},
+                "created_at": utc_now_iso(),
+            },
+        )
+        return rows[0] if rows else None
+
+    def safe_create_company_notification(self, **kwargs: Any) -> None:
+        try:
+            self.create_company_notification(**kwargs)
+        except Exception:
+            return
+
     def list_recent_request_item_names(self, *, company_id: str | None = None, limit: int = 100) -> list[str]:
         rows = self._list(
             "request_items",
@@ -1164,6 +1200,21 @@ class SupabaseService:
                 "duplicate_of_request_id": duplicate_of_request_id,
             },
         )
+        if str(request_row.get("status") or "").upper() == APPROVAL_PENDING_STATUS:
+            self.safe_create_company_notification(
+                company_id=company_id,
+                request_id=request_row.get("id"),
+                request_code=request_code,
+                event_type="request_awaiting_approval",
+                title=f"{request_code} aguardando aprovacao",
+                message="A Cota montou o pedido e ele precisa de aprovacao para seguir para a cotacao.",
+                tone="warning",
+                metadata={
+                    "request_id": request_row.get("id"),
+                    "request_code": request_code,
+                    "status": APPROVAL_PENDING_STATUS,
+                },
+            )
         return request_row
 
     def update_request(self, request_id: Any, payload: dict[str, Any]) -> dict[str, Any] | None:
@@ -1729,6 +1780,20 @@ class SupabaseService:
                 "comment": comment,
             },
         )
+        self.safe_create_company_notification(
+            company_id=request_row.get("company_id"),
+            request_id=request_id,
+            request_code=request_row.get("request_code"),
+            event_type="request_approved",
+            title=f"{request_row.get('request_code') or request_id} aprovado",
+            message="Pedido liberado e reenfileirado para cotacao.",
+            tone="success",
+            metadata={
+                "request_id": request_id,
+                "request_code": request_row.get("request_code"),
+                "status": "NEW",
+            },
+        )
         return {
             "request_id": request_id,
             "status": updated.get("status") if updated else "NEW",
@@ -1872,6 +1937,21 @@ class SupabaseService:
                     "status": "ERROR",
                 },
             )
+            self.safe_create_company_notification(
+                company_id=request_row.get("company_id"),
+                request_id=request_row.get("id"),
+                request_code=request_row.get("request_code"),
+                event_type="request_error",
+                title=f"{request_row.get('request_code') or request_id} com erro",
+                message=error_message[:180] or "A cotacao encontrou um erro e precisa de revisao.",
+                tone="danger",
+                metadata={
+                    "request_id": request_row.get("id"),
+                    "request_code": request_row.get("request_code"),
+                    "status": "ERROR",
+                    "error_message": error_message[:500],
+                },
+            )
 
     def mark_request_done(self, request_id: Any) -> None:
         request_row = self.update_request(
@@ -1891,6 +1971,20 @@ class SupabaseService:
                 actor_email="worker@cotai.local",
                 event_type="request_completed",
                 description=f"Pedido {request_row.get('request_code') or request_id} concluido pelo worker.",
+                metadata={
+                    "request_id": request_row.get("id"),
+                    "request_code": request_row.get("request_code"),
+                    "status": "DONE",
+                },
+            )
+            self.safe_create_company_notification(
+                company_id=request_row.get("company_id"),
+                request_id=request_row.get("id"),
+                request_code=request_row.get("request_code"),
+                event_type="request_completed",
+                title=f"{request_row.get('request_code') or request_id} pronto",
+                message="A Cota concluiu a cotacao e o comparador ja pode ser revisado no celular.",
+                tone="success",
                 metadata={
                     "request_id": request_row.get("id"),
                     "request_code": request_row.get("request_code"),

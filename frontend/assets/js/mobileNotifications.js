@@ -41,6 +41,21 @@ export function setNotificationsEnabled(enabled) {
   return nextSettings.notifications;
 }
 
+async function syncProfilePreference(profile) {
+  if (!supabase || !profile?.id) return profile;
+  const localEnabled = areNotificationsEnabled();
+  const remoteEnabled = profile.mobile_notifications_enabled;
+  if (typeof remoteEnabled === "boolean" && remoteEnabled === localEnabled) return profile;
+
+  const { data } = await supabase
+    .from("profiles")
+    .update({ mobile_notifications_enabled: localEnabled })
+    .eq("id", profile.id)
+    .select("*")
+    .maybeSingle();
+  return data || { ...profile, mobile_notifications_enabled: localEnabled };
+}
+
 function readSeenEvents() {
   try {
     const parsed = JSON.parse(window.localStorage.getItem(SEEN_EVENT_STORAGE_KEY) || "{}");
@@ -218,17 +233,17 @@ export async function announceRequestStatusNotification(status, payload = {}) {
   });
 }
 
-async function fetchKnownStatuses(companyId) {
+async function fetchKnownNotifications(companyId) {
   if (!supabase || !companyId) return;
   const { data } = await supabase
-    .from("requests")
-    .select("id, request_code, status, updated_at")
+    .from("company_notifications")
+    .select("id, request_id, request_code, event_type, title, message, tone, metadata, created_at")
     .eq("company_id", companyId)
-    .order("updated_at", { ascending: false })
+    .order("created_at", { ascending: false })
     .limit(120);
 
   knownStatusMap = new Map(
-    (Array.isArray(data) ? data : []).map((row) => [String(row.id), { status: String(row.status || "").toUpperCase(), updatedAt: row.updated_at || "" }])
+    (Array.isArray(data) ? data : []).map((row) => [String(row.id), true])
   );
 }
 
@@ -247,28 +262,51 @@ function bindRealtimeChannel(companyId) {
     .on(
       "postgres_changes",
       {
-        event: "UPDATE",
+        event: "INSERT",
         schema: "public",
-        table: "requests",
+        table: "company_notifications",
         filter: `company_id=eq.${companyId}`,
       },
       async (event) => {
         const next = event.new || {};
-        const requestId = String(next.id || "");
-        if (!requestId) return;
+        const notificationId = String(next.id || "");
+        if (!notificationId || knownStatusMap.get(notificationId)) return;
+        knownStatusMap.set(notificationId, true);
 
-        const previous = knownStatusMap.get(requestId) || null;
-        const nextStatus = String(next.status || "").toUpperCase();
-        const nextUpdatedAt = String(next.updated_at || "");
-        knownStatusMap.set(requestId, { status: nextStatus, updatedAt: nextUpdatedAt });
+        const metadata = next.metadata && typeof next.metadata === "object" ? next.metadata : {};
+        const requestId = String(next.request_id || metadata.request_id || "");
+        const requestCode = String(next.request_code || metadata.request_code || requestId || "Pedido");
+        const status = String(metadata.status || next.event_type || "").toUpperCase();
+        const dedupeKey = `${notificationId}:${requestCode}:${status}`;
+        if (hasSeenEvent(dedupeKey)) return;
+        markEventSeen(dedupeKey);
 
-        if (previous && previous.status === nextStatus && previous.updatedAt === nextUpdatedAt) return;
-        await announceRequestStatusNotification(nextStatus, {
-          requestId,
-          requestCode: next.request_code || requestId,
-          customerName: next.customer_name || "",
-          updatedAt: nextUpdatedAt,
-          errorMessage: next.last_error || "",
+        const tone = String(next.tone || "info").toLowerCase();
+        const icon =
+          tone === "success"
+            ? "bx-check-circle"
+            : tone === "warning"
+              ? "bx-time-five"
+              : tone === "danger"
+                ? "bx-error-circle"
+                : "bx-bell";
+
+        showAppToast({
+          tone,
+          icon,
+          title: next.title || statusLabel(status),
+          message: next.message || statusLabel(status),
+          actionLabel: "Abrir",
+          onAction: () => {
+            window.location.href = `requests.html?requestId=${encodeURIComponent(requestId)}`;
+          },
+        });
+
+        await showSystemNotification({
+          title: next.title || statusLabel(status),
+          message: next.message || statusLabel(status),
+          tag: `cotai-notification-${notificationId}`,
+          url: `requests.html?requestId=${encodeURIComponent(requestId)}`,
         });
       }
     )
@@ -283,11 +321,12 @@ export async function bootstrapMobileNotifications(userId) {
 
   if (!supabase || !areNotificationsEnabled()) return null;
 
-  const profile = await getProfile(userId);
+  const profile = await syncProfilePreference(await getProfile(userId));
+  if (profile?.mobile_notifications_enabled === false) return null;
   const companyId = String(profile?.company_id || "").trim();
   if (!companyId) return null;
 
-  await fetchKnownStatuses(companyId);
+  await fetchKnownNotifications(companyId);
   bindRealtimeChannel(companyId);
   return { companyId };
 }
