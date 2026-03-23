@@ -160,6 +160,79 @@ function renderRows(rows) {
     .join("");
 }
 
+function renderMobileCards(rows) {
+  if (!rows.length) {
+    return `
+      <article class="requests-mobile-card requests-mobile-card-empty">
+        <div class="requests-mobile-card-copy">
+          <p>Nenhum pedido encontrado</p>
+          <strong>Ajuste os filtros ou crie uma nova cotacao pela Cota para iniciar a fila.</strong>
+        </div>
+        <span class="app-badge is-muted">VAZIO</span>
+      </article>
+    `;
+  }
+
+  return rows
+    .map((row) => {
+      const estimatedTotal = row.comparison?.bestSupplier?.totalPrice ?? 0;
+      const meta = getRequestAttentionMeta(row);
+      const requestCode = row.request_code || row.requestCode || row.id;
+      const customer = row.customer_name || row.customerName || "Sem cliente";
+      const approval = row.approval_status || "NOT_REQUIRED";
+      const priority = row.priority || "MEDIUM";
+      const updatedAt = formatDateTime(row.updated_at || row.created_at);
+
+      return `
+        <article class="requests-mobile-card" data-request-id="${row.id}">
+          <div class="requests-mobile-card-head">
+            <div class="requests-mobile-card-copy">
+              <p>${escapeHtml(customer)}</p>
+              <h3>${escapeHtml(requestCode)}</h3>
+            </div>
+            <span class="app-badge ${badgeClass(row.status)}">${formatStatus(row.status)}</span>
+          </div>
+
+          <div class="requests-mobile-meta-grid">
+            <div class="requests-mobile-meta-item">
+              <span>Fornecedor</span>
+              <strong>${escapeHtml(row.best_supplier_name || "-")}</strong>
+            </div>
+            <div class="requests-mobile-meta-item">
+              <span>Total estimado</span>
+              <strong>${estimatedTotal ? formatCurrencyBRL(estimatedTotal) : "-"}</strong>
+            </div>
+            <div class="requests-mobile-meta-item">
+              <span>Entrega</span>
+              <strong>${escapeHtml(row.delivery_location || "-")}</strong>
+            </div>
+            <div class="requests-mobile-meta-item">
+              <span>Atualizado</span>
+              <strong>${escapeHtml(updatedAt)}</strong>
+            </div>
+          </div>
+
+          <div class="requests-mobile-context">
+            <span class="app-badge ${meta.tone}">${escapeHtml(meta.label)}</span>
+            <span class="app-badge is-muted">${escapeHtml(priority)}</span>
+            <span class="app-badge is-muted">${escapeHtml(approval)}</span>
+          </div>
+
+          <p class="requests-mobile-detail">${escapeHtml(meta.detail)}</p>
+
+          <div class="requests-mobile-actions">
+            <button class="btn btn-primary" data-action="details" data-id="${row.id}" type="button">Ver comparador</button>
+            ${row.chat_thread_id ? `<button class="btn btn-ghost" data-action="resume" data-id="${row.id}" type="button">Continuar</button>` : ""}
+            <button class="btn btn-ghost" data-action="duplicate" data-id="${row.id}" type="button">Recotar</button>
+            <button class="btn btn-ghost" data-action="pdf" data-id="${row.id}" type="button">PDF</button>
+            <button class="btn btn-ghost" data-action="csv" data-id="${row.id}" type="button">CSV</button>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
 function getDecisionSummary(request) {
   const ranked = request?.comparison?.ranked || [];
   const bestPrice = ranked[0] || null;
@@ -369,6 +442,7 @@ function applyFilters() {
 
   setText("#requestsCount", `${filteredRequests.length} pedido(s) monitorados`);
   setHTML("#requestsTableBody", renderRows(filteredRequests));
+  setHTML("#requestsMobileList", renderMobileCards(filteredRequests));
   if ((!selectedRequest || !filteredRequests.some((item) => item.id === selectedRequest.id)) && filteredRequests.length) {
     selectRequest(filteredRequests[0].id);
   }
@@ -385,6 +459,21 @@ async function init() {
 
   initSidebar();
   setTableSkeleton("#requestsTableBody", 6, 6);
+  setHTML(
+    "#requestsMobileList",
+    Array.from({ length: 3 })
+      .map(
+        () => `
+          <article class="requests-mobile-card requests-mobile-card-skeleton">
+            <div class="skeleton" style="height: 18px; width: 38%;"></div>
+            <div class="skeleton" style="height: 24px; width: 56%;"></div>
+            <div class="skeleton" style="height: 72px; width: 100%;"></div>
+            <div class="skeleton" style="height: 42px; width: 100%;"></div>
+          </article>
+        `
+      )
+      .join("")
+  );
 
   qs("#logoutButton")?.addEventListener("click", async () => {
     await signOut();
@@ -431,6 +520,7 @@ async function init() {
   } catch (error) {
     handlePageError(error, "Nao foi possivel carregar os pedidos.");
     setHTML("#requestsTableBody", '<tr><td colspan="6" class="app-empty">Erro ao carregar pedidos.</td></tr>');
+    setHTML("#requestsMobileList", '<article class="requests-mobile-card requests-mobile-card-empty"><div class="requests-mobile-card-copy"><p>Erro</p><strong>Erro ao carregar pedidos.</strong></div><span class="app-badge is-danger">ERRO</span></article>');
     return;
   }
 
@@ -452,6 +542,30 @@ async function init() {
   qs("#requestsExportCsv")?.addEventListener("click", exportCurrentRows);
 
   qs("#requestsTableBody")?.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+    const request = overview.requests.find((item) => item.id === button.dataset.id);
+    if (!request) return;
+    if (button.dataset.action === "details") return selectRequest(request.id);
+    if (button.dataset.action === "resume") return resumeRequest(request);
+    if (button.dataset.action === "duplicate") return duplicateRequest(request);
+    if (button.dataset.action === "pdf") {
+      return printQuoteReport({
+        companyName: overview.companyName,
+        request,
+        comparison: request.comparison,
+        results: getRequestResults(request.id)
+      });
+    }
+    if (button.dataset.action === "csv") {
+      return exportQuoteCsv({
+        request,
+        results: getRequestResults(request.id)
+      });
+    }
+  });
+
+  qs("#requestsMobileList")?.addEventListener("click", (event) => {
     const button = event.target.closest("button[data-action]");
     if (!button) return;
     const request = overview.requests.find((item) => item.id === button.dataset.id);

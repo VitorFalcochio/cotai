@@ -494,6 +494,45 @@ function renderRecentRequests(rows) {
     .join("");
 }
 
+function renderRecentRequestsMobile(rows) {
+  if (!rows.length) {
+    return `
+      <article class="dashboard-recent-mobile-card dashboard-recent-mobile-card-empty">
+        <div class="entity-list-copy">
+          <p>Sem pedidos recentes</p>
+          <strong>Abra a Cota para criar a primeira cotacao e acompanhar a fila por aqui.</strong>
+        </div>
+        <span class="app-badge is-muted">INFO</span>
+      </article>
+    `;
+  }
+
+  return rows
+    .slice(0, 5)
+    .map(
+      (row) => `
+        <article class="dashboard-recent-mobile-card">
+          <div class="dashboard-recent-mobile-head">
+            <div class="entity-list-copy">
+              <p>${row.customer_name || "Pedido sem cliente"}</p>
+              <strong>${row.request_code || row.id}</strong>
+            </div>
+            <span class="app-badge ${badgeClass(row.status)}">${formatStatus(row.status)}</span>
+          </div>
+          <div class="dashboard-recent-mobile-meta">
+            <span><strong>Fornecedor:</strong> ${row.best_supplier_name || "-"}</span>
+            <span><strong>Atualizado:</strong> ${formatDateTime(row.updated_at || row.created_at)}</span>
+          </div>
+          <div class="dashboard-recent-mobile-actions">
+            <a class="btn btn-ghost" href="requests.html">Abrir comparador</a>
+            <a class="btn btn-ghost" href="new-request.html">Ir para a Cota</a>
+          </div>
+        </article>
+      `
+    )
+    .join("");
+}
+
 function renderStatusList(rows) {
   const grouped = [
     {
@@ -678,8 +717,17 @@ async function init() {
     setText("#metricMaterialsMeta", `${overview.topMaterials[0]?.name || "Sem lideranca"} em destaque`);
     setText("#metricSavingsMeta", `${overview.metrics.suppliersConsulted || 0} fornecedores consultados`);
     setText("#metricInFlightMeta", `${overview.requests.filter((row) => String(row.status || "").toUpperCase() === "ERROR").length} com erro`);
+    setText("#dashboardMobileHeroMeta", `${overview.requests.length} pedido(s) ativos ou historicos com leitura rapida para tomada de decisao.`);
+    setText("#dashboardMobilePulseValue", `${inFlightCount} pedido(s)`);
+    setText(
+      "#dashboardMobilePulseMeta",
+      `${overview.requests.filter((row) => String(row.status || "").toUpperCase() === "ERROR").length} com erro e ${overview.requests.filter((row) => String(row.status || "").toUpperCase() === "DONE").length} concluidos.`
+    );
+    setText("#dashboardMobileSupplierValue", overview.metrics.bestRecurringSupplier || "-");
+    setText("#dashboardMobileSupplierMeta", `${overview.metrics.suppliersConsulted || 0} fornecedores consultados na base recente.`);
 
     setHTML("#dashboardRequestsTableBody", renderRecentRequests(overview.requests));
+    setHTML("#dashboardRecentMobileList", renderRecentRequestsMobile(overview.requests));
     setHTML("#dashboardStatusList", renderStatusList(overview.requests));
     setHTML("#dashboardTopMaterials", renderTopMaterials(overview.topMaterials));
     setHTML("#dashboardActivityList", renderActivity(overview.requests));
@@ -694,6 +742,7 @@ async function init() {
   } catch (error) {
     showFeedback("#dashboardFeedback", error.message || "Nao foi possivel carregar o dashboard.");
     setHTML("#dashboardRequestsTableBody", '<tr><td colspan="4" class="app-empty">Erro ao carregar pedidos.</td></tr>');
+    setHTML("#dashboardRecentMobileList", '<article class="dashboard-recent-mobile-card dashboard-recent-mobile-card-empty"><div class="entity-list-copy"><p>Erro</p><strong>Erro ao carregar pedidos recentes.</strong></div><span class="app-badge is-danger">ERRO</span></article>');
   }
 }
 

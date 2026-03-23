@@ -115,17 +115,17 @@ function renderProjectList(rows) {
 
     return `
       <tr>
-        <td class="projects-col-index">${index + 1}</td>
-        <td>
+        <td class="projects-col-index" data-label="Indice">${index + 1}</td>
+        <td data-label="Projeto">
           <div class="projects-name-cell">
             <strong>${escapeHtml(row.name || "Projeto sem nome")}</strong>
             <span>${escapeHtml(row.project_label || "Projeto salvo no chat")}</span>
           </div>
         </td>
-        <td class="projects-inline-meta">${escapeHtml(getProjectMetaLine(row))}<br />${escapeHtml(summaryLine)}</td>
-        <td>${escapeHtml(costLabel)}</td>
-        <td class="projects-col-status"><span class="projects-status-pill ${statusTone}">${escapeHtml(statusLabel)}</span></td>
-        <td class="projects-col-action">${renderAction(row)}</td>
+        <td class="projects-inline-meta" data-label="Resumo">${escapeHtml(getProjectMetaLine(row))}<br />${escapeHtml(summaryLine)}</td>
+        <td data-label="Custo">${escapeHtml(costLabel)}</td>
+        <td class="projects-col-status" data-label="Status"><span class="projects-status-pill ${statusTone}">${escapeHtml(statusLabel)}</span></td>
+        <td class="projects-col-action" data-label="Acoes">${renderAction(row)}</td>
       </tr>
     `;
   }).join("");
