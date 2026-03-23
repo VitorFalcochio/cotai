@@ -468,6 +468,146 @@
         align-items: stretch;
       }
     }
+
+    @media (max-width: 768px) {
+      .settings-shell {
+        gap: 14px;
+      }
+
+      .settings-shell::before {
+        inset: -12px 0 auto;
+        height: 180px;
+        filter: blur(14px);
+      }
+
+      .settings-intro {
+        gap: 8px;
+      }
+
+      .settings-intro h1 {
+        font-size: clamp(1.9rem, 10vw, 2.5rem);
+      }
+
+      .settings-intro p {
+        line-height: 1.65;
+      }
+
+      .settings-workspace {
+        border-radius: 24px;
+      }
+
+      .settings-toolbar {
+        gap: 14px;
+        padding: 18px 16px 16px;
+      }
+
+      .settings-toolbar-top {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .settings-toolbar-copy {
+        gap: 4px;
+      }
+
+      .settings-workspace .dashboard-search-shell,
+      .settings-workspace .dashboard-search-results {
+        max-width: none;
+        width: 100%;
+      }
+
+      .settings-search-caption {
+        padding: 0;
+      }
+
+      .settings-search-caption span:last-child {
+        display: none;
+      }
+
+      .settings-anchor-row {
+        gap: 8px;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        margin-inline: -2px;
+        padding: 2px;
+      }
+
+      .settings-anchor {
+        flex: 0 0 auto;
+        min-height: 40px;
+        padding: 0 14px;
+      }
+
+      .settings-form-flow {
+        gap: 12px;
+      }
+
+      .settings-block {
+        padding: 18px 16px;
+        border-radius: 20px;
+      }
+
+      .settings-block-head {
+        gap: 10px;
+      }
+
+      .settings-block-head h2 {
+        font-size: 1.1rem;
+      }
+
+      .settings-stack {
+        gap: 12px;
+      }
+
+      .settings-check-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .settings-check {
+        padding: 14px;
+        border-radius: 18px;
+      }
+
+      .settings-check label {
+        line-height: 1.5;
+      }
+
+      .settings-submit-row {
+        gap: 12px;
+        padding: 18px 16px;
+      }
+
+      .settings-submit-row .app-inline-actions {
+        width: 100%;
+        display: grid;
+        gap: 10px;
+      }
+
+      .settings-submit-row .btn {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .settings-toolbar {
+        padding-inline: 14px;
+      }
+
+      .settings-block,
+      .settings-submit-row {
+        padding-inline: 14px;
+      }
+
+      .settings-search-meta {
+        display: none;
+      }
+
+      .settings-search-footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
   </style>
 </head>
 <body data-page="settings">
