@@ -210,3 +210,89 @@ label {
     scroll-behavior: auto !important;
   }
 }
+
+@media (max-width: 768px) {
+  *,
+  *::before,
+  *::after {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html,
+  body {
+    min-height: 100dvh;
+    overscroll-behavior-y: none;
+  }
+
+  html {
+    scrollbar-width: none;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body,
+  .app-main,
+  .page,
+  .app-table-wrap,
+  .quote-chat-stream,
+  .dashboard-notifications-list,
+  .dashboard-customize-panel,
+  .dashboard-search-results {
+    scrollbar-width: none;
+  }
+
+  body {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+  }
+
+  body::-webkit-scrollbar,
+  .app-main::-webkit-scrollbar,
+  .page::-webkit-scrollbar,
+  .app-table-wrap::-webkit-scrollbar,
+  .quote-chat-stream::-webkit-scrollbar,
+  .quote-chat-composer textarea::-webkit-scrollbar,
+  .dashboard-notifications-list::-webkit-scrollbar,
+  .dashboard-customize-panel::-webkit-scrollbar,
+  .dashboard-search-results::-webkit-scrollbar {
+    display: none;
+  }
+
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  [role="button"] {
+    touch-action: manipulation;
+  }
+
+  .btn,
+  .icon-btn,
+  .side-collapse-btn,
+  .dashboard-user-chip,
+  .app-mobile-nav-link,
+  .projects-action-link,
+  .settings-anchor,
+  .quote-chat-suggestion,
+  .quote-suggestion-pill,
+  .app-toast-action,
+  .app-toast-close,
+  .dashboard-search-item {
+    min-height: 48px !important;
+  }
+
+  body *:not(input):not(textarea):not(select):not(option):not([contenteditable="true"]) {
+    user-select: none;
+  }
+
+  input,
+  textarea,
+  select,
+  option,
+  [contenteditable="true"] {
+    user-select: text;
+    -webkit-user-select: text;
+  }
+}

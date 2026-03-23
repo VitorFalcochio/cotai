@@ -1000,7 +1000,7 @@
   }
 }
 
-@media (max-width: 920px) {
+@media (max-width: 768px) {
   .dashboard-mobile-hero {
     display: grid;
   }
