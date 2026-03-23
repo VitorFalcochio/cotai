@@ -6,7 +6,11 @@ import json
 from pathlib import Path
 
 from autocad_ia.models import ProjectSpec
-from autocad_ia.service import build_project_from_text, export_project_to_dxf
+from autocad_ia.service import (
+    build_project_from_text,
+    build_project_variants_from_text,
+    export_project_to_dxf,
+)
 
 
 def load_project_from_json(path: Path) -> ProjectSpec:
@@ -20,20 +24,43 @@ def build_parser() -> argparse.ArgumentParser:
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    from_json = subparsers.add_parser("from-json", help="Gera um DXF a partir de um JSON estruturado.")
+    from_json = subparsers.add_parser(
+        "from-json", help="Gera um DXF a partir de um JSON estruturado."
+    )
     from_json.add_argument("input_path", type=Path)
     from_json.add_argument("output_path", type=Path)
 
-    from_text = subparsers.add_parser("from-text", help="Gera um DXF a partir de uma descricao em texto.")
+    from_text = subparsers.add_parser(
+        "from-text", help="Gera um DXF a partir de uma descricao em texto."
+    )
     from_text.add_argument("description", type=str)
     from_text.add_argument("output_path", type=Path)
 
-    analyze_text = subparsers.add_parser("analyze-text", help="Analisa o programa arquitetonico e imprime o projeto estruturado.")
+    analyze_text = subparsers.add_parser(
+        "analyze-text",
+        help="Analisa o programa arquitetonico e imprime o projeto estruturado.",
+    )
     analyze_text.add_argument("description", type=str)
 
-    export_json = subparsers.add_parser("export-plan-json", help="Gera um JSON estruturado para importar no preview do Cotai Arquiteto.")
+    export_json = subparsers.add_parser(
+        "export-plan-json",
+        help="Gera um JSON estruturado para importar no preview do Cotai Arquiteto.",
+    )
     export_json.add_argument("description", type=str)
     export_json.add_argument("output_path", type=Path)
+
+    analyze_variants = subparsers.add_parser(
+        "analyze-variants",
+        help="Gera variantes arquitetonicas e mostra os scores.",
+    )
+    analyze_variants.add_argument("description", type=str)
+
+    export_variants = subparsers.add_parser(
+        "export-variants-json",
+        help="Exporta as 3 variantes reais do solver para o Cotai Arquiteto.",
+    )
+    export_variants.add_argument("description", type=str)
+    export_variants.add_argument("output_path", type=Path)
 
     return parser
 
@@ -43,28 +70,69 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.command == "from-json":
-      project = load_project_from_json(args.input_path)
-      export_project_to_dxf(project, args.output_path)
-      print(f"DXF gerado em: {args.output_path}")
-      return 0
+        project = load_project_from_json(args.input_path)
+        export_project_to_dxf(project, args.output_path)
+        print(f"DXF gerado em: {args.output_path}")
+        return 0
 
     if args.command == "from-text":
-      project = build_project_from_text(args.description)
-      export_project_to_dxf(project, args.output_path)
-      print(f"DXF gerado em: {args.output_path}")
-      return 0
+        project = build_project_from_text(args.description)
+        export_project_to_dxf(project, args.output_path)
+        print(f"DXF gerado em: {args.output_path}")
+        return 0
 
     if args.command == "analyze-text":
-      project = build_project_from_text(args.description)
-      print(json.dumps(asdict(project), ensure_ascii=False, indent=2))
-      return 0
+        project = build_project_from_text(args.description)
+        print(json.dumps(asdict(project), ensure_ascii=False, indent=2))
+        return 0
 
     if args.command == "export-plan-json":
-      project = build_project_from_text(args.description)
-      args.output_path.parent.mkdir(parents=True, exist_ok=True)
-      args.output_path.write_text(json.dumps(asdict(project), ensure_ascii=False, indent=2), encoding="utf-8")
-      print(f"JSON gerado em: {args.output_path}")
-      return 0
+        project = build_project_from_text(args.description)
+        args.output_path.parent.mkdir(parents=True, exist_ok=True)
+        args.output_path.write_text(
+            json.dumps(asdict(project), ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        print(f"JSON gerado em: {args.output_path}")
+        return 0
+
+    if args.command == "analyze-variants":
+        variants = build_project_variants_from_text(args.description)
+        payload = [
+            {
+                "id": item["id"],
+                "label": item["label"],
+                "quality_score": item["quality_score"],
+                "design_strategy": item["project"].design_strategy,
+                "processing_notes": item["project"].processing_notes,
+            }
+            for item in variants
+        ]
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
+
+    if args.command == "export-variants-json":
+        variants = build_project_variants_from_text(args.description)
+        payload = {
+            "source": "variant_solver",
+            "title": variants[0]["project"].title if variants else "Projeto IA",
+            "variants": [
+                {
+                    "id": item["id"],
+                    "label": item["label"],
+                    "quality_score": item["quality_score"],
+                    "project": asdict(item["project"]),
+                }
+                for item in variants
+            ],
+        }
+        args.output_path.parent.mkdir(parents=True, exist_ok=True)
+        args.output_path.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        print(f"JSON de variantes gerado em: {args.output_path}")
+        return 0
 
     parser.print_help()
     return 1

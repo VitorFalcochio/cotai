@@ -156,12 +156,16 @@ def _stair_entities(room: RoomSpec, level_y_offset: float) -> list[str]:
     width = x2 - x1
     steps = max(int(room.depth / 0.28), 8)
     tread = (y2 - y1) / steps
+    landing_y = y1 + ((y2 - y1) * 0.5)
     entities = [
         _line((x1 + 0.16, y1 + 0.18), (x2 - 0.16, y1 + 0.18), "STAIRS", 4),
         _line((x1 + 0.16, y2 - 0.18), (x2 - 0.16, y2 - 0.18), "STAIRS", 4),
+        _line((x1 + 0.16, landing_y), (x2 - 0.16, landing_y), "STAIRS", 1),
     ]
     for index in range(1, steps):
         y = y1 + (index * tread)
+        if abs(y - landing_y) < (tread * 0.7):
+            continue
         entities.append(_line((x1 + 0.16, y), (x2 - 0.16, y), "STAIRS", 4))
     entities.append(_text("UP", (x1 + (width * 0.34), y1 + ((y2 - y1) * 0.5)), 0.18, "STAIRS", 1))
     return entities
@@ -248,6 +252,24 @@ def _site_outline_entities(project: ProjectSpec, rooms: list[RoomSpec], level_y_
     polygon = left_chain + list(reversed(right_chain))
     if len(polygon) < 3:
         return []
+
+    facade_mode = str((project.constraints or {}).get("facade_mass_mode", "compact")).lower()
+    if facade_mode == "stepped" and len(polygon) >= 6:
+        front_y = min(point[1] for point in polygon)
+        left_front = min((point for point in polygon if point[1] == front_y), key=lambda point: point[0], default=None)
+        right_front = max((point for point in polygon if point[1] == front_y), key=lambda point: point[0], default=None)
+        if left_front and right_front:
+            step_depth = 0.9
+            step_left = (left_front[0] + 1.4, front_y + step_depth)
+            step_right = (right_front[0] - 1.4, front_y + step_depth)
+            polygon = [step_left if point == left_front else step_right if point == right_front else point for point in polygon]
+            polygon.insert(1, left_front)
+            polygon.insert(len(polygon) - 1, right_front)
+    elif facade_mode == "compact" and len(polygon) >= 4:
+        polygon = [
+            (point[0], point[1] + 0.25) if index in {0, len(polygon) - 1} else point
+            for index, point in enumerate(polygon)
+        ]
 
     entities: list[str] = []
     for index, point in enumerate(polygon):

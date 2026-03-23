@@ -77,6 +77,8 @@ def _detect_floors(lowered: str) -> int:
         return 3
     if any(token in lowered for token in ("3 andares", "tres andares", "3 pavimentos", "tres pavimentos")):
         return 3
+    if any(token in lowered for token in ("pavimento superior", "andar superior", "segundo pavimento", "segundo andar", "piso superior")):
+        return 2
     if any(token in lowered for token in ("2 andares", "dois andares", "2 pavimentos", "dois pavimentos", "sobrado")):
         return 2
     return 1

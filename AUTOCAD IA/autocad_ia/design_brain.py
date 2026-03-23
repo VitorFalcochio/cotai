@@ -145,6 +145,30 @@ def _project_strategy(project: ProjectSpec) -> tuple[str, list[str]]:
     return strategy, notes
 
 
+def _spatial_constraints(project: ProjectSpec) -> dict[str, float | str | bool]:
+    corridor_width = 1.35 if project.floors > 1 else 1.2
+    stair_width = 2.6 if project.width >= 12 else 2.2
+    hall_depth = 3.6 if project.floors > 1 else 2.8
+
+    if project.width >= 18:
+        corridor_width = 1.5
+        stair_width = 3.0
+        hall_depth = 4.0
+    elif project.width <= 10:
+        corridor_width = 1.1
+        stair_width = 2.0
+        hall_depth = 2.4
+
+    return {
+        "corridor_width": corridor_width,
+        "stair_width_target": stair_width,
+        "hall_depth_target": hall_depth,
+        "core_axis_mode": "central",
+        "private_access_mode": "spine",
+        "facade_mass_mode": "stepped" if project.width >= 12 else "compact",
+    }
+
+
 def enrich_project(project: ProjectSpec) -> ProjectSpec:
     enriched_rooms: list[RoomSpec] = []
     for room in project.rooms:
@@ -166,9 +190,12 @@ def enrich_project(project: ProjectSpec) -> ProjectSpec:
     strategy, notes = _project_strategy(enriched)
     enriched.design_strategy = strategy
     enriched.processing_notes = notes
-    enriched.constraints = {
+    base_constraints = dict(project.constraints or {})
+    base_constraints.update({
         "max_floor_plate_area": round(project.width * project.depth, 2),
         "requires_circulation_core": project.floors > 1 or len(enriched_rooms) >= 7,
         "needs_wet_stack_alignment": any(room.role in {"bathroom", "powder_room", "service"} for room in enriched_rooms),
-    }
+    })
+    base_constraints.update(_spatial_constraints(project))
+    enriched.constraints = base_constraints
     return enriched

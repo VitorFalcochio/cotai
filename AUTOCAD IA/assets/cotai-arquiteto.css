@@ -1173,6 +1173,19 @@ button {
   color: var(--muted);
 }
 
+.plan-card-score {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  margin-bottom: 14px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #eef4ff;
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .mini-plan {
   display: grid;
   place-items: center;
@@ -1196,6 +1209,14 @@ button {
   color: #60769f;
   font-size: 14px;
   line-height: 1.6;
+}
+
+.plan-card-meta {
+  display: block;
+  margin: -6px 0 18px;
+  color: #7a8db0;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .plan-view {
@@ -1242,6 +1263,51 @@ button {
 
 .plan-area span {
   color: var(--muted);
+}
+
+.plan-level-meta {
+  margin: 0 0 14px;
+  color: #6c82a6;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.plan-level-meta strong {
+  color: var(--text);
+}
+
+.plan-level-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 20px;
+}
+
+.plan-level-pill {
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: #5d7399;
+  font-size: 12px;
+  font-weight: 700;
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.plan-level-pill:hover {
+  transform: translateY(-1px);
+  border-color: #cddcf5;
+}
+
+.plan-level-pill.is-active {
+  background: #eef4ff;
+  border-color: rgba(47, 107, 255, 0.24);
+  color: var(--primary);
 }
 
 .rooms-list {

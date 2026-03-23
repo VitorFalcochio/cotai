@@ -1,6 +1,8 @@
 (function () {
-  const STORAGE_KEY = "cotai-arquiteto-projects-v1";
-  const SIDEBAR_KEY = "cotai-arquiteto-sidebar-collapsed";
+  const APP_NAME = "CotaiStudio";
+  const APP_CHAT_NAME = "Studio IA";
+  const STORAGE_KEY = "cotai-studio-projects-v1";
+  const SIDEBAR_KEY = "cotai-studio-sidebar-collapsed";
   const app = document.getElementById("app");
 
   const ARCH_STYLES = [
@@ -43,6 +45,7 @@
     draft: initialDraft(),
     tab: "plans",
     detailZoom: 1,
+    activePlanLevels: {},
     toast: "",
     sidebarCollapsed: loadSidebarCollapsed(),
   };
@@ -152,6 +155,10 @@
   }
 
   function generatePlans(project) {
+    if (project.brainSource && Array.isArray(project.brainSource.variants) && project.brainSource.variants.length) {
+      return buildPlansFromBrainVariants(project.brainSource);
+    }
+
     if (project.brainSource && Array.isArray(project.brainSource.rooms) && project.brainSource.rooms.length) {
       return buildPlansFromBrainProject(project.brainSource);
     }
@@ -267,6 +274,70 @@
     return plans.length ? plans : generatePlans({ targetArea: brainProject.constraints?.target_area || 150 });
   }
 
+  function buildPlansFromBrainVariants(payload) {
+    return (payload.variants || []).map((variant, index) => buildPlanFromBrainVariant(variant, index));
+  }
+
+  function buildPlanFromBrainVariant(variant, index) {
+    const brainProject = variant.project || {};
+    const levels = [...new Set((brainProject.rooms || []).map((room) => Number(room.level || 0)))].sort((a, b) => a - b);
+    const fallbackLevels = levels.length ? levels : [0];
+    const palette = PLAN_PALETTES[index % PLAN_PALETTES.length];
+    const selectedLevel = fallbackLevels[0];
+    const selectedRooms = (brainProject.rooms || []).filter((room) => Number(room.level || 0) === selectedLevel);
+
+    return {
+      id: `variant-${variant.id || index + 1}`,
+      title: `Planta ${String.fromCharCode(65 + index)} - ${variant.label || "Solucao IA"}`,
+      totalArea: Number(
+        (
+          brainProject.constraints?.target_area ||
+          (brainProject.rooms || []).reduce((sum, room) => sum + Number(room.width || 0) * Number(room.depth || 0), 0)
+        ).toFixed(1)
+      ),
+      description: brainProject.design_strategy
+        ? `Solucao ${String(variant.label || "").toLowerCase()} baseada na estrategia ${brainProject.design_strategy.replaceAll("_", " ")}.`
+        : `Solucao arquitetonica gerada pelo solver de variantes do ${APP_NAME}.`,
+      notes: (brainProject.processing_notes || []).join(" ") || "Variante gerada pelo solver arquitetonico.",
+      tips: buildVariantTips(variant, brainProject),
+      scale: "1m = 30px",
+      layoutKind: "brain",
+      strategy: brainProject.design_strategy || "",
+      processingNotes: brainProject.processing_notes || [],
+      constraints: brainProject.constraints || {},
+      qualityScore: variant.quality_score || null,
+      plot: { width: Number(brainProject.width || 12), depth: Number(brainProject.depth || 8) },
+      rooms: toPlanRoomsFromBrainRooms(selectedRooms, palette),
+      levels: fallbackLevels.map((level, levelIndex) => ({
+        id: `level-${level}`,
+        level,
+        label: level === 0 ? "Terreo" : `Pavimento ${levelIndex + 1}`,
+        rooms: toPlanRoomsFromBrainRooms(
+          (brainProject.rooms || []).filter((room) => Number(room.level || 0) === level),
+          PLAN_PALETTES[(index + levelIndex) % PLAN_PALETTES.length]
+        ),
+      })),
+    };
+  }
+
+  function buildVariantTips(variant, brainProject) {
+    const tips = [];
+    if (variant.quality_score?.overall_score) {
+      tips.push(`Score geral desta solucao: ${variant.quality_score.overall_score}.`);
+    }
+    if (variant.quality_score?.layout_integrity_score) {
+      tips.push(`Integridade geometrica: ${variant.quality_score.layout_integrity_score}.`);
+    }
+    if (brainProject.constraints?.wet_stack_bias) {
+      tips.push(`Wet stack configurado em modo ${brainProject.constraints.wet_stack_bias}.`);
+    }
+    if (brainProject.constraints?.private_distribution) {
+      tips.push(`Distribuicao intima prioriza ${brainProject.constraints.private_distribution.replaceAll("_", " ")}.`);
+    }
+    tips.push("Use o chat para pedir ajustes em corredores, escadas e areas molhadas.");
+    return tips;
+  }
+
   function toPlanRoomsFromBrainRooms(rooms, palette) {
     if (!rooms.length) return [];
     const minX = Math.min(...rooms.map((room) => Number(room.x || 0)));
@@ -299,6 +370,10 @@
   }
 
   function createProjectFromBrainPayload(payload) {
+    if (payload && Array.isArray(payload.variants) && payload.variants.length) {
+      return createProjectFromBrainVariantsPayload(payload);
+    }
+
     const createdAt = new Date().toISOString();
     const id = `proj_${Date.now().toString(36).slice(-6)}`;
     const targetArea = Number(payload.constraints?.target_area || payload.rooms?.reduce((sum, room) => {
@@ -338,6 +413,60 @@
         { role: "ai", text: "Projeto importado do cérebro arquitetônico. Posso comentar a setorização, a circulação e os núcleos molhados." },
       ],
     };
+  }
+
+  function createProjectFromBrainVariantsPayload(payload) {
+    const createdAt = new Date().toISOString();
+    const id = `proj_${Date.now().toString(36).slice(-6)}`;
+    const first = payload.variants[0]?.project || {};
+    const allRooms = payload.variants.flatMap((variant) => variant.project?.rooms || []);
+    const targetArea = Number(
+      (
+        first.constraints?.target_area ||
+        allRooms.reduce((sum, room) => sum + Number(room.width || 0) * Number(room.depth || 0), 0) / Math.max(payload.variants.length, 1) ||
+        180
+      ).toFixed(1)
+    );
+
+    return {
+      id,
+      shortId: id.replace("proj_", "") + "...",
+      name: payload.title || first.title || "Projeto importado",
+      style: first.design_strategy ? first.design_strategy.replaceAll("_", " ") : "Estudo IA",
+      lot: { width: Number(first.width || 12), depth: Number(first.depth || 25) },
+      targetArea,
+      requirements: {
+        floors: Number(first.floors || 1),
+        bedrooms: (first.rooms || []).filter((room) => /quarto|suite/i.test(room.name || "")).length,
+        suites: (first.rooms || []).filter((room) => /suite/i.test(room.name || "")).length,
+        bathrooms: (first.rooms || []).filter((room) => /banheiro|lavabo|wc/i.test(room.name || "")).length,
+        garageSpots: (first.rooms || []).some((room) => /garagem/i.test(room.name || "")) ? 2 : 0,
+        hasPool: (first.rooms || []).some((room) => /piscina/i.test(room.name || "")),
+      },
+      preferences: [],
+      status: "ready",
+      createdAt,
+      brainSource: payload,
+      plans: buildPlansFromBrainVariants(payload),
+      chat: [
+        { role: "ai", text: "Importei tres solucoes reais do solver arquitetonico. Posso comparar circulacao, areas molhadas e estrategia de implantacao." },
+      ],
+    };
+  }
+
+  function getDisplayedPlanRooms(plan) {
+    if (!Array.isArray(plan.levels) || !plan.levels.length) {
+      return plan.rooms || [];
+    }
+    const activeLevel = state.activePlanLevels[plan.id] ?? plan.levels[0].level;
+    const current = plan.levels.find((level) => level.level === activeLevel) || plan.levels[0];
+    return current.rooms || [];
+  }
+
+  function getDisplayedPlanLevel(plan) {
+    if (!Array.isArray(plan.levels) || !plan.levels.length) return null;
+    const activeLevel = state.activePlanLevels[plan.id] ?? plan.levels[0].level;
+    return plan.levels.find((level) => level.level === activeLevel) || plan.levels[0];
   }
 
   function icon(name) {
@@ -384,7 +513,7 @@
         <div class="architect-brand">
           <div class="brand-lockup">
             <div class="brand-mark"></div>
-            <div class="brand-copy"><strong>Cotai <span>Arquiteto</span></strong></div>
+            <div class="brand-copy"><strong>${APP_NAME}</strong></div>
           </div>
           <button class="sidebar-toggle" data-sidebar-toggle aria-label="Alternar barra lateral">
             ${icon("panel")}
@@ -429,7 +558,7 @@
       <section class="screen">
         <div class="page-head">
           <div>
-            <h1>Bem-vindo ao Cotai Arquiteto</h1>
+            <h1>Bem-vindo ao ${APP_NAME}</h1>
             <p>Crie plantas arquitetonicas inteligentes em segundos com IA.</p>
           </div>
           <div class="page-actions">
@@ -671,7 +800,7 @@
 
           <div class="detail-tabs">
             <button class="detail-tab ${state.tab === "plans" ? "is-active" : ""}" data-tab="plans">${icon("layers")}<span>Plantas Geradas</span></button>
-            <button class="detail-tab ${state.tab === "chat" ? "is-active" : ""}" data-tab="chat">${icon("chat")}<span>Chat Arquiteto IA</span></button>
+            <button class="detail-tab ${state.tab === "chat" ? "is-active" : ""}" data-tab="chat">${icon("chat")}<span>${APP_CHAT_NAME}</span></button>
           </div>
 
           <div class="detail-body">
@@ -701,9 +830,11 @@
         ${project.plans.map((plan) => `
           <article class="plan-card">
             <h3>${escapeHtml(plan.title)}</h3>
-            <small>${plan.totalArea.toFixed(1)}m² de area construida</small>
+            <small>${plan.totalArea.toFixed(1)}m2 de area construida</small>
+            ${plan.qualityScore?.overall_score ? `<div class="plan-card-score">Score ${escapeHtml(String(plan.qualityScore.overall_score))}</div>` : ""}
             <div class="mini-plan">${renderPlanSvg(plan, true)}</div>
             <p>"${escapeHtml(plan.description)}"</p>
+            ${Array.isArray(plan.levels) && plan.levels.length > 1 ? `<span class="plan-card-meta">${plan.levels.length} pavimentos renderizados</span>` : ""}
             <button class="btn btn-ghost" data-open-plan="#plan/${project.id}/${plan.id}">Ver detalhes</button>
           </article>
         `).join("")}
@@ -733,6 +864,8 @@
   function renderPlanDetail(projectId, planId) {
     const project = findProject(projectId);
     const plan = project ? project.plans.find((item) => item.id === planId) : null;
+    const displayedRooms = plan ? getDisplayedPlanRooms(plan) : [];
+    const displayedLevel = plan ? getDisplayedPlanLevel(plan) : null;
     if (!project || !plan) {
       return `<section class="screen"><div class="empty-projects"><div><h3>Planta nao encontrada</h3></div></div></section>`;
     }
@@ -743,16 +876,25 @@
           <aside class="plan-panel is-left">
             <button class="detail-tab" data-link="#project/${project.id}" style="margin-bottom:14px;">${icon("back")}<span>${escapeHtml(plan.title)}</span></button>
             <div class="plan-area">
-              <strong>${plan.totalArea.toFixed(1)} m²</strong>
+              <strong>${plan.totalArea.toFixed(1)} m2</strong>
               <span>Area total construida</span>
             </div>
+            ${displayedLevel ? `<div class="plan-level-meta">Exibindo: <strong>${escapeHtml(displayedLevel.label)}</strong></div>
+              <div class="plan-level-switcher">
+                ${plan.levels.map((level) => `
+                  <button class="plan-level-pill ${(displayedLevel.level === level.level) ? "is-active" : ""}" data-plan-level="${plan.id}" data-level="${level.level}">
+                    ${escapeHtml(level.label)}
+                  </button>
+                `).join("")}
+              </div>
+            ` : ""}
             <h2>Lista de Ambientes</h2>
             <div class="rooms-list">
-              ${plan.rooms.map((room) => `
+              ${displayedRooms.map((room) => `
                 <div class="room-row">
                   <span class="room-dot" style="background:${room.color}"></span>
                   <strong>${escapeHtml(room.name)}</strong>
-                  <span class="room-pill">${room.area.toFixed(1)}m²</span>
+                  <span class="room-pill">${room.area.toFixed(1)}m2</span>
                 </div>
               `).join("")}
             </div>
@@ -761,7 +903,7 @@
               <div class="plan-card-soft plan-score-card" style="margin-top:18px;">
                 ${Object.entries(plan.qualityScore).map(([key, value]) => `
                   <div class="plan-score-row">
-                    <span>${escapeHtml(key.replaceAll("_", " "))}</span>
+                    <span>${escapeHtml(key.replaceAll("_", " ").replace(" score", ""))}</span>
                     <strong>${escapeHtml(String(value))}</strong>
                   </div>
                 `).join("")}
@@ -788,7 +930,7 @@
                 ${renderPlanSvg(plan, false)}
               </div>
             </div>
-            <div class="plan-scale">↔ <span>${plan.scale}</span></div>
+            <div class="plan-scale">? <span>${plan.scale}</span></div>
           </section>
 
           <aside class="plan-panel is-right">
@@ -797,7 +939,7 @@
               <p>${escapeHtml(plan.notes)}</p>
             </div>
             ${plan.strategy ? `
-              <h2>Estratégia</h2>
+              <h2>Estrategia</h2>
               <div class="plan-card-soft" style="margin:18px 0 28px;">
                 <p>${escapeHtml(plan.strategy.replaceAll("_", " "))}</p>
               </div>
@@ -817,7 +959,7 @@
               </ul>
             </div>
             ${plan.constraints && Object.keys(plan.constraints).length ? `
-              <h2 style="margin-top:28px;">Restrições</h2>
+              <h2 style="margin-top:28px;">Restricoes</h2>
               <div class="plan-card-soft" style="margin-top:18px;">
                 <ul class="tips-list">
                   ${Object.entries(plan.constraints).map(([key, value]) => `<li><strong>${escapeHtml(key)}</strong>: ${escapeHtml(String(value))}</li>`).join("")}
@@ -831,6 +973,7 @@
   }
 
   function renderPlanSvg(plan, mini) {
+    const displayRooms = getDisplayedPlanRooms(plan);
     if (plan.layoutKind === "brain") {
       return renderTechnicalPlanSvg(plan, mini);
     }
@@ -844,7 +987,7 @@
     return `
       <svg viewBox="0 0 ${width} ${height}" width="${mini ? 160 : 320}" height="${mini ? 250 : 610}" aria-label="${escapeAttr(plan.title)}">
         <rect x="18" y="18" width="264" height="550" rx="10" fill="#fff" stroke="#17233c" stroke-width="${stroke}" />
-        ${plan.rooms.map((room) => {
+        ${displayRooms.map((room) => {
           const cx = room.x + room.w / 2;
           const cy = room.y + room.h / 2;
           const titleSize = Math.max(fontBase, Math.min(fontBase + 2, room.w / 14));
@@ -861,13 +1004,19 @@
   }
 
   function renderTechnicalPlanSvg(plan, mini) {
+    const displayRooms = getDisplayedPlanRooms(plan);
     const width = 360;
     const height = 650;
     const wallStroke = mini ? 1.5 : 3.2;
     const innerStroke = mini ? 0.8 : 1.4;
     const plotWidth = plan.plot?.width || 12;
     const plotDepth = plan.plot?.depth || 8;
-    const openingsMarkup = plan.rooms.map((room) => {
+    const minX = Math.min(...displayRooms.map((room) => room.x));
+    const minY = Math.min(...displayRooms.map((room) => room.y));
+    const maxX = Math.max(...displayRooms.map((room) => room.x + room.w));
+    const maxY = Math.max(...displayRooms.map((room) => room.y + room.h));
+
+    const openingsMarkup = displayRooms.map((room) => {
       const windowSpan = Math.max(Math.min(room.w * 0.28, mini ? 18 : 26), mini ? 8 : 12);
       const doorSpan = Math.max(Math.min(room.w * 0.24, mini ? 14 : 18), mini ? 6 : 10);
       const wx = room.x + (room.w - windowSpan) / 2;
@@ -886,25 +1035,49 @@
       return `${topWindow}${bottomDoor}`;
     }).join("");
 
-    const roomsMarkup = plan.rooms.map((room) => {
+    const roleOverlayMarkup = displayRooms.map((room) => {
+      if (room.role === "circulation") {
+        return `
+          <g opacity="${mini ? "0.18" : "0.28"}">
+            ${Array.from({ length: 6 }).map((_, index) => {
+              const y = room.y + 4 + index * ((room.h - 8) / 5);
+              return `<line x1="${room.x + 4}" y1="${y}" x2="${room.x + room.w - 4}" y2="${y}" stroke="#4a7cff" stroke-width="${mini ? 0.8 : 1.2}" stroke-dasharray="${mini ? "2 2" : "4 3"}" />`;
+            }).join("")}
+          </g>
+        `;
+      }
+      if (room.role === "stairs") {
+        const arrowX = room.x + room.w * 0.5;
+        return `
+          <g opacity="${mini ? "0.85" : "1"}">
+            <line x1="${arrowX}" y1="${room.y + room.h - 8}" x2="${arrowX}" y2="${room.y + 10}" stroke="#355fd6" stroke-width="${mini ? 1 : 1.8}" stroke-linecap="round" />
+            <path d="M ${arrowX - 5} ${room.y + 16} L ${arrowX} ${room.y + 8} L ${arrowX + 5} ${room.y + 16}" fill="none" stroke="#355fd6" stroke-width="${mini ? 1 : 1.8}" stroke-linecap="round" stroke-linejoin="round" />
+          </g>
+        `;
+      }
+      return "";
+    }).join("");
+
+    const roomsMarkup = displayRooms.map((room) => {
       const cx = room.x + room.w / 2;
       const cy = room.y + room.h / 2;
       const titleSize = mini ? Math.max(6, Math.min(9, room.w / 14)) : Math.max(8, Math.min(12, room.w / 11));
       const detailSize = mini ? 5.6 : 7.4;
+      const fillOpacity = room.role === "circulation" ? 0.34 : room.role === "stairs" ? 0.42 : 0.62;
       return `
         <g>
-          <rect x="${room.x}" y="${room.y}" width="${room.w}" height="${room.h}" rx="${mini ? 2 : 4}" fill="${room.color}" fill-opacity="0.62" stroke="#15223b" stroke-width="${wallStroke}" />
+          <rect x="${room.x}" y="${room.y}" width="${room.w}" height="${room.h}" rx="${mini ? 2 : 4}" fill="${room.color}" fill-opacity="${fillOpacity}" stroke="#15223b" stroke-width="${wallStroke}" />
           <rect x="${room.x + (mini ? 1.8 : 3)}" y="${room.y + (mini ? 1.8 : 3)}" width="${Math.max(room.w - (mini ? 3.6 : 6), 2)}" height="${Math.max(room.h - (mini ? 3.6 : 6), 2)}" fill="none" stroke="rgba(21,34,59,0.28)" stroke-width="${innerStroke}" />
           <text x="${cx}" y="${cy - (mini ? 2 : 6)}" text-anchor="middle" font-size="${titleSize}" font-weight="700" fill="#17233c">${escapeHtml(room.name)}</text>
-          <text x="${cx}" y="${cy + (mini ? 9 : 11)}" text-anchor="middle" font-size="${detailSize}" fill="#445d85">${room.area.toFixed(1)}m²</text>
+          <text x="${cx}" y="${cy + (mini ? 9 : 11)}" text-anchor="middle" font-size="${detailSize}" fill="#445d85">${room.area.toFixed(1)}m??</text>
           ${!mini ? `<text x="${cx}" y="${cy + 22}" text-anchor="middle" font-size="6.4" fill="#6a7f9d">${escapeHtml(room.zone || room.role || "")}</text>` : ""}
         </g>
       `;
     }).join("");
 
-    const circulationRooms = plan.rooms.filter((room) => ["circulation", "stairs", "family_lounge"].includes(room.role));
+    const circulationRooms = displayRooms.filter((room) => ["circulation", "stairs", "family_lounge"].includes(room.role));
     const adjLines = circulationRooms.flatMap((hub) => {
-      const targets = plan.rooms.filter((room) => room !== hub && (hub.adjacency || []).some((name) => {
+      const targets = displayRooms.filter((room) => room !== hub && (hub.adjacency || []).some((name) => {
         const lowered = name.toLowerCase();
         return room.name.toLowerCase() === lowered || room.name.toLowerCase().includes(lowered) || lowered.includes(room.name.toLowerCase());
       }));
@@ -921,7 +1094,9 @@
       <svg viewBox="0 0 ${width} ${height}" width="${mini ? 168 : 360}" height="${mini ? 250 : 650}" aria-label="${escapeAttr(plan.title)}">
         <rect x="20" y="18" width="292" height="592" rx="16" fill="#ffffff" stroke="#dbe4f3" stroke-width="1.4" />
         <rect x="34" y="34" width="264" height="564" rx="10" fill="none" stroke="rgba(21,34,59,0.16)" stroke-width="${mini ? 1 : 1.4}" stroke-dasharray="${mini ? "3 3" : "6 6"}" />
+        <rect x="${Math.max(minX - 6, 24)}" y="${Math.max(minY - 6, 28)}" width="${Math.min(maxX - minX + 12, 278)}" height="${Math.min(maxY - minY + 12, 576)}" rx="${mini ? 4 : 8}" fill="none" stroke="rgba(21,34,59,0.18)" stroke-width="${mini ? 1 : 1.4}" />
         ${roomsMarkup}
+        ${roleOverlayMarkup}
         ${openingsMarkup}
         ${adjLines}
         ${!mini ? `
@@ -965,7 +1140,7 @@
         try {
           const text = await file.text();
           const payload = JSON.parse(text);
-          if (!payload || !Array.isArray(payload.rooms)) {
+          if (!payload || (!Array.isArray(payload.rooms) && !Array.isArray(payload.variants))) {
             throw new Error("JSON invalido para importacao arquitetonica.");
           }
           const project = createProjectFromBrainPayload(payload);
@@ -1146,6 +1321,13 @@
         if (button.dataset.zoom === "in") state.detailZoom = Math.min(1.8, Number((state.detailZoom + 0.1).toFixed(2)));
         if (button.dataset.zoom === "out") state.detailZoom = Math.max(0.7, Number((state.detailZoom - 0.1).toFixed(2)));
         if (button.dataset.zoom === "reset") state.detailZoom = 1;
+        render();
+      });
+    });
+
+    app.querySelectorAll("[data-plan-level]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.activePlanLevels[button.dataset.planLevel] = Number(button.dataset.level);
         render();
       });
     });
