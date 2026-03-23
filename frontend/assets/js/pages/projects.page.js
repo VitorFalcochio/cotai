@@ -2,7 +2,7 @@ import { LOGIN_PATH } from "../config.js";
 import { handleSessionExpired, isSessionExpiredError, requireAuth, signOut } from "../auth.js";
 import { listProjects } from "../chatApi.js";
 import { bootstrapMobileNotifications } from "../mobileNotifications.js";
-import { initSidebar, qs, runPageBoot, setHTML, setText, showFeedback } from "../ui.js";
+import { initSidebar, qs, setHTML, setText, showFeedback } from "../ui.js";
 
 let projectRows = [];
 let visibleRows = [];
@@ -103,6 +103,39 @@ function renderEmptyTableRow(title, message) {
   `;
 }
 
+function renderProjectsSkeleton() {
+  setText("#projectsMetricTotal", "...");
+  setText("#projectsMetricMaterials", "...");
+  setText("#projectsMetricCost", "...");
+  setText("#projectsMetricActive", "...");
+  setText("#projectsVisibleCount", "...");
+  setHTML(
+    "#projectsList",
+    Array.from({ length: 4 })
+      .map(
+        (_, index) => `
+          <tr>
+            <td class="projects-col-index" data-label="Indice">${index + 1}</td>
+            <td data-label="Projeto">
+              <div class="projects-name-cell">
+                <div class="skeleton" style="height: 20px; width: 58%;"></div>
+                <div class="skeleton" style="height: 16px; width: 74%;"></div>
+              </div>
+            </td>
+            <td class="projects-inline-meta" data-label="Resumo">
+              <div class="skeleton" style="height: 18px; width: 88%;"></div>
+              <div class="skeleton" style="height: 18px; width: 64%; margin-top: 8px;"></div>
+            </td>
+            <td data-label="Custo"><div class="skeleton" style="height: 18px; width: 72%;"></div></td>
+            <td class="projects-col-status" data-label="Status"><div class="skeleton" style="height: 36px; width: 100%; max-width: 118px;"></div></td>
+            <td class="projects-col-action" data-label="Acoes"><div class="skeleton" style="height: 48px; width: 100%; max-width: 180px;"></div></td>
+          </tr>
+        `
+      )
+      .join("")
+  );
+}
+
 function renderProjectList(rows) {
   if (!rows.length) {
     return renderEmptyTableRow("Nenhum projeto encontrado", "Salve um projeto no chat da Cota ou ajuste o filtro para encontrar uma obra.");
@@ -153,6 +186,7 @@ function applyFilter() {
 async function init() {
   const session = await requireAuth(LOGIN_PATH);
   if (!session) return;
+  renderProjectsSkeleton();
   await bootstrapMobileNotifications(session.user.id);
 
   initSidebar();
@@ -162,24 +196,30 @@ async function init() {
     window.location.replace(LOGIN_PATH);
   });
 
-  const payload = await listProjects();
-  projectRows = Array.isArray(payload.projects) ? payload.projects : [];
-  visibleRows = [...projectRows];
+  try {
+    const payload = await listProjects();
+    projectRows = Array.isArray(payload.projects) ? payload.projects : [];
+    visibleRows = [...projectRows];
 
-  setText("#projectsMetricTotal", String(projectRows.length));
-  setText("#projectsMetricMaterials", String(projectRows.reduce((sum, row) => sum + Number(row.material_count || 0), 0)));
-  setText("#projectsMetricCost", formatCurrencyBRL(projectRows.reduce((sum, row) => sum + parseCurrencyToNumber(row.estimated_total_display), 0)));
-  setText(
-    "#projectsMetricActive",
-    String(
-      projectRows.filter((row) => {
-        const normalized = String(row.status || row.current_phase_label || "").trim().toLowerCase();
-        return ["active", "in_progress", "ongoing", "planning", "planejamento", "em andamento"].includes(normalized);
-      }).length
-    )
-  );
+    setText("#projectsMetricTotal", String(projectRows.length));
+    setText("#projectsMetricMaterials", String(projectRows.reduce((sum, row) => sum + Number(row.material_count || 0), 0)));
+    setText("#projectsMetricCost", formatCurrencyBRL(projectRows.reduce((sum, row) => sum + parseCurrencyToNumber(row.estimated_total_display), 0)));
+    setText(
+      "#projectsMetricActive",
+      String(
+        projectRows.filter((row) => {
+          const normalized = String(row.status || row.current_phase_label || "").trim().toLowerCase();
+          return ["active", "in_progress", "ongoing", "planning", "planejamento", "em andamento"].includes(normalized);
+        }).length
+      )
+    );
 
-  renderVisibleProjects();
+    renderVisibleProjects();
+  } catch (error) {
+    handlePageError(error, "Nao foi possivel carregar os projetos.");
+    setHTML("#projectsList", renderEmptyTableRow("Erro ao carregar projetos", "Tente novamente em instantes ou volte para a Cota para retomar a conversa."));
+    return;
+  }
 
   qs("#projectsSearch")?.addEventListener("input", () => {
     applyFilter();
@@ -192,6 +232,6 @@ async function init() {
   });
 }
 
-runPageBoot(init, { loadingMessage: "Carregando projetos salvos pela Cota." }).catch((error) => {
+init().catch((error) => {
   handlePageError(error, "Nao foi possivel iniciar a tela de projetos.");
 });

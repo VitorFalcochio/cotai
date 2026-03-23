@@ -228,7 +228,7 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      min-height: 38px;
+      min-height: 40px;
       padding: 0 12px;
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 10px;
@@ -270,6 +270,14 @@
         font-size: clamp(1.9rem, 10vw, 2.4rem);
       }
 
+      .projects-header p,
+      .projects-minimal-stats,
+      .projects-toolbar-chip,
+      .projects-inline-meta {
+        font-size: 1rem;
+        line-height: 1.55;
+      }
+
       .projects-minimal-stats {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
@@ -288,20 +296,32 @@
         padding: 16px;
       }
 
+      .projects-search input,
+      .projects-toolbar-chip,
+      .projects-action-link {
+        min-height: 48px;
+      }
+
+      .projects-toolbar-meta .projects-toolbar-chip:first-child {
+        display: none;
+      }
+
       .projects-table-wrap {
         margin-inline: -4px;
       }
 
       .projects-name-cell strong {
-        font-size: 0.98rem;
+        font-size: 1rem;
       }
 
       .projects-inline-meta {
-        font-size: 0.88rem;
+        font-size: 1rem;
       }
 
       .projects-status-pill {
         min-width: 0;
+        min-height: 44px;
+        font-size: 0.9rem;
       }
     }
 
@@ -337,7 +357,7 @@
         display: block;
         margin-bottom: 4px;
         color: var(--text-muted);
-        font-size: 0.72rem;
+        font-size: 0.9rem;
         font-weight: 700;
         letter-spacing: 0.08em;
         text-transform: uppercase;
@@ -351,9 +371,9 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 34px;
-        min-width: 34px;
-        height: 34px;
+        width: 44px;
+        min-width: 44px;
+        height: 44px;
         padding-top: 0;
         border-radius: 999px;
         background: rgba(255, 255, 255, 0.04);
@@ -378,6 +398,10 @@
     @media (max-width: 640px) {
       .projects-minimal-stats {
         grid-template-columns: 1fr;
+      }
+
+      .projects-minimal-stats span:nth-child(n + 3) {
+        display: none;
       }
 
       .projects-toolbar-meta {

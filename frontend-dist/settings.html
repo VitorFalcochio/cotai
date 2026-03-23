@@ -489,6 +489,7 @@
       }
 
       .settings-intro p {
+        font-size: 1rem;
         line-height: 1.65;
       }
 
@@ -518,10 +519,25 @@
 
       .settings-search-caption {
         padding: 0;
+        font-size: 1rem;
       }
 
       .settings-search-caption span:last-child {
         display: none;
+      }
+
+      .settings-search-caption strong,
+      .settings-toolbar-copy span,
+      .settings-block-head p:last-child,
+      .settings-note,
+      .settings-hint,
+      #settingsStatus {
+        font-size: 1rem;
+        line-height: 1.6;
+      }
+
+      .settings-toolbar-copy strong {
+        font-size: 1rem;
       }
 
       .settings-anchor-row {
@@ -534,8 +550,9 @@
 
       .settings-anchor {
         flex: 0 0 auto;
-        min-height: 40px;
+        min-height: 48px;
         padding: 0 14px;
+        font-size: 1rem;
       }
 
       .settings-form-flow {
@@ -555,6 +572,11 @@
         font-size: 1.1rem;
       }
 
+      .settings-block-tag {
+        font-size: 0.9rem;
+        min-height: 40px;
+      }
+
       .settings-stack {
         gap: 12px;
       }
@@ -570,6 +592,7 @@
       }
 
       .settings-check label {
+        font-size: 1rem;
         line-height: 1.5;
       }
 
@@ -587,6 +610,10 @@
       .settings-submit-row .btn {
         width: 100%;
       }
+
+      .settings-anchor-row .settings-anchor:nth-child(n + 4) {
+        display: none;
+      }
     }
 
     @media (max-width: 640px) {
@@ -600,6 +627,10 @@
       }
 
       .settings-search-meta {
+        display: none;
+      }
+
+      .settings-toolbar-copy {
         display: none;
       }
 
