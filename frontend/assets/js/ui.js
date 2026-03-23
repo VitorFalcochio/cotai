@@ -56,6 +56,14 @@ const ACTION_ICON_MAP = {
   requestsExportCsv: "bx-export"
 };
 
+const CLIENT_BOTTOM_NAV_ITEMS = [
+  { key: "dashboard", label: "Painel", href: "dashboard.html", icon: "bx-grid-alt" },
+  { key: "new", label: "Cota", href: "new-request.html", icon: "bx-bot" },
+  { key: "requests", label: "Pedidos", href: "requests.html", icon: "bx-receipt" },
+  { key: "projects", label: "Projetos", href: "projects.html", icon: "bx-briefcase-alt-2" },
+  { key: "settings", label: "Conta", href: "settings.html", icon: "bx-cog" }
+];
+
 function getClientSidebarMarkup() {
   const plansLink = BILLING_ENABLED || PLAN_SELECTION_ENABLED
     ? `<a class="side-link" data-nav="plans" href="plans.html" title="Planos"><span class="left"><span class="nav-label">Planos</span></span></a>`
@@ -201,6 +209,46 @@ function decorateSidebarNav(nav) {
 function decorateAllSidebarNavs(sidebar) {
   if (!sidebar) return;
   sidebar.querySelectorAll(".app-nav").forEach((nav) => decorateSidebarNav(nav));
+}
+
+function shouldShowClientBottomNav(page = "") {
+  const normalizedPage = String(page || "").trim();
+  if (!normalizedPage) return false;
+  if (normalizedPage.startsWith("admin-")) return false;
+  return !["index", "login", "signup"].includes(normalizedPage);
+}
+
+function ensureClientBottomNav(page) {
+  const normalizedPage = String(page || "").trim();
+  const navKey = normalizedPage === "new-request" ? "new" : normalizedPage;
+  const existing = document.getElementById("appMobileNav");
+  const shouldShow = shouldShowClientBottomNav(normalizedPage);
+
+  if (!shouldShow) {
+    existing?.remove();
+    document.body?.classList.remove("has-mobile-nav");
+    return null;
+  }
+
+  const markup = `
+    <nav class="app-mobile-nav" id="appMobileNav" aria-label="Navegacao principal">
+      ${CLIENT_BOTTOM_NAV_ITEMS.map((item) => `
+        <a class="app-mobile-nav-link${item.key === navKey ? " active" : ""}" data-nav="${item.key}" href="${item.href}" title="${item.label}">
+          <i class="bx ${item.icon}" aria-hidden="true"></i>
+          <span>${item.label}</span>
+        </a>
+      `).join("")}
+    </nav>
+  `;
+
+  if (existing) {
+    existing.outerHTML = markup;
+  } else {
+    document.body.insertAdjacentHTML("beforeend", markup);
+  }
+
+  document.body?.classList.add("has-mobile-nav");
+  return document.getElementById("appMobileNav");
 }
 
 function decorateActionButtons(root = document) {
@@ -723,6 +771,9 @@ export function initSidebar() {
   decorateAllSidebarNavs(sidebar);
   markDisabledNavigation(sidebar);
   bindDevelopmentNavigation(sidebar);
+  const mobileNav = ensureClientBottomNav(page);
+  markDisabledNavigation(mobileNav || document);
+  if (mobileNav) bindDevelopmentNavigation(mobileNav);
   decorateActionButtons(document);
   normalizePageShell();
   document.body.classList.toggle("apex-shell", page !== "new-request");
