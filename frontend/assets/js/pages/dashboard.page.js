@@ -533,6 +533,82 @@ function renderRecentRequestsMobile(rows) {
     .join("");
 }
 
+function renderTodayPriorityList(rows) {
+  const priorityRows = [...rows]
+    .sort((left, right) => {
+      const getRank = (status) => {
+        const normalized = String(status || "").toUpperCase();
+        if (normalized === "ERROR") return 0;
+        if (normalized === "AWAITING_APPROVAL") return 1;
+        if (normalized === "PROCESSING") return 2;
+        if (normalized === "PENDING_QUOTE") return 3;
+        if (normalized === "DONE") return 4;
+        return 5;
+      };
+
+      const rankDiff = getRank(left.status) - getRank(right.status);
+      if (rankDiff !== 0) return rankDiff;
+      return new Date(right.updated_at || right.created_at || 0) - new Date(left.updated_at || left.created_at || 0);
+    })
+    .slice(0, 4);
+
+  if (!priorityRows.length) {
+    return `
+      <article class="dashboard-today-card dashboard-today-card-empty">
+        <div class="entity-list-copy">
+          <p>Nada critico por agora</p>
+          <strong>Quando houver pedidos com risco, aprovacao pendente ou falha, eles aparecem aqui.</strong>
+        </div>
+        <span class="app-badge is-success">ESTAVEL</span>
+      </article>
+    `;
+  }
+
+  return priorityRows
+    .map((row) => {
+      const status = String(row.status || "").toUpperCase();
+      const tone = badgeClass(status);
+      const actionLabel =
+        status === "ERROR"
+          ? "Revisar cotacao"
+          : status === "AWAITING_APPROVAL"
+            ? "Liberar compra"
+            : status === "DONE"
+              ? "Fechar decisao"
+              : "Acompanhar pedido";
+      const detail =
+        status === "ERROR"
+          ? (row.last_error || "O pedido travou e pede nova tentativa ou ajuste.")
+          : status === "AWAITING_APPROVAL"
+            ? "Existe comparacao pronta aguardando decisao administrativa."
+            : status === "DONE"
+              ? `Melhor fornecedor: ${row.best_supplier_name || "definido"}.`
+              : "A Cota ainda esta consolidando preco, prazo e melhor opcao.";
+
+      return `
+        <article class="dashboard-today-card">
+          <div class="dashboard-today-card-head">
+            <div class="entity-list-copy">
+              <p>${row.customer_name || "Pedido sem cliente"}</p>
+              <strong>${row.request_code || row.id}</strong>
+            </div>
+            <span class="app-badge ${tone}">${formatStatus(row.status)}</span>
+          </div>
+          <p class="dashboard-today-card-detail">${detail}</p>
+          <div class="dashboard-today-card-meta">
+            <span>${row.delivery_location || "Local pendente"}</span>
+            <span>${formatDateTime(row.updated_at || row.created_at)}</span>
+          </div>
+          <div class="dashboard-today-card-actions">
+            <a class="btn btn-primary" href="requests.html">${actionLabel}</a>
+            <a class="btn btn-ghost" href="new-request.html">Abrir Cota</a>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
 function renderStatusList(rows) {
   const grouped = [
     {
@@ -726,6 +802,7 @@ async function init() {
     setText("#dashboardMobileSupplierValue", overview.metrics.bestRecurringSupplier || "-");
     setText("#dashboardMobileSupplierMeta", `${overview.metrics.suppliersConsulted || 0} fornecedores consultados na base recente.`);
 
+    setHTML("#dashboardTodayPriorityList", renderTodayPriorityList(overview.requests));
     setHTML("#dashboardRequestsTableBody", renderRecentRequests(overview.requests));
     setHTML("#dashboardRecentMobileList", renderRecentRequestsMobile(overview.requests));
     setHTML("#dashboardStatusList", renderStatusList(overview.requests));
@@ -741,6 +818,7 @@ async function init() {
     }
   } catch (error) {
     showFeedback("#dashboardFeedback", error.message || "Nao foi possivel carregar o dashboard.");
+    setHTML("#dashboardTodayPriorityList", '<article class="dashboard-today-card dashboard-today-card-empty"><div class="entity-list-copy"><p>Erro</p><strong>Erro ao carregar as prioridades do dia.</strong></div><span class="app-badge is-danger">ERRO</span></article>');
     setHTML("#dashboardRequestsTableBody", '<tr><td colspan="4" class="app-empty">Erro ao carregar pedidos.</td></tr>');
     setHTML("#dashboardRecentMobileList", '<article class="dashboard-recent-mobile-card dashboard-recent-mobile-card-empty"><div class="entity-list-copy"><p>Erro</p><strong>Erro ao carregar pedidos recentes.</strong></div><span class="app-badge is-danger">ERRO</span></article>');
   }

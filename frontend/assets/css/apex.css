@@ -470,7 +470,8 @@
 }
 
 .dashboard-mobile-hero,
-.dashboard-recent-mobile-list {
+.dashboard-recent-mobile-list,
+.dashboard-today-section {
   display: none;
 }
 
@@ -554,6 +555,65 @@
 }
 
 .dashboard-recent-mobile-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.dashboard-today-section {
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.dashboard-today-section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dashboard-today-section-head h2 {
+  font-size: 1.24rem;
+  letter-spacing: -0.04em;
+}
+
+.dashboard-today-priority-list {
+  display: grid;
+  gap: 12px;
+}
+
+.dashboard-today-card {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top right, rgba(25, 210, 107, 0.08), transparent 26%),
+    rgba(255, 255, 255, 0.03);
+}
+
+.dashboard-today-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dashboard-today-card-detail {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.dashboard-today-card-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
+.dashboard-today-card-actions {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
@@ -1005,9 +1065,18 @@
     display: grid;
   }
 
+  .dashboard-today-section {
+    display: grid;
+  }
+
   .dashboard-recent-mobile-list {
     display: grid;
     gap: 14px;
+  }
+
+  body[data-page="dashboard"] .dashboard-heading,
+  body[data-page="dashboard"] .dashboard-core-grid-bottom {
+    display: none;
   }
 
   body[data-page="dashboard"] .app-table-wrap {
@@ -1029,6 +1098,10 @@
 
   body[data-page="dashboard"] .dashboard-panel-head .btn {
     width: 100%;
+  }
+
+  body[data-page="dashboard"] .dashboard-panel-head {
+    margin-bottom: 16px;
   }
 
   .requests-mobile-list {
@@ -1191,6 +1264,25 @@
     grid-template-columns: 1fr;
   }
 
+  .dashboard-today-section-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dashboard-today-section-head .btn {
+    width: 100%;
+  }
+
+  .dashboard-today-card-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dashboard-today-card-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
   .requests-mobile-card {
     padding: 16px;
     border-radius: 20px;
@@ -1265,7 +1357,8 @@
 
   :root[data-theme="light"] .dashboard-mobile-hero,
   :root[data-theme="light"] .dashboard-mobile-pulse-card,
-  :root[data-theme="light"] .dashboard-recent-mobile-card {
+  :root[data-theme="light"] .dashboard-recent-mobile-card,
+  :root[data-theme="light"] .dashboard-today-card {
     border-color: rgba(8, 18, 13, 0.08);
     background: rgba(255, 255, 255, 0.96);
   }
