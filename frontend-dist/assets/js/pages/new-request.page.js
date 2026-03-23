@@ -87,6 +87,68 @@ function applyResponsiveChatCopy(isAvailable = !qs("#chatComposerInput")?.disabl
   }
 }
 
+function syncConfirmActionState() {
+  const confirmButton = qs("#chatConfirmButton");
+  const actions = qs(".quote-chat-actions-bare");
+  const hint = qs("#chatMobileConfirmHint");
+  const isReady = Boolean(confirmButton && !confirmButton.classList.contains("hidden") && !confirmButton.disabled);
+
+  actions?.classList.toggle("is-confirm-ready", isReady);
+  hint?.classList.toggle("hidden", !isReady);
+}
+
+function closeMobileChatSurfaces() {
+  document.body.classList.remove("chat-surface-open", "chat-execution-open", "chat-project-open");
+  const executionPanel = qs("#chatExecutionPanel");
+  if (executionPanel) executionPanel.open = false;
+}
+
+function openMobileChatSurface(type) {
+  if (!isMobileChatView()) return;
+
+  const executionPanel = qs("#chatExecutionPanel");
+  const projectPanel = qs("#chatProjectSavePanel");
+
+  if (type === "execution") {
+    if (!activeRequestId) {
+      showFeedback("#newRequestFeedback", "Esse atalho fica disponivel depois que o pedido virar obra ativa.");
+      return;
+    }
+    closeMobileChatSurfaces();
+    if (executionPanel) executionPanel.open = true;
+    document.body.classList.add("chat-surface-open", "chat-execution-open");
+    return;
+  }
+
+  if (type === "project") {
+    if (!projectPanel || projectPanel.classList.contains("hidden")) return;
+    closeMobileChatSurfaces();
+    document.body.classList.add("chat-surface-open", "chat-project-open");
+  }
+}
+
+function syncMobileChatShortcuts() {
+  const executionToggle = qs("#chatExecutionSheetToggle");
+  const projectToggle = qs("#chatProjectSheetToggle");
+  const projectPanel = qs("#chatProjectSavePanel");
+
+  if (executionToggle) {
+    const enabled = Boolean(activeRequestId);
+    executionToggle.disabled = !enabled;
+    executionToggle.classList.toggle("is-disabled", !enabled);
+  }
+
+  if (projectToggle) {
+    const hasProjectSurface = Boolean(projectPanel && !projectPanel.classList.contains("hidden"));
+    projectToggle.classList.toggle("hidden", !hasProjectSurface);
+    projectToggle.disabled = !hasProjectSurface;
+  }
+
+  if (!isMobileChatView()) {
+    closeMobileChatSurfaces();
+  }
+}
+
 function handlePageError(error, selector = "#newRequestFeedback", fallback = "Nao foi possivel concluir a acao.") {
   if (isSessionExpiredError(error)) {
     showFeedback(selector, "Sua sessao expirou. Redirecionando para o login.");
@@ -181,6 +243,7 @@ function setChatAvailability(isAvailable) {
   if (executionSubmit) {
     executionSubmit.disabled = !isAvailable || !activeRequestId;
   }
+  syncConfirmActionState();
 }
 
 function updateExecutionPanelState() {
@@ -231,6 +294,8 @@ function updateExecutionPanelState() {
     submitButton.textContent = config.label;
     submitButton.disabled = !isRequestActive;
   }
+
+  syncMobileChatShortcuts();
 }
 
 function badgeClass(status) {
@@ -1330,6 +1395,7 @@ function updateSidebar(payload) {
     confirmButton.disabled = !(currentDraft.items?.length) || Boolean(request?.id);
     confirmButton.classList.toggle("hidden", Boolean(request?.id) || !["AWAITING_CONFIRMATION", "DRAFT"].includes(payload.thread?.status));
   }
+  syncConfirmActionState();
 
   const saveButton = qs("#chatSaveDraftButton");
   if (saveButton) {
@@ -1413,6 +1479,7 @@ function renderThread(payload) {
 
   updateSidebar(payload);
   updateExecutionPanelState();
+  syncMobileChatShortcuts();
   managePolling();
 }
 
@@ -1429,6 +1496,7 @@ function updateProjectSavePanel(payload) {
   const hasConstructionContext = Boolean(constructionContext && Object.keys(constructionContext).length);
   if (!hasConstructionContext) {
     panel.classList.add("hidden");
+    syncMobileChatShortcuts();
     return;
   }
 
@@ -1440,6 +1508,7 @@ function updateProjectSavePanel(payload) {
     button.classList.add("hidden");
     openLink.classList.remove("hidden");
     openLink.href = `projects.html?projectId=${encodeURIComponent(currentProject.id)}`;
+    syncMobileChatShortcuts();
     return;
   }
 
@@ -1453,6 +1522,7 @@ function updateProjectSavePanel(payload) {
   if (!input.value.trim()) {
     input.value = payload?.thread?.title || `${projectType} em estudo`;
   }
+  syncMobileChatShortcuts();
 }
 
 function surfaceThreadFeedback(payload) {
@@ -1852,10 +1922,15 @@ function bindExecutionEventPanel() {
   const submitButton = qs("#chatExecutionSubmit");
 
   panel?.addEventListener("toggle", () => {
+    if (!isMobileChatView()) return;
     if (panel.open && !activeRequestId) {
       showFeedback("#newRequestFeedback", "Esse atalho fica disponivel depois que o pedido vira obra ativa.");
       panel.open = false;
+      closeMobileChatSurfaces();
+      return;
     }
+    document.body.classList.toggle("chat-surface-open", panel.open);
+    document.body.classList.toggle("chat-execution-open", panel.open);
   });
 
   document.addEventListener("click", (event) => {
@@ -1867,6 +1942,7 @@ function bindExecutionEventPanel() {
 
   submitButton?.addEventListener("click", async () => {
     await submitExecutionEvent();
+    if (isMobileChatView()) closeMobileChatSurfaces();
   });
 }
 
@@ -1963,13 +2039,37 @@ async function init() {
     MOBILE_CHAT_MEDIA.addEventListener("change", () => {
       applyResponsiveChatCopy(!qs("#chatComposerInput")?.disabled);
       updateExecutionPanelState();
+      syncMobileChatShortcuts();
+      syncConfirmActionState();
     });
   } else if (typeof MOBILE_CHAT_MEDIA.addListener === "function") {
     MOBILE_CHAT_MEDIA.addListener(() => {
       applyResponsiveChatCopy(!qs("#chatComposerInput")?.disabled);
       updateExecutionPanelState();
+      syncMobileChatShortcuts();
+      syncConfirmActionState();
     });
   }
+
+  qs("#chatExecutionSheetToggle")?.addEventListener("click", () => {
+    openMobileChatSurface("execution");
+  });
+
+  qs("#chatProjectSheetToggle")?.addEventListener("click", () => {
+    openMobileChatSurface("project");
+  });
+
+  qs("#chatMobileSheetOverlay")?.addEventListener("click", () => {
+    closeMobileChatSurfaces();
+  });
+
+  qs("#chatExecutionSheetClose")?.addEventListener("click", () => {
+    closeMobileChatSurfaces();
+  });
+
+  qs("#chatProjectSheetClose")?.addEventListener("click", () => {
+    closeMobileChatSurfaces();
+  });
 
   suggestions.forEach((button) => {
     button.addEventListener("click", () => {
@@ -1991,6 +2091,9 @@ async function init() {
   if (!activeThreadId) {
     setChatStage(false);
   }
+
+  syncMobileChatShortcuts();
+  syncConfirmActionState();
 
   input?.addEventListener("keydown", async (event) => {
     if (event.key !== "Enter" || event.shiftKey) return;
@@ -2033,6 +2136,7 @@ async function init() {
 
   qs("#chatProjectSaveButton")?.addEventListener("click", async () => {
     await saveCurrentProject();
+    if (isMobileChatView()) closeMobileChatSurfaces();
   });
 
   qs("#chatProjectNameInput")?.addEventListener("keydown", async (event) => {
@@ -2050,10 +2154,12 @@ async function init() {
     try {
       const payload = await confirmChatThread(activeThreadId, draft);
       renderThread(payload);
+      if (isMobileChatView()) closeMobileChatSurfaces();
     } catch (error) {
       handlePageError(error, "#newRequestFeedback", "Nao foi possivel confirmar o pedido.");
     } finally {
       setLoading(confirmButton, false, "Confirmar pedido");
+      syncConfirmActionState();
     }
   });
 }

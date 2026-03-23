@@ -27,6 +27,16 @@
             <button class="btn btn-ghost" id="sidebarToggle" type="button">Menu</button>
             <span class="app-badge is-muted" id="chatRequestCode">Aguardando</span>
           </div>
+          <div class="quote-chat-mobile-shortcuts" aria-label="Atalhos da conversa">
+            <button class="btn btn-ghost" id="chatExecutionSheetToggle" type="button">
+              <i class="bx bx-hard-hat" aria-hidden="true"></i>
+              Obra
+            </button>
+            <button class="btn btn-ghost hidden" id="chatProjectSheetToggle" type="button">
+              <i class="bx bx-folder-open" aria-hidden="true"></i>
+              Projeto
+            </button>
+          </div>
 
 
           <div class="quote-chat-shell quote-chat-shell-bare">
@@ -69,6 +79,16 @@
             </section>
             <div class="quote-chat-stream quote-chat-stream-bare hidden" id="chatMessages"></div>
             <section class="dashboard-panel hidden" id="chatProjectSavePanel">
+              <div class="quote-chat-sheet-handle" aria-hidden="true"></div>
+              <div class="quote-chat-sheet-head">
+                <div>
+                  <strong>Projeto</strong>
+                  <span>Salvar e retomar depois</span>
+                </div>
+                <button class="btn btn-ghost quote-chat-sheet-close" id="chatProjectSheetClose" type="button" aria-label="Fechar painel de projeto">
+                  <i class="bx bx-x" aria-hidden="true"></i>
+                </button>
+              </div>
               <div class="dashboard-panel-head">
                 <div>
                   <h2 id="chatProjectSaveTitle">Quer salvar este projeto?</h2>
@@ -91,6 +111,16 @@
                   <i class="bx bx-chevron-down" aria-hidden="true"></i>
                 </summary>
                 <div class="quote-chat-ops-body">
+                  <div class="quote-chat-sheet-handle" aria-hidden="true"></div>
+                  <div class="quote-chat-sheet-head">
+                    <div>
+                      <strong>Obra ativa</strong>
+                      <span>Atualize a execucao sem poluir o chat</span>
+                    </div>
+                    <button class="btn btn-ghost quote-chat-sheet-close" id="chatExecutionSheetClose" type="button" aria-label="Fechar painel da obra">
+                      <i class="bx bx-x" aria-hidden="true"></i>
+                    </button>
+                  </div>
                   <div class="quote-chat-ops-types" id="chatExecutionTypes" role="tablist" aria-label="Acoes rapidas da obra">
                     <button class="quote-chat-ops-chip is-active" type="button" data-execution-type="material_received">Material chegou</button>
                     <button class="quote-chat-ops-chip" type="button" data-execution-type="material_consumed">Material consumido</button>
@@ -110,6 +140,7 @@
                 </div>
               </details>
               <div class="quote-chat-composer-shell quote-chat-composer-shell-bare">
+                <p class="quote-chat-mobile-confirm-hint hidden" id="chatMobileConfirmHint">Revise os itens detectados e confirme para a Cota disparar a cotacao.</p>
                 <textarea
                   id="chatComposerInput"
                   rows="1"
@@ -128,6 +159,7 @@
       </section>
     </main>
   </div>
+  <button class="quote-chat-mobile-sheet-overlay" id="chatMobileSheetOverlay" type="button" aria-label="Fechar paineis"></button>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="./assets/js/pages/new-request.page.js"></script>
 </body>

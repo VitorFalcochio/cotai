@@ -302,6 +302,18 @@
   flex-wrap: wrap;
 }
 
+.quote-chat-mobile-shortcuts,
+.quote-chat-mobile-sheet-overlay,
+.quote-chat-sheet-handle,
+.quote-chat-sheet-head {
+  display: none;
+}
+
+.quote-chat-mobile-confirm-hint {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
 .quote-chat-meta-strip {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1382,6 +1394,46 @@
     margin-bottom: 14px;
   }
 
+  body[data-page="new-request"] .quote-chat-mobile-shortcuts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  body[data-page="new-request"] .quote-chat-mobile-shortcuts .btn {
+    min-height: 48px;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 16px;
+    backdrop-filter: blur(14px);
+  }
+
+  body[data-page="new-request"] .quote-chat-mobile-shortcuts .btn.is-disabled {
+    opacity: 0.56;
+  }
+
+  body[data-page="new-request"] .quote-chat-mobile-sheet-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 28;
+    display: block;
+    border: 0;
+    background: rgba(3, 7, 18, 0.46);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-base);
+  }
+
+  body.chat-surface-open[data-page="new-request"] {
+    overflow: hidden;
+  }
+
+  body.chat-surface-open[data-page="new-request"] .quote-chat-mobile-sheet-overlay {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
   body[data-page="new-request"] .quote-chat-home {
     padding-top: 4px;
   }
@@ -1656,6 +1708,41 @@
     padding: 0 12px 12px;
   }
 
+  .quote-chat-sheet-handle {
+    display: block;
+    width: 56px;
+    height: 5px;
+    margin: 0 auto 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .quote-chat-sheet-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .quote-chat-sheet-head strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 1rem;
+    letter-spacing: -0.03em;
+  }
+
+  .quote-chat-sheet-head span {
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+
+  .quote-chat-sheet-close {
+    min-width: 48px;
+    min-height: 48px;
+  }
+
   .quote-chat-ops-types {
     flex-wrap: nowrap;
     overflow-x: auto;
@@ -1684,6 +1771,13 @@
     gap: 10px;
   }
 
+  body[data-page="new-request"] .quote-chat-mobile-confirm-hint {
+    display: block;
+    padding: 0 0 4px;
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+
   .chat-project-save-form {
     grid-template-columns: 1fr !important;
     gap: 10px !important;
@@ -1700,6 +1794,21 @@
   .quote-chat-composer-shell-bare textarea {
     min-height: 48px;
     padding: 12px 14px;
+  }
+
+  body[data-page="new-request"] .quote-chat-actions-bare.is-confirm-ready {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  body[data-page="new-request"] .quote-chat-actions-bare.is-confirm-ready #chatConfirmButton,
+  body[data-page="new-request"] .quote-chat-actions-bare.is-confirm-ready #chatComposerSubmit {
+    width: 100%;
+  }
+
+  body[data-page="new-request"] .quote-chat-actions-bare.is-confirm-ready #chatConfirmButton {
+    order: -1;
   }
 
   .chat-row {
@@ -1874,6 +1983,78 @@
 
   .chat-inline-preview-body {
     padding: 0 12px 12px;
+  }
+
+  body[data-page="new-request"] .quote-chat-ops-panel,
+  body[data-page="new-request"] #chatProjectSavePanel {
+    transition: transform var(--transition-base), opacity var(--transition-base);
+  }
+
+  body[data-page="new-request"] .quote-chat-ops-body .quote-chat-sheet-handle,
+  body[data-page="new-request"] .quote-chat-ops-body .quote-chat-sheet-head,
+  body[data-page="new-request"] #chatProjectSavePanel .quote-chat-sheet-handle,
+  body[data-page="new-request"] #chatProjectSavePanel .quote-chat-sheet-head {
+    display: none;
+  }
+
+  body[data-page="new-request"].chat-execution-open .quote-chat-ops-panel {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 29;
+    max-height: min(78vh, 760px);
+    margin: 0;
+    padding: 14px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+    border-radius: 28px 28px 0 0;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(180deg, rgba(13, 19, 18, 0.98), rgba(7, 10, 10, 0.98));
+    box-shadow: 0 -18px 42px rgba(0, 0, 0, 0.34);
+    overflow: hidden;
+  }
+
+  body[data-page="new-request"].chat-execution-open .quote-chat-ops-panel > summary {
+    display: none;
+  }
+
+  body[data-page="new-request"].chat-execution-open .quote-chat-ops-body {
+    display: block;
+    padding: 0;
+    overflow-y: auto;
+  }
+
+  body[data-page="new-request"].chat-execution-open .quote-chat-ops-body .quote-chat-sheet-handle,
+  body[data-page="new-request"].chat-execution-open .quote-chat-ops-body .quote-chat-sheet-head {
+    display: block;
+  }
+
+  body[data-page="new-request"].chat-execution-open .quote-chat-ops-body .quote-chat-sheet-head {
+    display: flex;
+  }
+
+  body[data-page="new-request"].chat-project-open #chatProjectSavePanel {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 29;
+    max-height: min(72vh, 720px);
+    margin: 0;
+    padding: 14px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+    border-radius: 28px 28px 0 0;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(180deg, rgba(13, 19, 18, 0.98), rgba(7, 10, 10, 0.98));
+    box-shadow: 0 -18px 42px rgba(0, 0, 0, 0.34);
+    overflow-y: auto;
+  }
+
+  body[data-page="new-request"].chat-project-open #chatProjectSavePanel .quote-chat-sheet-handle,
+  body[data-page="new-request"].chat-project-open #chatProjectSavePanel .quote-chat-sheet-head {
+    display: block;
+  }
+
+  body[data-page="new-request"].chat-project-open #chatProjectSavePanel .quote-chat-sheet-head {
+    display: flex;
   }
 
   .projects-table-wrap {
