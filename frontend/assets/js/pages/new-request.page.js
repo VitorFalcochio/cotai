@@ -15,7 +15,7 @@ import {
   updateChatDraft
 } from "../chatApi.js";
 import { announceRequestStatusNotification, bootstrapMobileNotifications } from "../mobileNotifications.js";
-import { formatDateTime, initSidebar, qs, runPageBoot, setHTML, setLoading, setText, showAppToast, showFeedback } from "../ui.js";
+import { formatDateTime, initSidebar, qs, setHTML, setLoading, setText, showAppToast, showFeedback } from "../ui.js";
 
 const THREAD_STORAGE_KEY = "cotai_active_chat_thread";
 const DUPLICATE_REQUEST_STORAGE_KEY = "cotai_request_prefill";
@@ -1942,12 +1942,14 @@ function loadRequestPrefill() {
 async function init() {
   initSidebar();
   applyChatBackgroundPreference();
-  applyResponsiveChatCopy(true);
+  applyResponsiveChatCopy(false);
   const form = qs("#chatComposerForm");
   const input = qs("#chatComposerInput");
   const submitButton = qs("#chatComposerSubmit");
   const confirmButton = qs("#chatConfirmButton");
   const suggestions = Array.from(document.querySelectorAll("[data-suggestion]"));
+
+  setChatAvailability(false);
 
   bindDraftEditor();
   bindConstructionActions();
@@ -2056,7 +2058,8 @@ async function init() {
   });
 }
 
-runPageBoot(init, { loadingMessage: "Validando sessão e conectando ao motor de cotação." }).catch((error) => {
+init().catch((error) => {
   setChatAvailability(false);
   handlePageError(error, "#newRequestFeedback", "Nao foi possivel iniciar o motor de cotacao.");
 });
+

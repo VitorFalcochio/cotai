@@ -1221,6 +1221,74 @@
     margin: 8px 0 18px;
   }
 
+  body[data-page="requests"] .app-topbar-actions > #requestsExportCsv,
+  body[data-page="requests"] .app-topbar-actions > #logoutButton {
+    display: none;
+  }
+
+  body[data-page="requests"] .app-metrics {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  body[data-page="requests"] .app-metric-card:nth-child(n + 3) {
+    display: none;
+  }
+
+  body[data-page="requests"] .app-metric-card p,
+  body[data-page="requests"] .app-metric-card span,
+  body[data-page="requests"] .entity-list-copy p,
+  body[data-page="requests"] .requests-mobile-card-copy p,
+  body[data-page="requests"] .requests-mobile-detail,
+  body[data-page="requests"] .requests-mobile-meta-item span,
+  body[data-page="requests"] .comparison-offer-card p {
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  body[data-page="requests"] .requests-mobile-card-copy h3,
+  body[data-page="requests"] .requests-mobile-meta-item strong,
+  body[data-page="requests"] .comparison-summary-card strong {
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+
+  body[data-page="requests"] .requests-mobile-actions .btn {
+    min-height: 48px;
+  }
+
+  body[data-page="requests"] .requests-mobile-actions .btn[data-action="pdf"],
+  body[data-page="requests"] .requests-mobile-actions .btn[data-action="csv"] {
+    display: none;
+  }
+
+  body[data-page="new-request"] .quote-chat-home-subtitle,
+  body[data-page="new-request"] .quote-chat-home-meta,
+  body[data-page="new-request"] .chat-bubble-body,
+  body[data-page="new-request"] .chat-quote-note {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  body[data-page="new-request"] .quote-chat-home .quote-chat-suggestion:nth-child(n + 4) {
+    display: none;
+  }
+
+  body[data-page="new-request"] .quote-chat-home .quote-chat-suggestion,
+  body[data-page="new-request"] .quote-chat-actions-bare .btn,
+  body[data-page="new-request"] .quote-chat-ops-toggle,
+  body[data-page="new-request"] .quote-chat-ops-chip {
+    min-height: 48px;
+  }
+
+  body[data-page="new-request"] .quote-chat-status-corner-core {
+    margin-bottom: 14px;
+  }
+
+  body[data-page="new-request"] .quote-chat-home {
+    padding-top: 4px;
+  }
+
   .requests-mobile-list {
     display: grid;
     gap: 14px;
@@ -1811,6 +1879,14 @@
     grid-column: 1 / -1;
   }
 
+  body[data-page="requests"] .app-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  body[data-page="requests"] .app-metric-card:nth-child(n + 2) {
+    display: none;
+  }
+
   .dashboard-metric-card,
   .dashboard-panel,
   .comparison-summary-card,
@@ -1847,6 +1923,10 @@
 
   .quote-chat-actions-bare .btn {
     flex: 1 1 auto;
+  }
+
+  body[data-page="new-request"] .quote-chat-home .quote-chat-suggestion:nth-child(n + 3) {
+    display: none;
   }
 
   .chat-row {

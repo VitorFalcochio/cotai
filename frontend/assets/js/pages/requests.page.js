@@ -4,7 +4,7 @@ import { bootstrapMobileNotifications } from "../mobileNotifications.js";
 import { fetchProcurementOverview } from "../procurementData.js";
 import { exportQuoteCsv, printQuoteReport } from "../quoteExport.js";
 import { formatCurrencyBRL } from "../adminCommon.js";
-import { formatDateTime, initSidebar, qs, runPageBoot, setHTML, setTableSkeleton, setText, showFeedback } from "../ui.js";
+import { formatDateTime, initSidebar, qs, setHTML, setTableSkeleton, setText, showFeedback } from "../ui.js";
 
 let overview = null;
 let filteredRequests = [];
@@ -609,6 +609,6 @@ async function init() {
   });
 }
 
-runPageBoot(init, { loadingMessage: "Carregando historico de cotacoes." }).catch((error) => {
+init().catch((error) => {
   showFeedback("#requestsFeedback", error.message || "Erro ao iniciar a tela de pedidos.");
 });
