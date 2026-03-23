@@ -193,6 +193,26 @@ function ensureBoxicons() {
   document.head.appendChild(link);
 }
 
+function ensureAppIconLinks() {
+  if (!document?.head) return;
+
+  if (!document.getElementById("cotai-manifest-link")) {
+    const manifestLink = document.createElement("link");
+    manifestLink.id = "cotai-manifest-link";
+    manifestLink.rel = "manifest";
+    manifestLink.href = "/manifest.webmanifest";
+    document.head.appendChild(manifestLink);
+  }
+
+  if (!document.getElementById("cotai-apple-touch-icon")) {
+    const appleTouchIcon = document.createElement("link");
+    appleTouchIcon.id = "cotai-apple-touch-icon";
+    appleTouchIcon.rel = "apple-touch-icon";
+    appleTouchIcon.href = "/assets/favicon.svg";
+    document.head.appendChild(appleTouchIcon);
+  }
+}
+
 function decorateSidebarNav(nav) {
   if (!nav) return;
   nav.querySelectorAll(".side-link").forEach((link) => {
@@ -381,6 +401,7 @@ export function initThemeSystem() {
   applyAccentPreference();
   applyDensityPreference();
   ensureBoxicons();
+  ensureAppIconLinks();
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => ensureThemeControl(), { once: true });
