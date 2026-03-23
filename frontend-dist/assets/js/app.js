@@ -44,6 +44,38 @@
     return company || "Cotai";
   };
 
+  const ensureManifestLink = () => {
+    if (document.getElementById("cotai-manifest-link")) return;
+    const link = document.createElement("link");
+    link.id = "cotai-manifest-link";
+    link.rel = "manifest";
+    link.href = "/manifest.webmanifest";
+    document.head.appendChild(link);
+  };
+
+  const registerNotificationServiceWorker = async () => {
+    ensureManifestLink();
+    if (!("serviceWorker" in navigator)) return null;
+    try {
+      return await navigator.serviceWorker.register("/sw.js");
+    } catch (_) {
+      return null;
+    }
+  };
+
+  const requestBrowserNotifications = async () => {
+    if (!("Notification" in window)) return "unsupported";
+    if (Notification.permission === "granted") {
+      await registerNotificationServiceWorker();
+      return "granted";
+    }
+    const permission = await Notification.requestPermission();
+    if (permission === "granted") {
+      await registerNotificationServiceWorker();
+    }
+    return permission;
+  };
+
   const getClientSidebarMarkup = () => `
     <div class="side-shell-head dashboard-brand-head">
       <a class="brand dashboard-brand" href="dashboard.html">
@@ -1171,9 +1203,24 @@
       if (companyLabel) {
         companyLabel.textContent = payload.company || 'Cotai';
       }
-      if (status) {
-        status.textContent = 'Configurações salvas com sucesso.';
-      }
+      const completeSubmit = async () => {
+        if (payload.notifications) {
+          const permission = await requestBrowserNotifications();
+          if (status) {
+            status.textContent = permission === 'granted'
+              ? 'Configurações salvas e notificações mobile ativadas.'
+              : permission === 'denied'
+                ? 'Configurações salvas, mas o navegador bloqueou as notificações.'
+                : 'Configurações salvas com sucesso.';
+          }
+          return;
+        }
+        if (status) {
+          status.textContent = 'Configurações salvas com sucesso.';
+        }
+      };
+
+      completeSubmit();
     });
   };
 

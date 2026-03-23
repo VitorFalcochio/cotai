@@ -14,6 +14,7 @@ import {
   sendChatMessage,
   updateChatDraft
 } from "../chatApi.js";
+import { announceRequestStatusNotification, bootstrapMobileNotifications } from "../mobileNotifications.js";
 import { formatDateTime, initSidebar, qs, runPageBoot, setHTML, setLoading, setText, showAppToast, showFeedback } from "../ui.js";
 
 const THREAD_STORAGE_KEY = "cotai_active_chat_thread";
@@ -248,6 +249,11 @@ function formatStatus(status) {
 function notifyStatusTransition(status, payload = {}) {
   const normalizedStatus = String(status || "").toUpperCase();
   const requestCode = payload.requestCode || qs("#chatRequestCode")?.textContent || "Pedido";
+  announceRequestStatusNotification(normalizedStatus, {
+    ...payload,
+    requestCode,
+    requestId: activeRequestId || payload.requestId || "",
+  }).catch(() => {});
 
   if (normalizedStatus === "DONE") {
     showAppToast({
@@ -2004,6 +2010,7 @@ async function init() {
 
   const session = await requireAuth(LOGIN_PATH);
   if (!session) return;
+  await bootstrapMobileNotifications(session.user.id);
 
   try {
     await getApiHealth();

@@ -2,6 +2,7 @@ import { LOGIN_PATH } from "../config.js";
 import { getAdminProfile, getCompanyDisplayName, requireAuth, signOut } from "../auth.js";
 import { showAdminShortcut } from "../adminPage.js";
 import { formatCurrencyBRL } from "../adminCommon.js";
+import { bootstrapMobileNotifications } from "../mobileNotifications.js";
 import { fetchProcurementOverview } from "../procurementData.js";
 import {
   formatDateTime,
@@ -755,6 +756,7 @@ function renderSummaryList(overview, inFlightCount) {
 async function init() {
   const session = await requireAuth(LOGIN_PATH);
   if (!session) return;
+  await bootstrapMobileNotifications(session.user.id);
 
   initSidebar();
   setChatBackgroundPreference(getStoredChatBackgroundPreference());

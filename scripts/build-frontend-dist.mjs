@@ -8,10 +8,14 @@ const frontendRoot = path.join(projectRoot, "frontend");
 const pagesDir = path.join(frontendRoot, "pages");
 const assetsDir = path.join(frontendRoot, "assets");
 const outputDir = path.join(projectRoot, "frontend-dist");
+const rootArtifacts = ["manifest.webmanifest", "sw.js"];
 
 await rm(outputDir, { recursive: true, force: true });
 await mkdir(outputDir, { recursive: true });
 await cp(assetsDir, path.join(outputDir, "assets"), { recursive: true });
+for (const fileName of rootArtifacts) {
+  await cp(path.join(frontendRoot, fileName), path.join(outputDir, fileName));
+}
 
 const pageFiles = (await readdir(pagesDir)).filter((file) => file.endsWith(".html"));
 

@@ -1,5 +1,6 @@
 import { LOGIN_PATH } from "../config.js";
 import { handleSessionExpired, isSessionExpiredError, requireAuth, signOut } from "../auth.js";
+import { bootstrapMobileNotifications } from "../mobileNotifications.js";
 import { fetchProcurementOverview } from "../procurementData.js";
 import { exportQuoteCsv, printQuoteReport } from "../quoteExport.js";
 import { formatCurrencyBRL } from "../adminCommon.js";
@@ -10,6 +11,7 @@ let filteredRequests = [];
 let selectedRequest = null;
 const DUPLICATE_REQUEST_STORAGE_KEY = "cotai_request_prefill";
 const THREAD_STORAGE_KEY = "cotai_active_chat_thread";
+const highlightedRequestId = new URLSearchParams(window.location.search).get("requestId") || "";
 
 const STATUS_LABELS = {
   DONE: "Concluido",
@@ -443,7 +445,13 @@ function applyFilters() {
   setText("#requestsCount", `${filteredRequests.length} pedido(s) monitorados`);
   setHTML("#requestsTableBody", renderRows(filteredRequests));
   setHTML("#requestsMobileList", renderMobileCards(filteredRequests));
-  if ((!selectedRequest || !filteredRequests.some((item) => item.id === selectedRequest.id)) && filteredRequests.length) {
+  const highlightedCandidate = highlightedRequestId
+    ? filteredRequests.find((item) => String(item.id) === String(highlightedRequestId))
+    : null;
+
+  if (highlightedCandidate) {
+    selectRequest(highlightedCandidate.id);
+  } else if ((!selectedRequest || !filteredRequests.some((item) => item.id === selectedRequest.id)) && filteredRequests.length) {
     selectRequest(filteredRequests[0].id);
   }
   if (!filteredRequests.length) {
@@ -456,6 +464,7 @@ function applyFilters() {
 async function init() {
   const session = await requireAuth(LOGIN_PATH);
   if (!session) return;
+  await bootstrapMobileNotifications(session.user.id);
 
   initSidebar();
   setTableSkeleton("#requestsTableBody", 6, 6);

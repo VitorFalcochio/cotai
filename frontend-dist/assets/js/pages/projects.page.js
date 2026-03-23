@@ -1,6 +1,7 @@
 import { LOGIN_PATH } from "../config.js";
 import { handleSessionExpired, isSessionExpiredError, requireAuth, signOut } from "../auth.js";
 import { listProjects } from "../chatApi.js";
+import { bootstrapMobileNotifications } from "../mobileNotifications.js";
 import { initSidebar, qs, runPageBoot, setHTML, setText, showFeedback } from "../ui.js";
 
 let projectRows = [];
@@ -150,9 +151,11 @@ function applyFilter() {
 }
 
 async function init() {
-  initSidebar();
   const session = await requireAuth(LOGIN_PATH);
   if (!session) return;
+  await bootstrapMobileNotifications(session.user.id);
+
+  initSidebar();
 
   qs("#logoutButton")?.addEventListener("click", async () => {
     await signOut();

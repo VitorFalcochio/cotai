@@ -1,0 +1,45 @@
+{
+  "name": "Cotai",
+  "short_name": "Cotai",
+  "description": "Cotai no celular com notificacoes de cotacao e acompanhamento de pedidos.",
+  "start_url": "/dashboard.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#060a09",
+  "theme_color": "#060a09",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nova cota",
+      "short_name": "Cota",
+      "url": "/new-request.html",
+      "icons": [
+        {
+          "src": "/assets/favicon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Pedidos",
+      "short_name": "Pedidos",
+      "url": "/requests.html",
+      "icons": [
+        {
+          "src": "/assets/favicon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
+}
