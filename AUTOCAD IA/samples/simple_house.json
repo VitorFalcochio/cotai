@@ -1,0 +1,15 @@
+{
+  "title": "Casa beta 120 m2",
+  "project_type": "casa",
+  "width": 12,
+  "depth": 10,
+  "wall_thickness": 0.15,
+  "notes": "Exemplo inicial para a beta da AUTOCAD IA.",
+  "rooms": [
+    { "name": "Sala", "width": 4, "depth": 5 },
+    { "name": "Cozinha", "width": 3, "depth": 3 },
+    { "name": "Quarto 1", "width": 3, "depth": 3.5 },
+    { "name": "Quarto 2", "width": 3, "depth": 3.5 },
+    { "name": "Banheiro", "width": 2, "depth": 2 }
+  ]
+}
