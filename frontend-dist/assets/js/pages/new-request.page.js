@@ -1114,8 +1114,9 @@ function renderMessageAvatar(row) {
 
 function renderMessage(row) {
   const tone = row.role === "user" ? "is-user" : row.role === "assistant" ? "is-assistant" : "is-system";
+  const roleLabel = tone === "is-user" ? "Voce" : tone === "is-assistant" ? "Cota" : "Sistema";
   return `
-    <article class="chat-row ${tone}">
+    <article class="chat-row ${tone}" data-role-label="${roleLabel}">
       ${tone !== "is-user" ? renderMessageAvatar(row) : ""}
       <div class="chat-bubble ${tone}">
         <div class="chat-bubble-body">${renderMessageBody(row)}</div>

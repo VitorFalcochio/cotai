@@ -1254,6 +1254,26 @@
     gap: 12px;
   }
 
+  .chat-empty {
+    place-items: start;
+    text-align: left;
+    min-height: 48vh;
+  }
+
+  .chat-empty-copy {
+    max-width: 22rem;
+    padding: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 22px;
+    background: rgba(13, 19, 18, 0.76);
+    backdrop-filter: blur(18px);
+  }
+
+  .chat-empty-copy strong {
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
   .quote-chat-composer-bare {
     position: sticky;
     bottom: 0;
@@ -1357,6 +1377,180 @@
   .quote-chat-composer-shell-bare textarea {
     min-height: 48px;
     padding: 12px 14px;
+  }
+
+  .chat-row {
+    position: relative;
+    max-width: min(100%, 26rem);
+    gap: 8px;
+  }
+
+  .chat-row::before {
+    content: attr(data-role-label);
+    position: absolute;
+    top: -18px;
+    left: 46px;
+    color: rgba(223, 249, 234, 0.62);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .chat-row.is-user::before {
+    left: auto;
+    right: 38px;
+    color: rgba(255, 255, 255, 0.58);
+  }
+
+  .chat-row + .chat-row {
+    margin-top: 10px;
+  }
+
+  .chat-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 12px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+  }
+
+  .chat-avatar-face {
+    width: 18px;
+    height: 18px;
+  }
+
+  .chat-avatar-eye {
+    top: 5px;
+    width: 3px;
+    height: 3px;
+  }
+
+  .chat-avatar-eye:first-child {
+    left: 4px;
+  }
+
+  .chat-avatar-eye:nth-child(2) {
+    right: 4px;
+  }
+
+  .chat-avatar-smile {
+    bottom: 3px;
+    width: 8px;
+    height: 4px;
+  }
+
+  .chat-bubble {
+    padding: 12px 13px;
+    border-radius: 18px;
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.14);
+  }
+
+  .chat-bubble.is-user {
+    border-bottom-right-radius: 6px;
+  }
+
+  .chat-bubble.is-assistant,
+  .chat-bubble.is-system {
+    border-bottom-left-radius: 6px;
+  }
+
+  .chat-bubble-body {
+    font-size: 0.92rem;
+    line-height: 1.65;
+  }
+
+  .chat-bubble-body > .chat-quote-response,
+  .chat-bubble-body > .chat-inline-preview {
+    margin-top: 12px;
+  }
+
+  .chat-quote-response {
+    min-width: 0;
+    gap: 12px;
+  }
+
+  .chat-quote-summary {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .chat-quote-summary strong {
+    width: 100%;
+    font-size: 0.96rem;
+    line-height: 1.4;
+  }
+
+  .chat-quote-total-order {
+    margin-left: 0;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+  }
+
+  .chat-quote-card {
+    gap: 12px;
+    padding: 12px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .chat-quote-card-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .chat-quote-card-head strong {
+    font-size: 0.92rem;
+    line-height: 1.35;
+  }
+
+  .chat-quote-grid,
+  .chat-brain-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chat-quote-metric,
+  .chat-brain-panel,
+  .chat-quote-offer-chip {
+    border-radius: 14px;
+  }
+
+  .chat-quote-metric {
+    gap: 4px;
+    padding: 10px;
+  }
+
+  .chat-quote-metric strong,
+  .chat-quote-offer-chip strong {
+    font-size: 0.88rem;
+  }
+
+  .chat-quote-note {
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+
+  .chat-quote-actions {
+    justify-content: stretch;
+    padding-top: 0;
+  }
+
+  .chat-quote-actions .btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .chat-inline-preview {
+    border-radius: 16px;
+  }
+
+  .chat-inline-preview-toggle {
+    padding: 12px;
+    font-size: 0.84rem;
+  }
+
+  .chat-inline-preview-body {
+    padding: 0 12px 12px;
   }
 
   .projects-table-wrap {
@@ -1464,6 +1658,15 @@
   .chat-row {
     max-width: 100%;
     grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .chat-row::before {
+    top: -16px;
+    left: 0;
+  }
+
+  .chat-row.is-user::before {
+    right: 0;
   }
 
   .chat-row.is-user {
