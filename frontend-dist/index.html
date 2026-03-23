@@ -27,6 +27,11 @@
         --green-soft: rgba(34, 197, 94, 0.12);
         --max: min(1120px, calc(100vw - 32px));
         --shadow: 0 24px 60px rgba(0, 0, 0, 0.34);
+        --safe-top: env(safe-area-inset-top, 0px);
+        --safe-right: env(safe-area-inset-right, 0px);
+        --safe-bottom: env(safe-area-inset-bottom, 0px);
+        --safe-left: env(safe-area-inset-left, 0px);
+        --header-offset: calc(92px + var(--safe-top));
       }
 
       * {
@@ -35,14 +40,19 @@
 
       html {
         scroll-behavior: smooth;
+        overflow-x: hidden;
+        scroll-padding-top: var(--header-offset);
       }
 
       body.landing-page {
         min-height: 100vh;
+        min-height: 100svh;
+        min-height: 100dvh;
         margin: 0;
         background: linear-gradient(180deg, var(--bg), var(--bg-soft));
         color: var(--text);
         position: relative;
+        overflow-x: hidden;
       }
 
       body.landing-page::before {
@@ -100,6 +110,8 @@
         border-bottom: 1px solid rgba(255, 255, 255, 0.04);
         background: rgba(9, 13, 18, 0.86);
         backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        padding-top: var(--safe-top);
       }
 
       .nav-shell {
@@ -107,6 +119,7 @@
         align-items: center;
         justify-content: space-between;
         min-height: 78px;
+        gap: 16px;
       }
 
       .brand {
@@ -121,6 +134,8 @@
         display: flex;
         align-items: center;
         gap: 12px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
       }
 
       .btn {
@@ -138,6 +153,8 @@
           background-color var(--transition-base),
           border-color var(--transition-base),
           box-shadow var(--transition-base);
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
       }
 
       .btn:hover {
@@ -394,6 +411,7 @@
         border-radius: 999px;
         background: rgba(9, 13, 18, 0.74);
         backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
         color: #d6f8e3;
         font-size: 0.84rem;
         font-weight: 700;
@@ -865,6 +883,8 @@
 
       .story-step {
         min-height: 68vh;
+        min-height: 68svh;
+        min-height: 68dvh;
         display: grid;
         align-items: center;
       }
@@ -928,6 +948,8 @@
         position: sticky;
         top: 0;
         height: 100vh;
+        height: 100svh;
+        height: 100dvh;
         display: grid;
         align-items: stretch;
       }
@@ -935,6 +957,8 @@
       .editorial-screen {
         position: relative;
         min-height: 100vh;
+        min-height: 100svh;
+        min-height: 100dvh;
         padding: 44px;
         display: grid;
         align-items: end;
@@ -1070,6 +1094,7 @@
         border-radius: 24px;
         background: rgba(8, 12, 18, 0.58);
         backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
         box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
       }
 
@@ -1149,6 +1174,27 @@
 
       .editorial-step {
         min-height: 115vh;
+        min-height: 115svh;
+        min-height: 115dvh;
+      }
+
+      @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+        .landing-header,
+        .hero-mascot-note,
+        .editorial-panel {
+          background: rgba(9, 13, 18, 0.96);
+        }
+      }
+
+      @media (hover: none), (pointer: coarse) {
+        .btn:hover,
+        .hero-flow-card:hover {
+          transform: none;
+        }
+
+        .hero-actions .btn:hover i {
+          transform: none;
+        }
       }
 
       .signal-band {
@@ -2572,8 +2618,30 @@
           width: min(100vw - 24px, 100%);
         }
 
+        .landing-header {
+          padding-left: var(--safe-left);
+          padding-right: var(--safe-right);
+        }
+
         .nav-shell {
           min-height: 68px;
+          align-items: stretch;
+          flex-wrap: wrap;
+          padding: 10px 0 12px;
+        }
+
+        .brand {
+          display: inline-flex;
+          align-items: center;
+          min-height: 44px;
+        }
+
+        .nav-actions {
+          width: 100%;
+        }
+
+        .nav-actions .btn {
+          width: 100%;
         }
 
         .hero {
@@ -2932,6 +3000,10 @@
       }
 
       @media (max-width: 560px) {
+        :root {
+          --header-offset: calc(120px + var(--safe-top));
+        }
+
         .hero-copy h1 {
           font-size: clamp(2.15rem, 11vw, 2.7rem);
         }
@@ -3859,6 +3931,7 @@
         aiOfferAltPrice
       ) {
         let aiScenarioIndex = 0;
+        const aiChatShell = aiChatStream.closest(".ai-chat-shell");
 
         const applyAiScenario = (scenario) => {
           aiChatUserBubble.textContent = scenario.user;
@@ -3871,21 +3944,24 @@
           aiOfferAltPrice.textContent = scenario.altPrice;
         };
 
-        window.setInterval(() => {
-          aiChatStream.closest(".ai-chat-shell")c.classList.add("is-switching");
+        if (aiChatShell) {
+          window.setInterval(() => {
+            aiChatShell.classList.add("is-switching");
 
-          window.setTimeout(() => {
-            aiScenarioIndex = (aiScenarioIndex + 1) % aiScenarios.length;
-            applyAiScenario(aiScenarios[aiScenarioIndex]);
-            aiChatStream.closest(".ai-chat-shell")c.classList.remove("is-switching");
-          }, 260);
-        }, 4200);
+            window.setTimeout(() => {
+              aiScenarioIndex = (aiScenarioIndex + 1) % aiScenarios.length;
+              applyAiScenario(aiScenarios[aiScenarioIndex]);
+              aiChatShell.classList.remove("is-switching");
+            }, 260);
+          }, 4200);
+        }
       }
 
       const tiltCard = document.querySelector("[data-tilt-card]");
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
-      if (tiltCard && !reduceMotion) {
+      if (tiltCard && !reduceMotion && finePointer) {
         const updateTilt = (event) => {
           const rect = tiltCard.getBoundingClientRect();
           const relativeX = (event.clientX - rect.left) / rect.width;
