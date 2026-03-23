@@ -262,3 +262,34 @@
     margin-left: 0;
   }
 }
+
+@media (max-width: 768px) {
+  .app-metrics,
+  .admin-grid-metrics,
+  .app-plans-grid,
+  .pricing-grid-enhanced,
+  .catalog-glance,
+  .admin-inline-stats,
+  .metric-band,
+  .dashboard-metrics-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .dashboard-heading,
+  .dashboard-panel-head {
+    gap: 12px;
+  }
+
+  .dashboard-heading {
+    margin-bottom: 16px;
+  }
+
+  .dashboard-panel-head {
+    margin-bottom: 16px;
+  }
+
+  .dashboard-panel-head p {
+    max-width: none;
+  }
+}

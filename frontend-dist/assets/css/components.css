@@ -1711,6 +1711,74 @@ body[data-chat-background="plain"] .quote-chat-shell-bare {
   }
 }
 
+@media (max-width: 768px) {
+  .card,
+  .panel,
+  .table-card,
+  .table-shell,
+  .filter-shell,
+  .app-surface-hero,
+  .admin-hero-card,
+  .app-modal-card,
+  .app-plan-card,
+  .plan-preview,
+  .quote-side-card {
+    padding: 16px;
+  }
+
+  .dashboard-panel {
+    padding: 18px 16px;
+  }
+
+  .metric-card,
+  .app-metric-card,
+  .admin-metric-card,
+  .dashboard-metric-card,
+  .metric-card-compact {
+    min-height: auto;
+    padding: 18px 16px;
+  }
+
+  .metric-card h3,
+  .app-metric-card h3,
+  .admin-metric-card h3,
+  .metric-card-compact h3 {
+    font-size: clamp(1.55rem, 8vw, 2rem);
+  }
+
+  .insight-grid,
+  .insight-grid-2,
+  .materials-insights-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .entity-list-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .entity-list-item > .btn,
+  .entity-list-item > .app-badge,
+  .entity-list-item > button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .app-filter-bar,
+  .app-filter-bar-compact {
+    gap: 10px;
+  }
+
+  .form-row-end {
+    display: grid;
+  }
+
+  .form-row-end .btn {
+    width: 100%;
+  }
+}
+
 .plans-compact-grid {
   margin-top: 4px;
   align-items: stretch;

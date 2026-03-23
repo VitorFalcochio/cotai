@@ -258,8 +258,38 @@
         align-items: stretch;
       }
 
+      .projects-shell {
+        gap: 16px;
+      }
+
+      .projects-header {
+        gap: 14px;
+      }
+
+      .projects-header h1 {
+        font-size: clamp(1.9rem, 10vw, 2.4rem);
+      }
+
+      .projects-minimal-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
       .projects-search {
         width: 100%;
+      }
+
+      .projects-toolbar-meta {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .projects-board {
+        padding: 16px;
+      }
+
+      .projects-table-wrap {
+        margin-inline: -4px;
       }
     }
 
@@ -279,8 +309,10 @@
       .projects-table tbody tr {
         display: grid;
         gap: 10px;
-        padding: 14px 12px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 16px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.02);
       }
 
       .projects-table td {
@@ -324,6 +356,22 @@
       .projects-col-action .projects-action-link.is-disabled {
         width: 100%;
         justify-content: center;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .projects-minimal-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .projects-toolbar-meta {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .projects-toolbar-chip {
+        width: 100%;
+        justify-content: space-between;
       }
     }
   </style>

@@ -864,6 +864,34 @@ body.drawer-open .app-drawer-overlay {
     align-items: flex-start;
   }
 
+  .app-topbar {
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .app-topbar > div:first-child,
+  .page-header > div:first-child {
+    width: 100%;
+  }
+
+  .app-topbar-actions,
+  .page-actions {
+    width: 100%;
+    gap: 10px;
+  }
+
+  .app-topbar-actions > .btn,
+  .app-topbar-actions > a.btn,
+  .page-actions > .btn,
+  .page-actions > a.btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .table-toolbar {
+    gap: 12px;
+  }
+
   .app-mobile-nav {
     position: fixed;
     right: 12px;
@@ -961,9 +989,29 @@ body.drawer-open .app-drawer-overlay {
     color: #0f8a48;
     box-shadow: inset 0 0 0 1px rgba(25, 210, 107, 0.12);
   }
+
+  body[data-page="dashboard"] .app-topbar-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+  }
+
+  body[data-page="dashboard"] .app-topbar-actions > * {
+    width: 100%;
+  }
 }
 
 @media (max-width: 640px) {
+  .app-main {
+    padding-inline: 14px;
+  }
+
+  .app-topbar,
+  .dashboard-apex-topbar {
+    margin-inline: -14px;
+    padding-inline: 14px;
+  }
+
   .app-mobile-nav {
     right: 10px;
     bottom: 10px;
@@ -979,5 +1027,9 @@ body.drawer-open .app-drawer-overlay {
 
   .app-mobile-nav-link span {
     font-size: 0.68rem;
+  }
+
+  body[data-page="dashboard"] .app-topbar-actions {
+    grid-template-columns: 1fr;
   }
 }
